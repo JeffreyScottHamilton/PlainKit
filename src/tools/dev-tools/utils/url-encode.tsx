@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Button, Notice, Segmented } from '@/components/ui';
+import { Button, Segmented } from '@/components/ui';
 import { Panes, TextIn, TextOut, useUtilState } from '../kit';
 import { urlDecode, urlEncode, type UrlMode } from '../logic/url-encode';
 

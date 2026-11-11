@@ -6,7 +6,7 @@ export function uuidV4(): string {
 }
 
 /** RFC 9562 UUIDv7: 48-bit Unix ms timestamp, version 7, RFC variant, random remainder. */
-export function uuidV7(nowMs: number, fill: (b: Uint8Array) => void = (b) => crypto.getRandomValues(b)): string {
+export function uuidV7(nowMs: number, fill: (b: Uint8Array<ArrayBuffer>) => void = (b) => crypto.getRandomValues(b)): string {
   const b = new Uint8Array(16);
   fill(b);
   let ms = Math.floor(nowMs);

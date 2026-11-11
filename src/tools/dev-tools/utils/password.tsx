@@ -3,12 +3,9 @@ import { Button, Field, Notice } from '@/components/ui';
 import { TextOut, useUtilState } from '../kit';
 import { PW_COUNT_MAX, PW_MAX, PW_MIN, entropyBits, generatePassword, validatePassword, type PwOptions } from '../logic/password';
 
-type Opts = Omit<PwOptions, 'length'> & { length: string; count: string };
-
 export default function Util() {
   // Only options and a regenerate counter are stored. Generated passwords live in memory for this render only.
   const [s, set] = useUtilState('password', { length: '16', count: '1', lower: true, upper: true, digits: true, symbols: true, excludeAmbiguous: false, seed: 0, shown: true });
-  const opts: Opts = s;
   const parsed: PwOptions = { length: Number(s.length), lower: s.lower, upper: s.upper, digits: s.digits, symbols: s.symbols, excludeAmbiguous: s.excludeAmbiguous };
   const count = Number(s.count);
   const optError = validatePassword(parsed);
@@ -17,10 +14,7 @@ export default function Util() {
   const passwords = useMemo(() => {
     if (!s.shown || error) return [];
     return Array.from({ length: count }, () => generatePassword(parsed));
-    // seed changes only when the user asks for new passwords
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [s.shown, s.seed, s.length, s.count, s.lower, s.upper, s.digits, s.symbols, s.excludeAmbiguous, error]);
-  void opts;
   return (
     <div className="pk-stack">
       <p className="muted">Generated with crypto.getRandomValues and rejection sampling (no modulo bias). Nothing is stored or sent.</p>

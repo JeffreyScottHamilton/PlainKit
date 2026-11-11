@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Button, Field, Notice } from '@/components/ui';
 import { callWorker } from '@/workers/rpc';
-import { Panes, TextIn, useUtilState } from '../kit';
+import { TextIn, useUtilState } from '../kit';
 import { compileRegex, type RegexRequest, type RegexResult } from '../logic/regex';
 import '../utils-a.css';
 

@@ -11,7 +11,7 @@ export const CLASSES = {
 // Ambiguous-excluded sets drop l/I/1, O/0, o; the full sets keep them.
 export const FULL = { lower: 'abcdefghijklmnopqrstuvwxyz', upper: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', digits: '0123456789' } as const;
 
-export type Fill = (buf: Uint32Array) => void;
+export type Fill = (buf: Uint32Array<ArrayBuffer>) => void;
 const defaultFill: Fill = (buf) => crypto.getRandomValues(buf);
 
 /**

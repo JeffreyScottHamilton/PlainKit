@@ -1,13 +1,13 @@
 import { useMemo } from 'react';
 import { Button, CopyButton, Notice, Segmented } from '@/components/ui';
 import { TextIn, useUtilState } from '../kit';
-import { isoToMs, localIso, parseTimestamp, type TsUnit } from '../logic/timestamp';
+import { localIso, parseTimestamp, type TsUnit } from '../logic/timestamp';
 import '../utils-a.css';
 
 export default function Util() {
   const [s, set] = useUtilState('timestamp', { input: '', unit: 'auto' as TsUnit });
   const r = useMemo(() => (s.input.trim() === '' ? null : parseTimestamp(s.input, s.unit)), [s.input, s.unit]);
-  const rows = r?.ok
+  const rows: [string, string][] = r?.ok
     ? [
         ['Unix seconds', String(Math.floor(r.ms / 1000))],
         ['Unix milliseconds', String(Math.round(r.ms))],

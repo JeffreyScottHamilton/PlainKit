@@ -34,20 +34,13 @@ export function diffDates(a: number, b: number, inclusive: boolean): DiffResult 
   const span = Math.abs(raw) + (inclusive ? 1 : 0);
   const start = Math.min(a, b);
   const end = start + span * DAY;
+  // Largest whole-month count that does not pass the end; the remainder is days.
   const s = new Date(start);
   const e = new Date(end);
-  let y = e.getUTCFullYear() - s.getUTCFullYear();
-  let m = e.getUTCMonth() - s.getUTCMonth();
-  let d = e.getUTCDate() - s.getUTCDate();
-  if (d < 0) {
-    m--;
-    d += daysInMonth(e.getUTCFullYear(), e.getUTCMonth());
-  }
-  if (m < 0) {
-    y--;
-    m += 12;
-  }
-  return { days: span, weeks: Math.floor(span / 7), weekDays: span % 7, ymd: { y, m, d }, order };
+  let months = (e.getUTCFullYear() - s.getUTCFullYear()) * 12 + (e.getUTCMonth() - s.getUTCMonth());
+  if (addToDate(start, months, 'months') > end) months--;
+  const d = Math.round((end - addToDate(start, months, 'months')) / DAY);
+  return { days: span, weeks: Math.floor(span / 7), weekDays: span % 7, ymd: { y: Math.floor(months / 12), m: months % 12, d }, order };
 }
 
 export type AddUnit = 'days' | 'weeks' | 'months' | 'years';

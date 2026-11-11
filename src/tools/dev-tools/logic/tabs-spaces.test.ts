@@ -5,7 +5,7 @@ describe('tabs and spaces', () => {
   it('expands leading tabs to the next stop at width 4', () => {
     const r = tabsToSpaces('\tx\ty\n', 4, true);
     expect(r.output).toBe('    x\ty\n');
-    expect(r.tabs).toBe(2);
+    expect(r.tabs).toBe(1);
   });
 
   it('converts leading spaces to tabs and keeps the remainder as spaces', () => {

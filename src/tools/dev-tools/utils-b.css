@@ -1,0 +1,9 @@
+/* Shared table styles for the second half of the dev utilities. */
+.dev-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.dev-table caption { text-align: left; color: var(--text-2); padding-bottom: var(--s2); }
+.dev-table th, .dev-table td { text-align: left; vertical-align: top; padding: 6px var(--s2); border-bottom: 1px solid var(--divider); overflow-wrap: anywhere; }
+.dev-table thead th { color: var(--text-2); font-weight: 600; }
+.dev-scroll { max-height: 360px; overflow: auto; border: 1px solid var(--divider); border-radius: var(--r2); }
+.dev-scroll .dev-table th, .dev-scroll .dev-table td { border-bottom-color: var(--divider); }
+.dev-row-pick { display: flex; flex-wrap: wrap; gap: var(--s2); align-items: center; }
+.dev-chip { display: inline-flex; align-items: center; gap: var(--s2); padding: 2px var(--s2); border: 1px solid var(--divider); border-radius: var(--r2); }

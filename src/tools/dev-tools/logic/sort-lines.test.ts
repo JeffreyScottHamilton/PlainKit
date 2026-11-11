@@ -12,7 +12,7 @@ describe('sort-lines', () => {
   it('dedupes case-insensitively and removes empty lines', () => {
     const r = sortLines('b\n\nB\na\n  \n', { ...base, caseInsensitive: true, unique: true, removeEmpty: true });
     expect(r.output).toBe('a\nb');
-    expect(r.inCount).toBe(5);
+    expect(r.inCount).toBe(6);
     expect(r.outCount).toBe(2);
   });
 

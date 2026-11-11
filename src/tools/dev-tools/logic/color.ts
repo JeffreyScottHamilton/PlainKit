@@ -22,7 +22,7 @@ export function parseColor(input: string): ColorParse {
   const num = (p: string): number | null => (/^-?\d+(\.\d+)?%?$/.test(p) ? Number(p.replace('%', '')) : null);
   const vals = parts.map(num);
   if (vals.some((v) => v === null)) return { ok: false, message: `Could not read one of the values in ${name}(). Use numbers only.` };
-  const [x, y, z] = vals as number[];
+  const [x = 0, y = 0, z = 0] = vals as number[];
   const hadAlpha = parts.length === 4;
   let a = 1;
   if (hadAlpha) {

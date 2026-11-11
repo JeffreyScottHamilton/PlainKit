@@ -7,7 +7,7 @@ describe('whitespace cleanup', () => {
   it('trims line ends, collapses spaces and blank lines, and counts changes', () => {
     const r = cleanWhitespace('a  b   \n\n\n  c\t\n', { ...off, trimLineEnds: true, collapseSpaces: true, collapseBlankLines: true });
     expect(r.output).toBe('a b\n\n  c\n');
-    expect(r.counts).toEqual({ lineEndsTrimmed: 2, spaceRunsCollapsed: 2, blankLinesRemoved: 1, eolChanged: 0, nbspReplaced: 0 });
+    expect(r.counts).toEqual({ lineEndsTrimmed: 2, spaceRunsCollapsed: 1, blankLinesRemoved: 1, eolChanged: 0, nbspReplaced: 0 });
   });
 
   it('normalizes line endings to CRLF and counts the changed ones', () => {

@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Button, Notice, Segmented } from '@/components/ui';
+import { Button, Segmented } from '@/components/ui';
 import { Panes, TextIn, TextOut, useUtilState } from '../kit';
 import { decodeBase64Utf8, encodeBase64Utf8 } from '../logic/base64';
 

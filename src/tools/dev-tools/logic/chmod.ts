@@ -28,41 +28,24 @@ export function parseOctal(s: string): ModeResult {
   return { ok: true, mode: { special, owner, group, other } };
 }
 
+/** Reads rwxr-xr-x style text. Execute slots also accept s/S (owner, group) and t/T (other). */
 export function parseSymbolic(s: string): ModeResult {
   const t = s.trim();
-  if (!/^[rwxsStT-]{9}$/.test(t)) return { ok: false, error: 'Symbolic mode needs 9 characters like rwxr-xr-x (s, S, t, T allowed in execute positions).' };
-  const bit = (i: number, letter: string, special: string, specialUpper: string) => {
-    const c = t[i]!;
-    const r = i === 0 || i === 3 || i === 6 ? 'r' : i === 1 || i === 4 || i === 7 ? 'w' : 'x';
-    if (c === r) return 4 >> (i % 3);
-    if (c === '-') return 0;
-    if (c === letter) return 1;
-    if (c === special) return 1;
-    if (c === specialUpper) return 0;
-    return -1;
+  const bad = { ok: false as const, error: 'Symbolic mode needs 9 characters like rwxr-xr-x. In execute slots use x, -, s, S (owner, group) or t, T (other).' };
+  if (!/^[rwxsStT-]{9}$/.test(t)) return bad;
+  const triple = (o: number, specialLetters: string) => {
+    const [r, w, x] = [t[o], t[o + 1], t[o + 2]];
+    if ((r !== 'r' && r !== '-') || (w !== 'w' && w !== '-')) return null;
+    if (x !== 'x' && x !== '-' && !specialLetters.includes(x!)) return null;
+    const digit = (r === 'r' ? 4 : 0) + (w === 'w' ? 2 : 0) + (x === '-' ? 0 : 1);
+    return { digit, special: specialLetters.includes(x!) && (x === 's' || x === 'S' || x === 't' || x === 'T') };
   };
-  const sum = (from: number) => {
-    let total = 0;
-    for (let k = 0; k < 3; k++) {
-      const i = from + k;
-      const c = t[i]!;
-      const r = 4 >> k;
-      const rwx = k === 0 ? 'r' : k === 1 ? 'w' : 'x';
-      if (c === rwx) total += r;
-      else if (c !== '-' && !(k === 2 && 'sStT'.includes(c))) return -1;
-    }
-    return total;
-  };
-  void bit;
-  const owner = sum(0);
-  const group = sum(3);
-  const other = sum(6);
-  if (owner < 0 || group < 0 || other < 0) return { ok: false, error: 'Symbolic mode has an invalid character. Use r, w, x, -, or s, S, t, T in execute positions.' };
-  const special = (t[2] === 's' || t[2] === 'S' ? 4 : 0) | (t[5] === 's' || t[5] === 'S' ? 2 : 0) | (t[8] === 't' || t[8] === 'T' ? 1 : 0);
-  const xSpecial = (t[2] === 's' || t[2] === 'S') && !(owner & 1) && t[2] === 's';
-  const x = { owner: owner + (t[2] === 's' ? 1 : 0), group: group + (t[5] === 's' ? 1 : 0), other: other + (t[8] === 't' ? 1 : 0) };
-  void xSpecial;
-  return { ok: true, mode: { special, owner: x.owner, group: x.group, other: x.other } };
+  const o = triple(0, 'sS');
+  const g = triple(3, 'sS');
+  const ot = triple(6, 'tT');
+  if (!o || !g || !ot) return bad;
+  const special = (o.special ? 4 : 0) | (g.special ? 2 : 0) | (ot.special ? 1 : 0);
+  return { ok: true, mode: { special, owner: o.digit, group: g.digit, other: ot.digit } };
 }
 
 /** Shell-quotes the file name only when it contains characters the shell would split or expand. */
