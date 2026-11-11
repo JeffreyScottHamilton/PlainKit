@@ -1,8 +1,7 @@
 import { useMemo } from 'react';
-import { Button, Notice } from '@/components/ui';
-import { Field } from '@/components/ui';
+import { Button, Field, Notice } from '@/components/ui';
 import { useUtilState } from '../kit';
-import { contrastRatio, hslToRgb, parseColor, rgbToHsl, toHex, type Rgba } from '../logic/color';
+import { contrastRatio, parseColor, rgbToHsl, toHex, type Rgba } from '../logic/color';
 import '../utils-a.css';
 
 const rgbText = (c: Rgba) => `rgb(${Math.round(c.r)}, ${Math.round(c.g)}, ${Math.round(c.b)})`;
@@ -85,7 +84,6 @@ export default function Util() {
           <Notice kind="info">Alpha is ignored for contrast. Colors are not composited.</Notice>
         </section>
       )}
-      {pa.ok && pb.ok && !hslToRgb && null}
     </div>
   );
 }
