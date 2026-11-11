@@ -7,3 +7,6 @@
 5. **CSP**: production-only meta tag. `connect-src` allows `https:` because the Video tool fetches user-supplied media URLs; local tools are verified by network audit rather than by CSP alone.
 6. **Third-party skills**: only reviewed `SKILL.md` files, pinned in `docs/skills-manifest.md`.
 7. **Reference site**: not reachable from the build container (network policy). Feature scope comes from the written brief and is marked "from brief" in the feature matrix.
+8. **Hosting**: static build, host-agnostic. Vercel is the intended host (`vercel.json`: SPA rewrite + basic headers). No serverless functions. Cross-origin isolation headers (COOP/COEP) are not set until a multithreaded WASM engine is actually adopted and tested with them.
+9. **Send files signalling**: manual pairing (copy/paste or QR of the offer/answer) so no signalling server is required on a static host.
+10. **Concurrency**: two implementer agents at a time. Six at once exhausted the account's 5-hour usage limit on 2026-11-11.
