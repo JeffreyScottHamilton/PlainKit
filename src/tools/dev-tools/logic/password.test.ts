@@ -28,7 +28,7 @@ describe('password', () => {
     for (let i = 0; i < 200; i++) {
       const p = generatePassword({ ...ALL, length: 8 });
       expect(p).toHaveLength(8);
-      for (const c of [CLASSES.lower, CLASSES.upper, CLASSES.digits, CLASSES.symbols]) {
+      for (const c of ['abcdefghijklmnopqrstuvwxyz', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', '0123456789', CLASSES.symbols]) {
         expect([...p].some((ch) => c.includes(ch))).toBe(true);
       }
     }
@@ -36,7 +36,7 @@ describe('password', () => {
   it('estimates entropy as length times log2 of the pool, and validates options', () => {
     const bits = entropyBits({ length: 8, lower: true, upper: false, digits: false, symbols: false, excludeAmbiguous: false });
     expect(bits).toBeCloseTo(8 * Math.log2(26), 6);
-    expect(validatePassword({ ...ALL, length: 3 })).toBe('Length must be from 4 to 128.'.replace('from 4 to 128', 'a whole number from 4 to 128').replace('a whole number from 4 to 128', 'a whole number from 4 to 128'));
+    expect(validatePassword({ ...ALL, length: 3 })).toBe('Length must be a whole number from 4 to 128.');
     expect(validatePassword({ ...ALL, lower: false, upper: false, digits: false, symbols: false })).toBe('Select at least one character type.');
   });
 });

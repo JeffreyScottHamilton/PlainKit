@@ -12,6 +12,8 @@ async function tinyBlob(mime: string, quality?: number): Promise<Blob | null> {
   try {
     if (typeof OffscreenCanvas !== 'undefined') {
       const c = new OffscreenCanvas(1, 1);
+      // convertToBlob needs a rendering context to exist first.
+      c.getContext('2d')?.fillRect(0, 0, 1, 1);
       return await c.convertToBlob(quality === undefined ? { type: mime } : { type: mime, quality });
     }
     const c = document.createElement('canvas');

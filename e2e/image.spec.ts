@@ -37,7 +37,8 @@ test.describe('image engine: Compress and Convert', () => {
     expect(await decodedSize(page, webp, 'image/webp')).toEqual({ w: 1200, h: 800 });
 
     // Original is still in the session, byte-identical to what was uploaded.
-    const [orig] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Download photo.jpg', exact: true }).click()]);
+    const files = page.getByRole('region', { name: /^Files/ });
+    const [orig] = await Promise.all([page.waitForEvent('download'), files.getByRole('button', { name: 'Download photo.jpg', exact: true }).click()]);
     const origBytes = await readDownload(orig);
     expect(origBytes.length).toBe(jpeg.length);
     expect(sha256(origBytes)).toBe(sha256(jpeg));

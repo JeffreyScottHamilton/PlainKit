@@ -14,14 +14,14 @@ export const TOOLS: ToolDef[] = [
     id: 'compress', name: 'Compress', title: 'Compress files', description: 'Make images smaller by quality or to a target size.',
     aliases: ['ShrinkRay', 'Press'], keywords: ['shrink', 'reduce', 'smaller', 'optimize', 'resize', 'jpeg', 'png', 'webp'],
     category: 'image', accepts: IMG, produces: IMG, icon: Layers, load: () => import('@/tools/compress'),
-    capabilities: ['OffscreenCanvas'], network: 'on-device', assetDownloadBytes: 0, maturity: 'planned',
+    capabilities: ['OffscreenCanvas'], network: 'on-device', assetDownloadBytes: 0, maturity: 'working',
     limitations: ['Images only for now (JPEG, PNG, WebP). Audio, video and PDF compression are not built yet.', 'Re-encoding removes metadata.'],
   },
   {
     id: 'convert', name: 'Convert', title: 'Convert files', description: 'Change a file to another format from a tested list.',
     aliases: ['ConvertIt', 'Recast'], keywords: ['format', 'change', 'jpg to png', 'webp', 'export'],
     category: 'image', accepts: [...IMG, 'image/gif', 'image/bmp', 'image/avif', 'image/svg+xml'], produces: IMG, icon: ArrowLeftRight, load: () => import('@/tools/convert'),
-    capabilities: ['OffscreenCanvas'], network: 'on-device', assetDownloadBytes: 0, maturity: 'planned',
+    capabilities: ['OffscreenCanvas'], network: 'on-device', assetDownloadBytes: 0, maturity: 'working',
     limitations: ['Only the listed format pairs are supported.', 'Animation, layers and metadata are not carried over.'],
   },
   {

@@ -36,6 +36,7 @@ test('search "shrinkray" leaves only Compress', async ({ page }) => {
 
 test('Ctrl+K opens command search; Enter on "pdf" navigates to /tools/pdf', async ({ page }) => {
   await page.goto('/');
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
   await page.keyboard.press('Control+k');
   const dialog = page.getByRole('dialog', { name: 'Search tools' });
   await expect(dialog).toBeVisible();
