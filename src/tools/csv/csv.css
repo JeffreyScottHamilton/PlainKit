@@ -1,0 +1,24 @@
+/* CSV cleanup. Tool-local layout only; primitives come from components.css. */
+.csv-stack { display: flex; flex-direction: column; gap: var(--s3); min-width: 0; }
+.csv-section { display: flex; flex-direction: column; gap: var(--s3); min-width: 0; padding: var(--s4); background: var(--panel); border: 1px solid var(--divider); border-radius: var(--r3); }
+.csv-section h2 { margin: 0; font-size: 18px; font-weight: 600; }
+.csv-stats { margin: 0; font-size: 13px; color: var(--text-2); display: flex; flex-wrap: wrap; gap: var(--s1) var(--s3); }
+.csv-fieldset { border: 1px solid var(--divider); border-radius: var(--r2); padding: var(--s3); margin: 0; display: flex; flex-direction: column; gap: var(--s2); min-width: 0; }
+.csv-fieldset legend { font-size: 13px; font-weight: 550; padding: 0 var(--s1); }
+.csv-cols { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: var(--s1) var(--s3); }
+.csv-row { display: flex; flex-wrap: wrap; gap: var(--s2); align-items: flex-end; }
+.csv-row > * { flex: 1 1 160px; min-width: 0; }
+.csv-row > .pk-btn { flex: 0 0 auto; }
+.csv-preview { margin: 0; font-size: 14px; }
+.csv-scroll { max-width: 100%; max-height: 60vh; overflow: auto; border: 1px solid var(--divider); border-radius: var(--r2); }
+.csv-scroll:focus-visible { outline: 3px solid var(--accent-text); outline-offset: 2px; }
+.csv-table { border-collapse: separate; border-spacing: 0; font-size: 13px; width: max-content; min-width: 100%; }
+.csv-table th, .csv-table td { padding: 6px 10px; border-bottom: 1px solid var(--divider); border-right: 1px solid var(--divider); text-align: left; vertical-align: top; max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.csv-table thead th { position: sticky; top: 0; background: var(--panel); z-index: 1; font-weight: 600; }
+.csv-table tbody th { position: sticky; left: 0; background: var(--panel); font-weight: 400; color: var(--text-2); font-family: var(--mono); font-size: 12px; }
+.csv-table td { font-family: var(--mono); font-size: 12.5px; }
+.csv-actions { display: flex; flex-wrap: wrap; gap: var(--s2); align-items: center; }
+.csv-muted { font-size: 13px; color: var(--text-2); margin: 0; }
+.csv-aside-note { font-size: 13px; color: var(--text-2); margin: 0; }
+.csv-paste { display: flex; flex-direction: column; gap: var(--s2); }
+.csv-verified { font-size: 13px; }

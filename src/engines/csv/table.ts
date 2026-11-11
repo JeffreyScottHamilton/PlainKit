@@ -13,13 +13,20 @@ export type Parsed = {
   parseErrors: string[];
 };
 
+function detectDelimiter(text: string): string {
+  const head = text.slice(0, 65536).replace(/[\r\n]+$/, '');
+  return Papa.parse(head, { delimiter: '', preview: 20, worker: false }).meta.delimiter ?? ',';
+}
+
 /** Parse text to a rectangular table. Ragged rows are padded with empty cells. */
 export function parseCsv(text: string, opt: ParseOptions): Parsed {
   if (opt.quote.length !== 1) throw new ToolError('quote', 'The quote character must be exactly one character.', 'Use " (double quote) or another single character.');
   if (opt.delimiter !== 'auto' && opt.delimiter === opt.quote)
     throw new ToolError('quote', 'The quote character cannot also be the delimiter.', 'Choose a different quote character or delimiter.');
+  // Detect on the first lines only. A trailing newline would add an inconsistent row and defeat the guess.
+  const delimiter = opt.delimiter === 'auto' ? detectDelimiter(text) : opt.delimiter;
   const res = Papa.parse<string[]>(text, {
-    delimiter: opt.delimiter === 'auto' ? '' : opt.delimiter,
+    delimiter,
     quoteChar: opt.quote,
     skipEmptyLines: false,
   });
@@ -28,7 +35,6 @@ export function parseCsv(text: string, opt: ParseOptions): Parsed {
   const last = rows[rows.length - 1];
   if (last && last.length === 1 && last[0] === '') rows.pop();
 
-  const delimiter = res.meta.delimiter ?? (opt.delimiter === 'auto' ? ',' : opt.delimiter);
   let headers: string[] = [];
   if (opt.header) headers = rows.shift() ?? [];
   const expected = opt.header ? headers.length : (rows[0]?.length ?? 0);
@@ -37,7 +43,7 @@ export function parseCsv(text: string, opt: ParseOptions): Parsed {
   const pad = (r: string[]) => (r.length === width ? r : [...r, ...Array<string>(width - r.length).fill('')]);
   return {
     table: { headers: pad(headers), rows: rows.map(pad) },
-    delimiter,
+    delimiter: delimiter === '' ? ',' : delimiter,
     delimiterAuto: opt.delimiter === 'auto',
     raggedRows,
     parseErrors: res.errors.slice(0, 5).map((e) => `Row ${(e.row ?? 0) + 1 + (opt.header ? 1 : 0)}: ${e.message}`),

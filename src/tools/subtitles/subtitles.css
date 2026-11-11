@@ -1,0 +1,22 @@
+/* Subtitles editor. Tool-local layout only; primitives come from components.css. */
+.sub-stack { display: flex; flex-direction: column; gap: var(--s3); min-width: 0; }
+.sub-section { display: flex; flex-direction: column; gap: var(--s3); min-width: 0; padding: var(--s4); background: var(--panel); border: 1px solid var(--divider); border-radius: var(--r3); }
+.sub-section h2 { margin: 0; font-size: 18px; font-weight: 600; }
+.sub-muted { margin: 0; font-size: 13px; color: var(--text-2); }
+.sub-row { display: flex; flex-wrap: wrap; gap: var(--s2); align-items: flex-end; }
+.sub-row > * { flex: 1 1 160px; min-width: 0; }
+.sub-row > .pk-btn, .sub-row > .pk-check { flex: 0 0 auto; }
+.sub-actions { display: flex; flex-wrap: wrap; gap: var(--s2); align-items: center; }
+.sub-pager { display: flex; flex-wrap: wrap; gap: var(--s2); align-items: center; justify-content: space-between; font-size: 13px; }
+.sub-scroll { max-width: 100%; overflow-x: auto; border: 1px solid var(--divider); border-radius: var(--r2); }
+.sub-table { width: 100%; min-width: 760px; border-collapse: separate; border-spacing: 0; font-size: 13.5px; }
+.sub-table th, .sub-table td { padding: var(--s2); border-bottom: 1px solid var(--divider); text-align: left; vertical-align: top; }
+.sub-table thead th { font-weight: 600; color: var(--text-2); background: var(--panel); }
+.sub-table tbody th { font-weight: 400; font-family: var(--mono); font-size: 12.5px; color: var(--text-2); }
+.sub-table input[type='text'] { font-family: var(--mono); font-size: 13px; min-width: 128px; }
+.sub-table textarea { min-width: 220px; min-height: 64px; font-size: 14px; }
+.sub-table .sub-cell-actions { display: flex; flex-wrap: wrap; gap: var(--s1); }
+.sub-err { font-size: 12.5px; color: var(--error); margin: 2px 0 0; }
+.sub-issues { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: var(--s2); }
+.sub-issues li { display: flex; flex-wrap: wrap; gap: var(--s2); align-items: center; justify-content: space-between; font-size: 13.5px; }
+.sub-scope { font-size: 13px; }

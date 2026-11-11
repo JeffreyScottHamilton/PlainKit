@@ -84,7 +84,7 @@ export const TOOLS: ToolDef[] = [
     id: 'subtitles', name: 'Subtitles', title: 'Subtitles', description: 'Edit, shift and convert SRT and VTT subtitles.',
     aliases: ['SubtitleLab', 'Caption', 'captions'], keywords: ['srt', 'vtt', 'timing', 'offset', 'transcribe', 'cue'],
     category: 'media', accepts: ['application/x-subrip', 'text/vtt', 'text/plain'], produces: ['application/x-subrip', 'text/vtt'], icon: Captions, load: () => import('@/tools/subtitles'),
-    capabilities: [], network: 'on-device', assetDownloadBytes: 0, maturity: 'planned',
+    capabilities: [], network: 'on-device', assetDownloadBytes: 0, maturity: 'working',
     limitations: ['Burned-in subtitles cannot be extracted as text.', 'Local transcription needs a separate model download.'],
   },
   {
@@ -98,7 +98,7 @@ export const TOOLS: ToolDef[] = [
     id: 'csv', name: 'CSV', title: 'CSV cleanup', description: 'Clean, dedupe and export CSV and TSV tables.',
     aliases: ['Cleansheet', 'Sift', 'spreadsheet'], keywords: ['tsv', 'table', 'dedupe', 'columns', 'json', 'excel'],
     category: 'data', accepts: ['text/csv', 'text/tab-separated-values', 'text/plain'], produces: ['text/csv', 'text/tab-separated-values', 'application/json'], icon: Table, load: () => import('@/tools/csv'),
-    capabilities: [], network: 'on-device', assetDownloadBytes: 0, maturity: 'planned',
+    capabilities: [], network: 'on-device', assetDownloadBytes: 0, maturity: 'working',
     limitations: ['The whole file is loaded into memory; very large files may not fit.'],
   },
   {

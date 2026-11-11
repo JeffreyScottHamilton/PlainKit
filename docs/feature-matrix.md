@@ -25,9 +25,10 @@ Nothing is "verified" yet: all evidence is automated tests in headless Chromium 
 | PDF | Merge, keyboard reorder, rotate, remove, extract, undo/redo; pages copied not rasterised; export re-verified | working | 34 unit tests (mixed sizes, pre-rotated, blank, 20-page, corrupt, encrypted); `e2e/pdf.spec.ts` reloads the download and checks page order and rotation. No drag-and-drop reorder; thumbnails not visually checked |
 | Audio stems | Audio extraction | planned | — |
 | Audio stems | Stem separation | planned | needs a verified licensed model |
-| Subtitles | SRT/VTT edit, shift, convert | planned | — |
+| Subtitles | SRT/VTT parse, edit, shift, validate, convert, undo/redo | working | unit tests in `src/engines/subtitles`; e2e reads the exported VTT and checks the shifted time. UTF-8 files only |
+| Subtitles | Embedded-track extraction, transcription, burned-in text | planned | — |
 | QR code | Text/URL, Wi-Fi, vCard; PNG/SVG; colors, margin, logo; read-back check | working | 14 unit tests (jsQR round trip); e2e decodes the downloaded PNG in Node. SVG export omits the logo |
-| CSV | Clean, dedupe, export | planned | — |
+| CSV | Encoding/delimiter settings, trim, dedupe (exact or normalised), rename/reorder/split, find/replace, undo/redo, CSV/TSV/JSON export, opt-in formula protection | working | unit tests in `src/engines/csv` (57 with subtitles); e2e re-parses the download in Node. Whole file in memory; export is always UTF-8 |
 | ID photo | Presets, guides, print sheet | planned | — |
 | Clean text | Invisible character report and configurable cleanup | working | 17 unit tests (emoji ZWJ, Persian ZWNJ, RTL marks preserved by default); e2e |
 | Video | Local trim; direct link / HLS | planned | — |

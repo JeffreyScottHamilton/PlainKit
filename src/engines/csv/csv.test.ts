@@ -8,6 +8,12 @@ import { canRedo, canUndo, current, pushHistory, redo, startHistory, undo } from
 
 const enc = (s: string) => new TextEncoder().encode(s);
 const base: ExportOptions = { format: 'csv', delimiter: ',', eol: 'LF', bom: false, quoteAll: false, formulaSafe: false, includeHeader: true };
+/** Parse back the way a reader would: header line plus rows, without Papa's trailing empty artifact. */
+const readBack = (text: string, delimiter: string, eol: string) => {
+  const data = Papa.parse<string[]>(text, { delimiter, newline: eol as '\n' | '\r\n', skipEmptyLines: false, worker: false }).data;
+  if (text.endsWith(eol)) data.pop();
+  return data;
+};
 const P = (text: string, delimiter: 'auto' | string = 'auto', header = true) => parseCsv(text, { delimiter, quote: '"', header });
 
 function deepFreeze<T>(o: T): T {
@@ -48,9 +54,9 @@ describe('parse', () => {
   it('pads ragged rows and counts them', () => {
     const r = P('a,b,c\n1,2\n1,2,3,4\n5,6,7\n');
     expect(r.raggedRows).toBe(2);
-    expect(r.table.headers).toEqual(['a', 'b', 'c', '', '']);
-    expect(r.table.rows[0]).toEqual(['1', '2', '', '', '']);
-    expect(r.table.rows[1]).toEqual(['1', '2', '3', '4', '']);
+    expect(r.table.headers).toEqual(['a', 'b', 'c', '']);
+    expect(r.table.rows[0]).toEqual(['1', '2', '', '']);
+    expect(r.table.rows[1]).toEqual(['1', '2', '3', '4']);
   });
 
   it('header off keeps every row as data with empty synthetic headers', () => {
@@ -126,7 +132,7 @@ describe('operations', () => {
 
   it('trim counts changed cells and keeps unchanged rows by reference', () => {
     const r = trimCells(t, null);
-    expect(r.summary.changedCells).toBe(3);
+    expect(r.summary.changedCells).toBe(2);
     expect(r.table.rows[4]).toBe(t.rows[4]);
     expect(r.table.rows[1]).toEqual(['ann', 'Oslo']);
   });
@@ -142,7 +148,7 @@ describe('operations', () => {
   });
 
   it('dedupe by a selected column only', () => {
-    expect(dedupe(t, [1], 'exact').summary.removedRows).toBe(4);
+    expect(dedupe(t, [1], 'exact').summary.removedRows).toBe(3);
   });
 
   it('dedupe refuses an empty column selection instead of collapsing everything', () => {
@@ -241,8 +247,8 @@ describe('formula-safe policy', () => {
   };
 
   it('counts cells that would change, headers included when exported', () => {
-    expect(formulaCellCount(t, true)).toBe(7);
-    expect(formulaCellCount(t, false)).toBe(6);
+    expect(formulaCellCount(t, true)).toBe(6);
+    expect(formulaCellCount(t, false)).toBe(5);
   });
 
   it('off by default: values are unchanged', () => {
@@ -253,7 +259,7 @@ describe('formula-safe policy', () => {
 
   it('on: prefixes risky cells with an apostrophe and reports the count', () => {
     const out = exportTable(t, { ...base, formulaSafe: true });
-    expect(out.formulaCells).toBe(7);
+    expect(out.formulaCells).toBe(6);
     expect(Papa.parse<string[]>(out.text, { skipEmptyLines: false }).data[1]?.[0]).toBe("'=1+1");
   });
 });
@@ -270,9 +276,10 @@ describe('export round trip', () => {
   it('CSV: re-parses to the same row count and cell values', () => {
     const out = exportTable(table, { ...base, quoteAll: false });
     expect(out.verifiedRows).toBe(5000);
-    const back = Papa.parse<string[]>(out.text, { skipEmptyLines: false }).data;
-    expect(back.length).toBe(5001);
+    expect(readBack(out.text, ',', '\n').length).toBe(5001);
+    const back = readBack(out.text, ',', '\n');
     expect(back[6]?.[2]).toBe('line one\nline two');
+    expect(back[0]?.[1]).toBe('name');
     expect(back[1]?.[1]).toBe('Person 0, "Jr" ünï 名前 🎉');
   });
 
@@ -280,8 +287,7 @@ describe('export round trip', () => {
     const out = exportTable(table, { ...base, quoteAll: true, eol: 'CRLF', bom: true });
     expect(out.text.startsWith('﻿')).toBe(true);
     expect(out.text).toContain('\r\n');
-    const back = Papa.parse<string[]>(out.text.slice(1), { newline: '\r\n', skipEmptyLines: false }).data;
-    expect(back.length - 1).toBe(5000);
+    expect(readBack(out.text.slice(1), ',', '\r\n').length).toBe(5001);
     expect(out.verifiedRows).toBe(5000);
   });
 
@@ -289,7 +295,7 @@ describe('export round trip', () => {
     const out = exportTable(table, { ...base, format: 'tsv', delimiter: '\t' });
     expect(out.ext).toBe('tsv');
     expect(out.verifiedRows).toBe(5000);
-    expect(Papa.parse<string[]>(out.text, { delimiter: '\t', skipEmptyLines: false }).data.length - 1).toBe(5000);
+    expect(readBack(out.text, '\t', '\n').length).toBe(5001);
   });
 
   it('JSON: array of 5000 objects with the same values, duplicate headers disambiguated and stated', () => {
