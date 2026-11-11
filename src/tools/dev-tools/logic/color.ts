@@ -22,7 +22,7 @@ export function parseColor(input: string): ColorParse {
   const num = (p: string): number | null => (/^-?\d+(\.\d+)?%?$/.test(p) ? Number(p.replace('%', '')) : null);
   const vals = parts.map(num);
   if (vals.some((v) => v === null)) return { ok: false, message: `Could not read one of the values in ${name}(). Use numbers only.` };
-  const [x, y, z, alphaRaw] = vals as number[];
+  const [x, y, z] = vals as number[];
   const hadAlpha = parts.length === 4;
   let a = 1;
   if (hadAlpha) {
@@ -30,7 +30,6 @@ export function parseColor(input: string): ColorParse {
     a = ap.endsWith('%') ? Number(ap.slice(0, -1)) / 100 : Number(ap);
     if (a < 0 || a > 1) return { ok: false, message: 'Alpha must be between 0 and 1 (or 0% to 100%).' };
   }
-  void alphaRaw;
   if (name.startsWith('rgb')) {
     for (const [label, v] of [['red', x], ['green', y], ['blue', z]] as const) {
       if (v < 0 || v > 255) return { ok: false, message: `${label} must be 0-255, got ${v}.` };
