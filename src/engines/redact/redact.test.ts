@@ -8,7 +8,7 @@ const reg = (id: string, x: number, y: number, w: number, h: number, style: Regi
 
 describe('model: clamping', () => {
   it('keeps a rect inside the image and at least 1 px', () => {
-    expect(clampRect({ x: -50, y: 590, w: 2000, h: 0 }, B)).toEqual({ x: 0, y: 599, w: 800, h: 1 });
+    expect(clampRect({ x: -50, y: 590, w: 2000, h: 0 }, B)).toEqual({ x: 0, y: 590, w: 800, h: 1 });
     expect(clampRect({ x: 790, y: 10, w: 40, h: 40 }, B)).toEqual({ x: 760, y: 10, w: 40, h: 40 });
     expect(clampRect({ x: 1.6, y: 2.4, w: 10.2, h: 9.7 }, B)).toEqual({ x: 2, y: 2, w: 10, h: 10 });
   });
@@ -81,7 +81,7 @@ describe('model: bounded undo and redo', () => {
     let h = newHistory();
     for (let i = 0; i < MAX_HISTORY + 30; i++) h = commit(h, [reg('a', i % 700, 0, 1, 1)]);
     expect(h.past).toHaveLength(MAX_HISTORY);
-    expect(h.past[0]![0]!.x).toBe(30);
+    expect(h.past[0]![0]!.x).toBe(29); // states 0..28 were dropped
     expect(h.present[0]!.x).toBe((MAX_HISTORY + 29) % 700);
   });
 });
@@ -110,7 +110,7 @@ describe('coords: preview to image mapping', () => {
     const l = fitLayout(800, 600, 400, 500);
     expect(l.scale).toBe(0.5);
     expect(l.offsetX).toBe(0);
-    expect(l.offsetY).toBe(50);
-    expect(toPreview(l, 0, 0)).toEqual({ x: 0, y: 50 });
+    expect(l.offsetY).toBe(100);
+    expect(toPreview(l, 0, 0)).toEqual({ x: 0, y: 100 });
   });
 });
