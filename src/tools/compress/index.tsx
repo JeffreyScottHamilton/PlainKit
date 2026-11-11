@@ -111,6 +111,7 @@ export default function Tool() {
     ...OUTPUT_CHOICES.filter((m) => support?.encodable[m]).map((m) => ({ value: m, label: OUTPUT_LABEL[m] })),
   ];
   const count = runnable.length;
+  const selectedOut = selected ? outputOf(jobFor(selected)) : undefined;
 
   return (
     <ToolPage
@@ -188,15 +189,12 @@ export default function Tool() {
         <DropZone toolId="compress" />
       ) : (
         <>
-          {selected && <Compare key={selected.id} orig={selected} out={outputOf(jobFor(selected))} />}
-          {(() => {
-            const out = outputOf(jobFor(selected));
-            return out ? (
-              <Button variant="primary" onClick={() => downloadAsset(out)} className="cmp-download">
-                Download result
-              </Button>
-            ) : null;
-          })()}
+          {selected && <Compare key={selected.id} orig={selected} out={selectedOut} />}
+          {selectedOut && (
+            <Button variant="primary" onClick={() => downloadAsset(selectedOut)} className="cmp-download">
+              Download result
+            </Button>
+          )}
 
           <section aria-labelledby="cmp-files">
             <h2 id="cmp-files">Files · {inputs.length}</h2>
