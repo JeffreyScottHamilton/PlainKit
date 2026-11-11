@@ -1,0 +1,46 @@
+@import '@fontsource-variable/inter/wght.css';
+
+/* NIGHTSHIFT tokens. Dark is default; light translates the same roles. */
+:root {
+  --canvas: #202225; --sidebar: #181a1c; --panel: #292c2f; --input: #232628; --divider: #3a3e42; --border-strong: #6b7278;
+  --text: #f2f4f1; --text-2: #b7bdb6; --text-disabled: #7e857d;
+  --accent: #c8e86b; --on-accent: #18200f; --accent-text: #c8e86b; --accent-soft: rgba(200, 232, 107, 0.12);
+  --focus: #c8e86b;
+  --success: #6fd3a0; --warning: #f0b95b; --error: #ff8f85;
+  --success-soft: rgba(111, 211, 160, 0.12); --warning-soft: rgba(240, 185, 91, 0.12); --error-soft: rgba(255, 143, 133, 0.12);
+  --hover: rgba(255, 255, 255, 0.06);
+  --checker-a: #2f3336; --checker-b: #25282b;
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px; --s7: 48px;
+  --r1: 4px; --r2: 6px; --r3: 8px;
+  --font: 'Inter Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --mono: ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, Consolas, monospace;
+  --sidebar-w: 224px; --settings-w: 280px; --topbar-h: 48px;
+  color-scheme: dark;
+}
+:root[data-theme='light'] {
+  --canvas: #f3f4f1; --sidebar: #e8eae5; --panel: #ffffff; --input: #ffffff; --divider: #cdd1ca; --border-strong: #767d74;
+  --text: #1a1d19; --text-2: #4b5249; --text-disabled: #6f766d;
+  --accent: #c8e86b; --on-accent: #18200f; --accent-text: #445c00; --accent-soft: rgba(110, 150, 0, 0.14);
+  --focus: #445c00;
+  --success: #17683f; --warning: #7a5200; --error: #b3261e;
+  --success-soft: rgba(23, 104, 63, 0.1); --warning-soft: rgba(122, 82, 0, 0.1); --error-soft: rgba(179, 38, 30, 0.08);
+  --hover: rgba(0, 0, 0, 0.05);
+  --checker-a: #e4e6e1; --checker-b: #f6f7f4;
+  color-scheme: light;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body, #root { height: 100%; }
+body { margin: 0; background: var(--canvas); color: var(--text); font: 400 14px/1.45 var(--font); -webkit-font-smoothing: antialiased; }
+h1, h2, h3, p { margin: 0; }
+h1 { font-size: 30px; line-height: 1.15; font-weight: 650; letter-spacing: -0.01em; }
+h2 { font-size: 16px; font-weight: 600; }
+h3 { font-size: 14px; font-weight: 600; }
+a { color: inherit; }
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.mono { font-family: var(--mono); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+.muted { color: var(--text-2); }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+@media (max-width: 700px) { h1 { font-size: 24px; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; } }

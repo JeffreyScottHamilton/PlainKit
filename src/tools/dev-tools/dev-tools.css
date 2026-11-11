@@ -1,0 +1,9 @@
+.dev { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: var(--s4); align-items: start; }
+.dev__list { display: flex; flex-direction: column; gap: var(--s2); position: sticky; top: var(--s4); }
+.dev__list ul { list-style: none; margin: 0; padding: 0; max-height: 60vh; overflow: auto; border: 1px solid var(--divider); border-radius: var(--r2); }
+.dev__list a { display: block; padding: 6px var(--s3); min-height: 32px; text-decoration: none; color: var(--text-2); }
+.dev__list a:hover { background: var(--hover); color: var(--text); }
+.dev__list a[aria-current='page'] { color: var(--accent-text); background: var(--accent-soft); font-weight: 600; }
+.dev__work { display: flex; flex-direction: column; gap: var(--s4); min-width: 0; }
+.dev-panes { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--s4); }
+@media (max-width: 800px) { .dev { grid-template-columns: minmax(0, 1fr); } .dev__list { position: static; } .dev__list ul { max-height: 200px; } }

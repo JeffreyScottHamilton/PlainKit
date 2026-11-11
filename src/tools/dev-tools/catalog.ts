@@ -1,0 +1,48 @@
+import type { ComponentType } from 'react';
+
+export type Util = { id: string; name: string; keywords: string; load: () => Promise<{ default: ComponentType }> };
+const u = (id: string, name: string, keywords: string): Util => ({ id, name, keywords, load: () => import(`./utils/${id}.tsx`) });
+
+// The 40 reference utilities. Internal list only: never added to the main sidebar.
+export const UTILS: Util[] = [
+  u('json', 'JSON format and validate', 'formatter minifier validator pretty'),
+  u('base64', 'Base64', 'encode decode'),
+  u('url-encode', 'URL encode and decode', 'percent encoding uri component'),
+  u('jwt', 'JWT decoder', 'json web token header payload claims'),
+  u('regex', 'Regex tester', 'regular expression match groups'),
+  u('uuid', 'UUID generator', 'guid v4 v7 random'),
+  u('timestamp', 'Timestamp converter', 'unix epoch date iso'),
+  u('hash', 'Hash', 'sha-1 sha-256 sha-384 sha-512 digest checksum'),
+  u('color', 'Color converter', 'hex rgb hsl contrast'),
+  u('lorem', 'Lorem ipsum', 'placeholder text filler'),
+  u('cron', 'Cron explainer', 'schedule crontab next runs'),
+  u('diff', 'Text diff', 'compare changes lines'),
+  u('markdown', 'Markdown preview', 'md html render'),
+  u('json-to-ts', 'JSON to TypeScript', 'types interface'),
+  u('password', 'Password generator', 'random secret strong'),
+  u('case', 'Case converter', 'camel snake kebab pascal title upper lower'),
+  u('html-entities', 'HTML entities', 'escape unescape amp lt gt'),
+  u('number-base', 'Number bases', 'binary octal decimal hex radix'),
+  u('text-stats', 'Text statistics', 'word count characters bytes graphemes lines'),
+  u('slug', 'Slug generator', 'url friendly kebab'),
+  u('url-parser', 'URL parser', 'query params host path fragment'),
+  u('http-status', 'HTTP status codes', '404 500 301 reference'),
+  u('escape', 'String escape', 'json javascript unescape backslash quotes'),
+  u('image-base64', 'Image to Base64', 'data uri embed'),
+  u('json-csv', 'JSON and CSV', 'convert table'),
+  u('sort-lines', 'Sort lines', 'alphabetical unique dedupe natural'),
+  u('hex-ascii', 'Hex and text', 'hexadecimal bytes ascii utf-8'),
+  u('unicode', 'Unicode inspector', 'code points escape u+ characters'),
+  u('tabs-spaces', 'Tabs and spaces', 'indent convert'),
+  u('whitespace', 'Whitespace cleanup', 'trim trailing blank lines collapse'),
+  u('reverse', 'Reverse text', 'backwards lines words'),
+  u('css-units', 'CSS units', 'px rem em pt vw convert'),
+  u('date-calc', 'Date calculator', 'difference add days between'),
+  u('chmod', 'chmod calculator', 'unix permissions octal rwx'),
+  u('mime-types', 'MIME types', 'content type extension lookup'),
+  u('time-zones', 'Time zones', 'convert utc local world clock'),
+  u('caesar', 'Caesar and ROT13', 'cipher shift rotate'),
+  u('passphrase', 'Passphrase generator', 'words diceware random'),
+  u('subnet', 'Subnet calculator', 'cidr ip netmask ipv4 network'),
+  u('hash-id', 'Hash identifier', 'guess type md5 sha bcrypt heuristic'),
+];
