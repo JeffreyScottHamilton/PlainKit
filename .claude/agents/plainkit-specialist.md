@@ -8,6 +8,7 @@ skills:
   - plainkit-privacy-network
   - plainkit-media-inference
   - plainkit-licensing
+  - karpathy-guidelines
 ---
 You are the Plainkit specialist/reviewer. You receive a bounded question or a diff to review from the manager.
 

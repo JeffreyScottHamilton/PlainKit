@@ -4,7 +4,7 @@ Checked 2026-11-11 in a Claude Code cloud session (Claude Code 2.1.322, Node 22.
 
 Status values: **authored** (written in this repo), **reused** (already installed, not modified), **newly installed** (downloaded), **unavailable**, **failed**.
 
-No third-party skills were downloaded: **newly installed = none, failed = none**. Project-specific guidance was authored instead, which avoids unreviewed third-party scripts. All authored skills are revision 1 (see git history for the commit).
+Four third-party skills were downloaded on request (see below); **failed = none**. All authored skills are revision 1 (see git history for the commit).
 
 ## Project-authored skills (`.claude/skills/`)
 
@@ -21,6 +21,23 @@ No third-party skills were downloaded: **newly installed = none, failed = none**
 | 9 | Delegation, integration, review | plainkit-delegation | `.claude/skills/plainkit-delegation/SKILL.md` | authored | manager |
 
 Validation performed: every file exists, starts with YAML frontmatter that parses, and has `name` + `description`. Not yet verified: that the running session lists them (project skills and agents created mid-session may only be picked up by a new session).
+
+## Newly installed third-party skills (`.claude/skills/`)
+
+Each was cloned, its `SKILL.md` read in full, and copied byte-identical. Only the skill file (and licence) was installed: no hooks, installers, plugins, MCP servers, or statuslines from those repositories. Each folder has a `SOURCE.md` with the pinned revision.
+
+| Skill | Source | Revision | Licence | Purpose | Used by |
+|---|---|---|---|---|---|
+| caveman | github.com/JuliusBrussee/caveman | `3dc497a` | Apache-2.0 | terse replies, facts kept | implementer, verifier (report text) |
+| karpathy-guidelines | github.com/multica-ai/andrej-karpathy-skills | `2c60614` | MIT declared in `SKILL.md` and `plugin.json`; repo has no LICENSE file | assumptions, simplicity, surgical changes, verifiable goals | manager, specialist, implementer |
+| ponytail | github.com/DietrichGebert/ponytail | `96608e0` | MIT | smallest complete change, no over-engineering | manager, implementer |
+| lean-mode | github.com/suhaanthayyil/lean-mode | `e7ea960` | MIT | token-efficiency rules for delegation | manager |
+
+Notes:
+- lean-mode's RTK and `entire graph` layers are **unavailable** here: neither CLI is installed, and the skill itself says not to auto-install them. Only its output-compression and delegation rules apply. Its bundled `scripts/lean-setup.sh` is verify-only and was included.
+- lean-mode was matched by name search (small repository); confirm it is the one intended.
+- caveman's `ultra`/`wenyan` aliases point at sibling skills that were not installed.
+- These skills never override the brief: accessibility, privacy, verification, and requested scope are not cut for brevity.
 
 ## Reused (already installed in this session, unmodified)
 

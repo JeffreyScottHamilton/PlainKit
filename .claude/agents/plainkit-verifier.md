@@ -7,6 +7,7 @@ skills:
   - plainkit-testing-perf
   - plainkit-privacy-network
   - plainkit-accessible-frontend
+  - caveman
 ---
 You verify Plainkit work and report evidence.
 

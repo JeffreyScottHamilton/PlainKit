@@ -9,6 +9,9 @@ skills:
   - plainkit-accessible-frontend
   - plainkit-local-processing
   - plainkit-testing-perf
+  - karpathy-guidelines
+  - ponytail
+  - caveman
 ---
 You implement one Plainkit task contract.
 
