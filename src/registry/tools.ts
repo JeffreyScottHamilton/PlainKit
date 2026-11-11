@@ -35,7 +35,7 @@ export const TOOLS: ToolDef[] = [
     id: 'dev-tools', name: 'Dev tools', title: 'Dev tools', description: '40 small utilities for text, data and encoding.',
     aliases: ['DevToys', 'Gauge'], keywords: ['json', 'base64', 'jwt', 'regex', 'uuid', 'hash', 'timestamp', 'diff', 'markdown', 'password', 'cron', 'url', 'color'],
     category: 'text', accepts: [], produces: [], icon: Code2, load: () => import('@/tools/dev-tools'),
-    capabilities: [], network: 'on-device', assetDownloadBytes: 0, maturity: 'planned',
+    capabilities: [], network: 'on-device', assetDownloadBytes: 0, maturity: 'working',
     limitations: ['JWT decoding does not verify signatures.', 'Hash identification is a heuristic guess.'],
   },
   {

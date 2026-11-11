@@ -17,7 +17,7 @@ Nothing is "verified" yet: all evidence is automated tests in headless Chromium 
 | Convert | In-memory handoff from Compress (no download) | working | `e2e/image.spec.ts` |
 | Convert | Audio, video, document, 3D | planned | — |
 | Cutout | Background removal | planned | needs model host access |
-| Dev tools | 40 utilities | planned | in progress |
+| Dev tools | 40 utilities | working | 197 unit tests in `src/tools/dev-tools/logic`; `e2e/dev-tools.spec.ts` (43): every utility renders and loads its example without page errors; Markdown sanitised; regex time limit checked in browser by the agent only |
 | Metadata | Inspect / remove EXIF, GPS | planned | — |
 | Clean links | Tracker removal | planned | — |
 | Send files | WebRTC transfer, manual pairing | planned | — |
