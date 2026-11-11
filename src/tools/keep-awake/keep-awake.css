@@ -1,0 +1,8 @@
+.ka, .ka-controls { display: flex; flex-direction: column; gap: var(--s3); padding: var(--s4); border: 1px solid var(--divider); border-radius: var(--r2); background: var(--panel); }
+.ka h2, .ka-controls h2 { font-size: 16px; margin: 0; font-weight: 600; }
+.ka-state { margin: 0; font-size: 20px; font-weight: 600; }
+.ka-detail { margin: 0; color: var(--text-2); }
+.ka-time { font-size: 32px; letter-spacing: 0.02em; }
+.ka-hint { margin: 0; min-height: 1.5em; color: var(--text-2); font-size: 13px; }
+.ka-limits { color: var(--text-2); font-size: 13px; margin: 0; }
+.ka-controls { margin-top: var(--s4); }

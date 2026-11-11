@@ -19,19 +19,19 @@ Nothing is "verified" yet: all evidence is automated tests in headless Chromium 
 | Cutout | Background removal | planned | needs model host access |
 | Dev tools | 40 utilities | working | 197 unit tests in `src/tools/dev-tools/logic`; `e2e/dev-tools.spec.ts` (43): every utility renders and loads its example without page errors; Markdown sanitised; regex time limit checked in browser by the agent only |
 | Metadata | Inspect / remove EXIF, GPS | planned | — |
-| Clean links | Tracker removal | planned | — |
+| Clean links | Tracker removal, signed-link guard, per-parameter restore | working | 15 unit tests; `e2e/small-tools.spec.ts`. Signed-link detection is by parameter name and can false-positive on short names |
 | Send files | WebRTC transfer, manual pairing | planned | — |
 | Redact | Solid / pixelate / blur | planned | — |
 | PDF | Merge, reorder, rotate, remove, extract | planned | — |
 | Audio stems | Audio extraction | planned | — |
 | Audio stems | Stem separation | planned | needs a verified licensed model |
 | Subtitles | SRT/VTT edit, shift, convert | planned | — |
-| QR code | PNG/SVG, colors, logo | planned | — |
+| QR code | Text/URL, Wi-Fi, vCard; PNG/SVG; colors, margin, logo; read-back check | working | 14 unit tests (jsQR round trip); e2e decodes the downloaded PNG in Node. SVG export omits the logo |
 | CSV | Clean, dedupe, export | planned | — |
 | ID photo | Presets, guides, print sheet | planned | — |
-| Clean text | Invisible characters | planned | — |
+| Clean text | Invisible character report and configurable cleanup | working | 17 unit tests (emoji ZWJ, Persian ZWNJ, RTL marks preserved by default); e2e |
 | Video | Local trim; direct link / HLS | planned | — |
-| Keep awake | Screen Wake Lock | planned | — |
+| Keep awake | Screen Wake Lock, timer, stop key, re-acquire on return | experimental | 17 unit tests with a fake wake lock; e2e accepts Active or a clear error, so a real lock has not been observed in headless Chromium |
 
 ## Known gaps on working features
 - Image size cap (100 MP / 16384 px) is enforced after decode, not from the header.

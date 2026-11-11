@@ -1,0 +1,8 @@
+.qr-settings { display: flex; flex-direction: column; gap: var(--s3); }
+.qr-color { width: 64px; height: 36px; padding: 2px; background: var(--input); border: 1px solid var(--border-strong); border-radius: var(--r2); }
+.qr-section { display: flex; flex-direction: column; gap: var(--s3); margin-bottom: var(--s4); min-width: 0; }
+.qr-section h2 { font-size: 16px; font-weight: 600; margin: 0; }
+.qr-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--s3); align-items: start; }
+.qr-canvas { width: 100%; max-width: 360px; height: auto; aspect-ratio: 1 / 1; background: #fff; border: 1px solid var(--divider); border-radius: var(--r2); image-rendering: pixelated; }
+.qr-canvas[hidden] { display: none; }
+.qr-note { margin: 0; color: var(--text-2); font-size: 13px; }

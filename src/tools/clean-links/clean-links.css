@@ -1,0 +1,14 @@
+.cl-input, .cl-results { display: flex; flex-direction: column; gap: var(--s3); }
+.cl-input h2, .cl-results h2 { font-size: 16px; font-weight: 600; margin: 0; }
+.cl-summary, .cl-note { margin: 0; color: var(--text-2); font-size: 13px; }
+.cl-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--s3); }
+.cl-item { display: flex; flex-direction: column; gap: var(--s2); padding: var(--s3); border: 1px solid var(--divider); border-radius: var(--r2); background: var(--panel); min-width: 0; }
+.cl-line { margin: 0; font-size: 14px; font-weight: 600; }
+.cl-pair { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: var(--s2); align-items: baseline; }
+.cl-label { color: var(--text-2); font-size: 13px; }
+.cl-url { font-family: var(--mono); font-size: 13px; overflow-wrap: anywhere; white-space: pre-wrap; background: var(--input); padding: 2px 4px; border-radius: var(--r1); }
+.cl-removed { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--s1); }
+.cl-param { display: flex; flex-wrap: wrap; gap: var(--s2); align-items: center; }
+.cl-reason { color: var(--text-2); font-size: 13px; }
+.cl-anyway { margin-top: var(--s2); }
+@media (max-width: 480px) { .cl-pair { grid-template-columns: minmax(0, 1fr); } }

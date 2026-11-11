@@ -49,7 +49,7 @@ export const TOOLS: ToolDef[] = [
     id: 'clean-links', name: 'Clean links', title: 'Clean links', description: 'Remove tracking parameters from URLs.',
     aliases: ['LinkClean', 'Untrail'], keywords: ['utm', 'tracking', 'url', 'fbclid', 'gclid', 'share'],
     category: 'text', accepts: [], produces: [], icon: Link2, load: () => import('@/tools/clean-links'),
-    capabilities: [], network: 'on-device', assetDownloadBytes: 0, maturity: 'planned',
+    capabilities: [], network: 'on-device', assetDownloadBytes: 0, maturity: 'working',
     limitations: ['Links are never opened or fetched.', 'Signed links can stop working if parameters are removed.'],
   },
   {
@@ -91,7 +91,7 @@ export const TOOLS: ToolDef[] = [
     id: 'qr-code', name: 'QR code', title: 'QR code', description: 'Make a static QR code as PNG or SVG.',
     aliases: ['QRForge', 'Imprint'], keywords: ['qr', 'barcode', 'wifi', 'link', 'svg'],
     category: 'text', accepts: [], produces: ['image/png', 'image/svg+xml'], icon: QrCode, load: () => import('@/tools/qr-code'),
-    capabilities: [], network: 'on-device', assetDownloadBytes: 0, maturity: 'planned',
+    capabilities: [], network: 'on-device', assetDownloadBytes: 0, maturity: 'working',
     limitations: ['Static codes only: the content is encoded directly, with no redirect or tracking.'],
   },
   {
@@ -112,7 +112,7 @@ export const TOOLS: ToolDef[] = [
     id: 'clean-text', name: 'Clean text', title: 'Clean text', description: 'Find and remove invisible characters in text.',
     aliases: ['Unmark', 'Reveal', 'zero width'], keywords: ['invisible', 'unicode', 'zero-width', 'hidden', 'whitespace', 'watermark'],
     category: 'text', accepts: ['text/plain'], produces: ['text/plain'], icon: Type, load: () => import('@/tools/clean-text'),
-    capabilities: [], network: 'on-device', assetDownloadBytes: 0, maturity: 'planned',
+    capabilities: [], network: 'on-device', assetDownloadBytes: 0, maturity: 'working',
     limitations: ['Cannot detect AI-written text or remove every kind of watermark.'],
   },
   {
@@ -126,7 +126,7 @@ export const TOOLS: ToolDef[] = [
     id: 'keep-awake', name: 'Keep awake', title: 'Keep awake', description: 'Stop this screen from sleeping while the tab is visible.',
     aliases: ['NoDoze', 'Watch', 'caffeine'], keywords: ['wake lock', 'screen', 'sleep', 'timer'],
     category: 'device', accepts: [], produces: [], icon: Monitor, load: () => import('@/tools/keep-awake'),
-    capabilities: ['wakeLock'], network: 'on-device', assetDownloadBytes: 0, maturity: 'planned',
+    capabilities: ['wakeLock'], network: 'on-device', assetDownloadBytes: 0, maturity: 'experimental',
     limitations: ['Only works while this tab is visible.', 'Cannot move the mouse, change chat presence, or override system lock policies.'],
   },
 ];
