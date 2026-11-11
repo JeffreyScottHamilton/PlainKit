@@ -70,7 +70,7 @@ export const TOOLS: ToolDef[] = [
     id: 'pdf', name: 'PDF', title: 'PDF pages', description: 'Merge, reorder, rotate, remove and extract PDF pages.',
     aliases: ['MergePDF', 'Bind', 'combine pdf', 'split pdf'], keywords: ['merge', 'split', 'extract', 'rotate', 'pages', 'reorder'],
     category: 'document', accepts: ['application/pdf'], produces: ['application/pdf'], icon: FileText, load: () => import('@/tools/pdf'),
-    capabilities: [], network: 'on-device', assetDownloadBytes: 0, maturity: 'planned',
+    capabilities: [], network: 'on-device', assetDownloadBytes: 0, maturity: 'working',
     limitations: ['Password-protected PDFs are not supported.', 'Editing pages can invalidate digital signatures.', 'No OCR, text editing or PDF compression.'],
   },
   {

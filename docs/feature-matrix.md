@@ -22,7 +22,7 @@ Nothing is "verified" yet: all evidence is automated tests in headless Chromium 
 | Clean links | Tracker removal, signed-link guard, per-parameter restore | working | 15 unit tests; `e2e/small-tools.spec.ts`. Signed-link detection is by parameter name and can false-positive on short names |
 | Send files | WebRTC transfer, manual pairing | planned | — |
 | Redact | Solid / pixelate / blur | planned | — |
-| PDF | Merge, reorder, rotate, remove, extract | planned | — |
+| PDF | Merge, keyboard reorder, rotate, remove, extract, undo/redo; pages copied not rasterised; export re-verified | working | 34 unit tests (mixed sizes, pre-rotated, blank, 20-page, corrupt, encrypted); `e2e/pdf.spec.ts` reloads the download and checks page order and rotation. No drag-and-drop reorder; thumbnails not visually checked |
 | Audio stems | Audio extraction | planned | — |
 | Audio stems | Stem separation | planned | needs a verified licensed model |
 | Subtitles | SRT/VTT edit, shift, convert | planned | — |

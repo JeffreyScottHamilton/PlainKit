@@ -1,0 +1,16 @@
+.pdf-section { display: flex; flex-direction: column; gap: var(--s3); min-width: 0; }
+.pdf-section h2 { margin: 0; font-size: 16px; font-weight: 600; }
+.pdf-note { margin: 0; font-size: 13px; }
+.pdf-bar { display: flex; flex-wrap: wrap; gap: var(--s2); align-items: center; }
+.pdf-bar > span { margin-right: auto; }
+.pdf-range { max-width: 320px; }
+.pdf-grid { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s3); grid-template-columns: repeat(auto-fill, minmax(176px, 1fr)); }
+.pdf-tile { display: flex; flex-direction: column; gap: var(--s2); padding: var(--s2); min-width: 0; background: var(--panel); border: 1px solid var(--divider); border-radius: var(--r3); }
+.pdf-tile--selected { border-color: var(--focus); }
+.pdf-tile__top { display: flex; align-items: center; justify-content: space-between; gap: var(--s2); }
+.pdf-tile__pos { font-weight: 600; }
+.pdf-tile__source { margin: 0; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pdf-tile__move { display: flex; justify-content: space-between; }
+.pdf-thumb { display: grid; place-items: center; min-height: 120px; overflow: hidden; background: var(--input); border-radius: var(--r2); }
+.pdf-thumb__canvas { display: block; max-width: 100%; height: auto; background: #fff; }
+.pdf-thumb__fail { padding: var(--s3); font-size: 13px; color: var(--text-2); }
