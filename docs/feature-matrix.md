@@ -2,7 +2,7 @@
 
 Status: **planned** (not built) · **experimental** (built, unproven) · **working** (built, automated checks pass) · **verified** (also manually checked on real devices) · **unsupported**.
 
-Source of scope: the written brief. The reference site (jeffrey-hamilton-tools.vercel.app) could not be reached from the build container, so **no reference behaviour was observed**; nothing below is claimed to match it.
+Source of scope: the written brief. The reference home page (jeffrey-hamilton-tools.vercel.app) was fetched on 2026-11-12 and lists 18 tools with one-line descriptions, matching the 17 families here plus CardTally (gift cards), which is excluded by decision. Each reference tool lives on its own separate host; those hosts were **not** opened, so no per-tool behaviour was observed and nothing below is claimed to match the originals. Two differences from the reference descriptions are deliberate: stem separation ("vocals, drums, bass and the rest") and extracting subtitles from a video are not offered here because neither is verified.
 
 Nothing is "verified" yet: all evidence is automated tests in headless Chromium on a Linux container. No real phone or other browser has been tested.
 
