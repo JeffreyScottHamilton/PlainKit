@@ -13,6 +13,7 @@ Direct dependencies, read from installed package metadata on 2026-11-11. Exact v
 | lucide-react | 1.72.0 | ISC | runtime |
 | marked | 18.2.0 | MIT | runtime |
 | mediabunny | 1.65.2 | MPL-2.0 (used unmodified) | runtime |
+| onnxruntime-web | 1.31.1 | MIT | runtime (Cutout only, loaded on demand) |
 | papaparse | 5.7.1 | MIT | runtime |
 | pdf-lib | 1.17.1 | MIT | runtime |
 | pdfjs-dist | 6.5.438 | Apache-2.0 | runtime |
@@ -37,6 +38,6 @@ Direct dependencies, read from installed package metadata on 2026-11-11. Exact v
 
 - Font: Inter (via @fontsource-variable/inter), SIL Open Font License 1.1, self-hosted.
 - Icons: lucide-react, ISC.
-- No model weights are shipped yet.
+- Model weights: U²-Net-p, Apache-2.0, self-hosted. See `docs/models.md`.
 - Third-party Claude skills are listed in `docs/skills-manifest.md`.
 - Transitive dependency licences have not been audited yet.

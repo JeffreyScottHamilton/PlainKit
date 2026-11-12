@@ -6,7 +6,8 @@ What the app is designed to contact. "Audited" means a recorded browser network 
 |---|---|---|---|---|
 | Shell, Compress, Convert | On this device | Own origin for page and assets only | No | Not yet |
 | All other local tools | On this device | Own origin only | No | Not built |
-| Cutout, Subtitles (transcription), Redact (face detection) | On this device | One-time model download; host to be decided (self-hosted preferred) | No (download only) | Not built |
+| Cutout | On this device | Own origin only: model (4.6 MB) and ONNX runtime (14.8 MB) are self-hosted | No | e2e: all requests same-origin, marker absent, second image processed offline |
+| Subtitles (transcription), Redact (face detection), Audio stems (separation) | — | Not built; no model evaluated | — | — |
 | Send files | Connects to another device | The other device; a public STUN server if enabled (sees IP addresses, not files). Manual pairing: no signalling server. No TURN relay. | File bytes go to the paired device only | Not built |
 | Video (link download) | Needs network access | The host in the URL the user pastes | The URL request itself | Not built |
 

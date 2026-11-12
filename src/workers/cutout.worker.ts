@@ -23,10 +23,11 @@ async function ensureSession(engine: { model: ArrayBuffer; wasm: ArrayBuffer } |
   if (!engine) throw new ToolError('engine-missing', 'The model is not loaded.', 'Try again.');
   if (typeof WebAssembly !== 'object') throw initFailed('no WebAssembly');
   try {
-    ort ??= (await import(/* @vite-ignore */ ENGINE.moduleUrl)) as typeof Ort;
+    // Absolute URL: Vite's dev server appends ?import to root-relative dynamic imports, which /public files reject.
+    ort ??= (await import(/* @vite-ignore */ new URL(ENGINE.moduleUrl, self.location.origin).href)) as typeof Ort;
     ort.env.wasm.numThreads = 1; // no cross-origin isolation: single thread
     ort.env.wasm.proxy = false;
-    ort.env.wasm.wasmPaths = '/engines/ort/';
+    ort.env.wasm.wasmPaths = new URL('/engines/ort/', self.location.origin).href;
     ort.env.wasm.wasmBinary = engine.wasm;
     session = await ort.InferenceSession.create(new Uint8Array(engine.model), { executionProviders: ['wasm'], graphOptimizationLevel: 'all' });
     return session;

@@ -28,7 +28,7 @@ export const TOOLS: ToolDef[] = [
     id: 'cutout', name: 'Cutout', title: 'Cut out background', description: 'Remove an image background on this device.',
     aliases: ['Silhouette', 'background remover', 'remove bg'], keywords: ['background', 'transparent', 'png', 'subject', 'mask'],
     category: 'image', accepts: IMG, produces: ['image/png'], icon: Crop, load: () => import('@/tools/cutout'),
-    capabilities: ['WebAssembly'], network: 'on-device', assetDownloadBytes: 0, maturity: 'planned',
+    capabilities: ['WebAssembly'], network: 'on-device', assetDownloadBytes: 19_423_713, maturity: 'experimental',
     limitations: ['Needs a one-time model download before first use.', 'Hair, glass and fine edges are often imperfect.'],
   },
   {

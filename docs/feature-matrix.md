@@ -16,7 +16,7 @@ Nothing is "verified" yet: all evidence is automated tests in headless Chromium 
 | Convert | JPEG/PNG/WebP/GIF(first frame)/BMP/AVIF(decode-dependent) → JPEG/PNG/WebP | working | `e2e/image.spec.ts`, `matrix.test.ts`; GIF/BMP/AVIF inputs not yet covered by e2e |
 | Convert | In-memory handoff from Compress (no download) | working | `e2e/image.spec.ts` |
 | Convert | Audio, video, document, 3D | planned | — |
-| Cutout | Background removal | planned | needs model host access |
+| Cutout | Local background removal (U²-Net-p), threshold/feather, erase/restore, transparent PNG | experimental | 18 unit tests; e2e runs the real model: PNG with real alpha, same-origin requests only, offline second run, cancel and retry. **Only tested on synthetic shapes, not real photos; refinement tools not exercised by any test** |
 | Dev tools | 40 utilities | working | 197 unit tests in `src/tools/dev-tools/logic`; `e2e/dev-tools.spec.ts` (43): every utility renders and loads its example without page errors; Markdown sanitised; regex time limit checked in browser by the agent only |
 | Metadata | Inspect EXIF/GPS/IPTC/XMP; lossless removal for JPEG, PNG, WebP; output re-checked two ways | working | 20 unit tests on built fixtures (pixel data byte-identical); e2e confirms GPS and EXIF/XMP absent in the download with exifr and a segment walk. Bytes appended after a JPEG's end marker are not removed |
 | Clean links | Tracker removal, signed-link guard, per-parameter restore | working | 15 unit tests; `e2e/small-tools.spec.ts`. Signed-link detection is by parameter name and can false-positive on short names |
