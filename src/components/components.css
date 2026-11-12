@@ -25,8 +25,8 @@
 .pk-row { display: flex; gap: var(--s2); align-items: center; flex-wrap: wrap; }
 .pk-stack { display: flex; flex-direction: column; gap: var(--s4); min-width: 0; }
 
-.pk-seg { display: flex; padding: 2px; background: var(--input); border: 1px solid var(--border-strong); border-radius: var(--r2); }
-.pk-seg button { flex: 1; min-height: 30px; padding: 0 var(--s3); border: 0; border-radius: var(--r1); background: transparent; color: var(--text-2); font-weight: 550; cursor: pointer; }
+.pk-seg { display: flex; flex-wrap: wrap; max-width: 100%; padding: 2px; background: var(--input); border: 1px solid var(--border-strong); border-radius: var(--r2); }
+.pk-seg button { flex: 1 1 auto; min-height: 30px; padding: 0 var(--s3); border: 0; border-radius: var(--r1); background: transparent; color: var(--text-2); font-weight: 550; cursor: pointer; }
 .pk-seg button[aria-checked='true'] { background: var(--accent); color: var(--on-accent); }
 
 .pk-notice { display: flex; gap: var(--s2); padding: var(--s3); border-radius: var(--r2); border: 1px solid var(--divider); background: var(--panel); font-size: 13.5px; }

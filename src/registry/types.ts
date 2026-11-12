@@ -23,6 +23,8 @@ export type ToolDef = {
   load: () => Promise<{ default: ComponentType }>;
   capabilities: string[];
   network: NetworkMode;
+  /** Shown beside the mode label when part of the tool behaves differently. */
+  networkNote?: string;
   /** Extra engine/model bytes fetched on first use (0 = none beyond the tool chunk). */
   assetDownloadBytes: number;
   maturity: Maturity;

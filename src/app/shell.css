@@ -154,3 +154,5 @@
 @media (max-width: 640px) {
   .dir { grid-template-columns: minmax(0, 1fr); }
 }
+
+.update { display: flex; align-items: center; justify-content: space-between; gap: var(--s3); flex-wrap: wrap; padding: var(--s2) var(--s5); background: var(--panel); border-bottom: 1px solid var(--divider); font-size: 13.5px; }

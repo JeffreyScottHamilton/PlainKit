@@ -4,11 +4,12 @@ Status: **planned** (not built) · **experimental** (built, unproven) · **worki
 
 Source of scope: the written brief. The reference home page (jeffrey-hamilton-tools.vercel.app) was fetched on 2026-11-12 and lists 18 tools with one-line descriptions, matching the 17 families here plus CardTally (gift cards), which is excluded by decision. Each reference tool lives on its own separate host; those hosts were **not** opened, so no per-tool behaviour was observed and nothing below is claimed to match the originals. Two differences from the reference descriptions are deliberate: stem separation ("vocals, drums, bass and the rest") and extracting subtitles from a video are not offered here because neither is verified.
 
-Nothing is "verified" yet: all evidence is automated tests in headless Chromium on a Linux container. No real phone or other browser has been tested.
+Nothing is "verified" yet: all evidence is automated tests in headless Chromium on a Linux container (452 unit tests, 144 browser tests on the production build). No real phone or other browser has been tested.
 
 | Tool | Capability | Status | Evidence |
 |---|---|---|---|
-| Shell | 17-tool flat nav, routes, back/forward, search by old name, Ctrl+K, theme, favorites, mobile drawer, session tray, clear session | working | `e2e/shell.spec.ts` (9) |
+| Shell | 17-tool flat nav, routes, back/forward, search by old name, Ctrl+K, theme, favorites, mobile drawer, session tray, clear session | working | `e2e/shell.spec.ts` (9), `e2e/a11y.spec.ts` (50) |
+| Shell | Offline use (service worker), update prompt, model and offline-copy controls in Settings | working | `e2e/offline.spec.ts` (4) on the production build. The update prompt itself has no test |
 | Compress | JPEG/PNG/WebP by quality | working | `e2e/image.spec.ts`: output magic bytes, dimensions, smaller size |
 | Compress | Target size (bounded search, reports when unreachable) | working | `e2e/image.spec.ts`, `src/engines/image/search.test.ts` |
 | Compress | Cancel and retry; original bytes unchanged (SHA-256) | working | `e2e/image.spec.ts` |
@@ -43,4 +44,4 @@ Nothing is "verified" yet: all evidence is automated tests in headless Chromium 
 ## Known gaps on working features
 - Image size cap (100 MP / 16384 px) is enforced after decode, not from the header.
 - Alpha detection samples the image; a very small transparent area can be missed.
-- No accessibility scan (axe), contrast measurement, or non-Chromium run yet.
+- Audits ran in Chromium only: see `docs/audits/`.

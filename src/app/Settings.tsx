@@ -1,4 +1,8 @@
-import { Button, Segmented } from '@/components/ui';
+import { useEffect, useState } from 'react';
+import { Button, Notice, Segmented } from '@/components/ui';
+import { formatBytes } from '@/lib/format';
+import { deleteModelCaches, listModelCaches } from '@/engines/cutout/cache';
+import { pwa, refreshOfflineInfo, removeOfflineCopy, saveAllForOffline } from './pwa';
 import { TOOLS } from '@/registry';
 import { ClearSessionButton } from './Tray';
 import { removeFavorite, setTheme, usePrefs, type Theme } from './prefs';
@@ -58,12 +62,8 @@ export function Settings() {
         </div>
       </section>
 
-      <section className="set" aria-labelledby="set-engines">
-        <h2 id="set-engines" className="section-h">
-          Downloaded engines and models
-        </h2>
-        <p className="muted">No engines or models are cached yet.</p>
-      </section>
+      <OfflineSection />
+      <ModelSection />
 
       <section className="set" aria-labelledby="set-privacy">
         <h2 id="set-privacy" className="section-h">
@@ -74,5 +74,72 @@ export function Settings() {
         </p>
       </section>
     </div>
+  );
+}
+
+function OfflineSection() {
+  const s = pwa.use((x) => x);
+  useEffect(() => refreshOfflineInfo(), []);
+  const i = s.info;
+  return (
+    <section className="set" aria-labelledby="set-offline">
+      <h2 id="set-offline" className="section-h">
+        Offline use
+      </h2>
+      {!s.supported ? (
+        <p className="muted">This browser cannot keep the app for offline use.</p>
+      ) : !s.active ? (
+        <p className="muted">Offline use is not set up in this tab. It is only available on the published site, not in development.</p>
+      ) : (
+        <>
+          <p className="muted">
+            The app shell works offline. Each tool is kept for offline use after you open it once.
+            {i ? ` Saved now: ${i.cached} of ${i.total} app files (${formatBytes(i.cachedBytes)} of ${formatBytes(i.totalBytes)}).` : ''} Your files are never stored here.
+          </p>
+          {s.error && <Notice kind="error">{s.error}</Notice>}
+          <div className="pk-row">
+            <Button onClick={saveAllForOffline} disabled={s.busy || (i ? i.cached >= i.total : false)}>
+              {s.busy ? 'Saving…' : i && i.cached >= i.total ? 'All tools saved for offline use' : `Save all tools for offline use${i ? ` (${formatBytes(i.totalBytes - i.cachedBytes)} more)` : ''}`}
+            </Button>
+            <Button variant="ghost" onClick={() => void removeOfflineCopy()}>
+              Remove offline copy
+            </Button>
+          </div>
+          <p className="muted">Cutout also needs its model. Tick "Keep the model on this device" in Cutout to use it offline.</p>
+        </>
+      )}
+    </section>
+  );
+}
+
+function ModelSection() {
+  const [list, setList] = useState<{ name: string; bytes: number }[] | null>(null);
+  const load = () => void listModelCaches().then(setList, () => setList([]));
+  useEffect(load, []);
+  return (
+    <section className="set" aria-labelledby="set-engines">
+      <h2 id="set-engines" className="section-h">
+        Downloaded engines and models
+      </h2>
+      {list === null ? (
+        <p className="muted">Checking…</p>
+      ) : list.length === 0 ? (
+        <p className="muted">No models are kept on this device. Clearing the session does not affect this.</p>
+      ) : (
+        <>
+          <ul className="row-list">
+            {list.map((m) => (
+              <li key={m.name} className="fav-row">
+                <span className="mono">{m.name}</span>
+                <span className="mono muted">{formatBytes(m.bytes)}</span>
+              </li>
+            ))}
+          </ul>
+          <div>
+            <Button onClick={() => void deleteModelCaches().then(load)}>Delete downloaded models</Button>
+          </div>
+        </>
+      )}
+    </section>
   );
 }

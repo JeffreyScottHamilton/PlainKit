@@ -12,6 +12,7 @@ import { Settings } from './Settings';
 import { Sidebar } from './Sidebar';
 import { TopBar } from './TopBar';
 import { Tray } from './Tray';
+import { UpdateBanner } from './UpdateBanner';
 import './shell.css';
 
 // Lazy components are cached per tool so switching tools does not re-create them.
@@ -118,6 +119,7 @@ export function App() {
 
       <div className="shell__col">
         <TopBar menuOpen={menuOpen} onOpenMenu={openMenu} onOpenSearch={() => setSearchOpen(true)} />
+        <UpdateBanner />
         <main id="main" ref={mainRef} tabIndex={-1} className="shell__main">
           <Routes>
             <Route path="/" element={<Home />} />

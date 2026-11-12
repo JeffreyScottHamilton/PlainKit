@@ -32,7 +32,7 @@ export function TopBar({ menuOpen, onOpenMenu, onOpenSearch }: Props) {
   const tool = toolId ? getTool(toolId) : undefined;
   const settings = pathname === '/settings';
   const onTool = tool !== undefined;
-  const mode = tool ? { label: NETWORK_LABEL[tool.network], Icon: MODE_ICON[tool.network] } : { label: NETWORK_LABEL['on-device'], Icon: Monitor };
+  const mode = tool ? { label: tool.networkNote ? `${NETWORK_LABEL[tool.network]}; ${tool.networkNote}` : NETWORK_LABEL[tool.network], Icon: MODE_ICON[tool.network] } : { label: NETWORK_LABEL['on-device'], Icon: Monitor };
   const shortcut = isMac ? '⌘K' : 'Ctrl K';
 
   return (
@@ -69,7 +69,7 @@ export function TopBar({ menuOpen, onOpenMenu, onOpenSearch }: Props) {
           <mode.Icon aria-hidden="true" />
           <span className="mode__text">{mode.label}</span>
         </span>
-        <button type="button" className="topbar__search" aria-label="Search tools" onClick={onOpenSearch}>
+        <button type="button" className="topbar__search" onClick={onOpenSearch}>
           <Search aria-hidden="true" />
           <span className="topbar__search-text">Search tools</span>
           <kbd className="kbd" aria-hidden="true">

@@ -155,6 +155,7 @@ test.describe('Video: save from a link', () => {
   });
 
   test('HLS: real MPEG-TS (H.264) segments are remuxed to a verified MP4', async ({ page }) => {
+    test.skip(!process.env.PK_BASE_URL, 'uses a dev-only fixture module; run against the dev server');
     await openVideo(page);
     const ts = await page.evaluate(async () => {
       // Dev server only: the fixture module is not part of the app bundle.
