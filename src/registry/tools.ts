@@ -11,18 +11,18 @@ const IMG = ['image/jpeg', 'image/png', 'image/webp'];
 // maturity starts at "planned"; raise it only with evidence recorded in docs/feature-matrix.md.
 export const TOOLS: ToolDef[] = [
   {
-    id: 'compress', name: 'Compress', title: 'Compress files', description: 'Make images smaller by quality or to a target size.',
+    id: 'compress', name: 'Compress', title: 'Compress files', description: 'Make images, video, audio and PDFs smaller.',
     aliases: ['ShrinkRay', 'Press'], keywords: ['shrink', 'reduce', 'smaller', 'optimize', 'resize', 'jpeg', 'png', 'webp'],
-    category: 'image', accepts: IMG, produces: IMG, icon: Layers, load: () => import('@/tools/compress'),
+    category: 'image', accepts: [...IMG, 'video/*', 'audio/*', 'application/pdf'], produces: [...IMG, 'video/mp4', 'video/webm', 'audio/mp4', 'application/pdf'], icon: Layers, load: () => import('@/tools/compress'),
     capabilities: ['OffscreenCanvas'], network: 'on-device', assetDownloadBytes: 0, maturity: 'working',
-    limitations: ['Images only for now (JPEG, PNG, WebP). Audio, video and PDF compression are not built yet.', 'Re-encoding removes metadata.'],
+    limitations: ['Images: JPEG, PNG, WebP. Re-encoding removes metadata.', 'Video and audio are re-encoded with the encoders this browser has, so the available formats differ between browsers.', 'PDF: a lossless rewrite often saves little; flattening to images is lossy and removes selectable text.'],
   },
   {
     id: 'convert', name: 'Convert', title: 'Convert files', description: 'Change a file to another format from a tested list.',
     aliases: ['ConvertIt', 'Recast'], keywords: ['format', 'change', 'jpg to png', 'webp', 'export'],
-    category: 'image', accepts: [...IMG, 'image/gif', 'image/bmp', 'image/avif', 'image/svg+xml'], produces: IMG, icon: ArrowLeftRight, load: () => import('@/tools/convert'),
+    category: 'image', accepts: [...IMG, 'image/gif', 'image/bmp', 'image/avif', 'image/svg+xml', 'video/*', 'audio/*', 'application/pdf', 'model/*'], produces: [...IMG, 'video/mp4', 'video/webm', 'audio/mp4', 'audio/wav', 'application/pdf', 'model/stl'], icon: ArrowLeftRight, load: () => import('@/tools/convert'),
     capabilities: ['OffscreenCanvas'], network: 'on-device', assetDownloadBytes: 0, maturity: 'working',
-    limitations: ['Only the listed format pairs are supported.', 'Animation, layers and metadata are not carried over.'],
+    limitations: ['Only the listed format pairs are supported.', 'Images: animation, layers and metadata are not carried over.', 'Audio and video: only formats this browser can encode. MP3 output is usually unavailable.', 'Documents: images to PDF and PDF pages to pictures only. No Word, Excel or PowerPoint.', '3D: OBJ, STL and PLY geometry only. No glTF, FBX, STEP or CAD.'],
   },
   {
     id: 'cutout', name: 'Cutout', title: 'Cut out background', description: 'Remove an image background on this device.',

@@ -39,5 +39,6 @@ Direct dependencies, read from installed package metadata on 2026-11-11. Exact v
 - Font: Inter (via @fontsource-variable/inter), SIL Open Font License 1.1, self-hosted.
 - Icons: lucide-react, ISC.
 - Model weights: U²-Net-p, Apache-2.0, self-hosted. See `docs/models.md`.
+- Model weights: YuNet face detector (face_detection_yunet_2023mar), MIT via OpenCV Zoo, upstream weights BSD-3-Clause (Shiqi Yu), self-hosted. See `docs/models.md` and `public/models/yunet/`.
 - Third-party Claude skills are listed in `docs/skills-manifest.md`.
 - Transitive dependency licences have not been audited yet.

@@ -3,7 +3,7 @@ import { mustTool } from '@/registry';
 import './components.css';
 
 /** Standard tool layout: heading, main working area, optional settings panel, limitations. */
-export function ToolPage({ toolId, settings, children }: { toolId: string; settings?: ReactNode; children: ReactNode }) {
+export function ToolPage({ toolId, settings, tabs, children }: { toolId: string; settings?: ReactNode; tabs?: ReactNode; children: ReactNode }) {
   const tool = mustTool(toolId);
   return (
     <div className="pk-tool">
@@ -11,6 +11,7 @@ export function ToolPage({ toolId, settings, children }: { toolId: string; setti
         <h1>{tool.title}</h1>
         <p>{tool.description}</p>
       </header>
+      {tabs}
       <div className={`pk-tool__body${settings ? ' pk-tool__body--settings' : ''}`}>
         <div className="pk-tool__main">{children}</div>
         {settings && (

@@ -8,9 +8,12 @@ import { removeAsset, useToolInputs } from '@/session/store';
 import type { SessionAsset } from '@/session/types';
 import { useToolState } from '@/session/toolState';
 import { cancelJob, enqueue, isActive, useJobs } from '@/jobs/queue';
-import { outputName, uid } from '@/lib/format';
+import { formatBytes, outputName, uid } from '@/lib/format';
 import { renderRedactedInWorker } from '@/engines/redact/client';
 import { commit, newHistory, redo, undo, updateRegion, addRegion, removeRegion, centeredRect, clampRect, describeRegion, keyEdit, makeRegion, rectFromPoints, resizeFromCorner, type Corner, type History, type Rect, type Region, type RedactStyle } from '@/engines/redact/model';
+import { detectFaces, isFaceModelLoaded } from '@/engines/face/client';
+import { FACE_MODEL } from '@/engines/face/model';
+import { ENGINE } from '@/engines/cutout/model';
 import { fitLayout, toImage, toPreview } from '@/engines/redact/coords';
 import type { RenderFormat } from '@/engines/redact/types';
 import './redact.css';
@@ -22,8 +25,10 @@ type Stored = {
   color: string;
   format: RenderFormat;
   jobByInput: Record<string, string>;
+  faceJob: Record<string, string>;
+  faceCount: Record<string, number>;
 };
-const INITIAL: Stored = { docs: {}, selected: {}, style: 'solid', color: '#000000', format: 'image/png', jobByInput: {} };
+const INITIAL: Stored = { docs: {}, selected: {}, style: 'solid', color: '#000000', format: 'image/png', jobByInput: {}, faceJob: {}, faceCount: {} };
 const EMPTY = newHistory();
 const CORNERS: Corner[] = ['nw', 'ne', 'sw', 'se'];
 
@@ -98,6 +103,7 @@ export default function Tool() {
   const selId = st.selected[id] ?? null;
   const sel = present.find((r) => r.id === selId);
   const job = asset ? jobs.find((j) => j.id === st.jobByInput[asset.id]) : undefined;
+  const faceRun = asset ? jobs.find((j) => j.id === st.faceJob[asset.id]) : undefined;
   const bounds = img ? { width: img.width, height: img.height } : { width: 1, height: 1 };
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -214,6 +220,28 @@ export default function Tool() {
     select(r.id);
   };
 
+  // Detected faces become ordinary regions in ONE undo step, added to whatever the user has now (not a snapshot from the click).
+  const findFaces = () => {
+    if (!asset || !img || (faceRun && isActive(faceRun))) return;
+    const a = asset;
+    const jobId = enqueue({
+      toolId: 'redact',
+      label: `Find faces in ${a.name}`,
+      inputIds: [a.id],
+      heavy: true,
+      run: async (ctx) => {
+        const res = await detectFaces(a.blob, ctx);
+        set((s) => {
+          const h = s.docs[a.id] ?? EMPTY;
+          const regions = res.boxes.reduce((acc, b) => addRegion(acc, makeRegion(uid(), b, s.style, s.style === 'solid' ? s.color : undefined), res), h.present);
+          return { ...s, docs: { ...s.docs, [a.id]: commit(h, regions) }, faceCount: { ...s.faceCount, [a.id]: res.boxes.length } };
+        });
+        return { outputs: [], warnings: [] };
+      },
+    });
+    set((s) => ({ ...s, faceJob: { ...s.faceJob, [a.id]: jobId } }));
+  };
+
   const exportNow = () => {
     if (!asset || present.length === 0) return;
     const regions = present;
@@ -289,7 +317,26 @@ export default function Tool() {
             ]}
             onChange={(format) => set({ format })}
           />
-          <p className="rd-note">Automatic face detection is not available yet.</p>
+          <section className="pk-stack" style={{ gap: 8 }} aria-labelledby="rd-faces">
+            <h3 id="rd-faces" style={{ fontSize: 14, fontWeight: 600, margin: 0 }}>
+              Faces
+            </h3>
+            <Button size="sm" disabled={!asset || !img || (!!faceRun && isActive(faceRun))} onClick={findFaces}>
+              Find faces on this device
+            </Button>
+            <p className="rd-note">
+              Model: {FACE_MODEL.name}, {formatBytes(FACE_MODEL.bytes)}, {FACE_MODEL.licence} licence. Runs on this device; your image is not uploaded.
+              {isFaceModelLoaded() ? '' : ` First use downloads the engine (ONNX Runtime, ${formatBytes(ENGINE.bytes)}) from this site.`}
+            </p>
+            {faceRun && <JobStatus job={faceRun} />}
+            {faceRun?.state === 'complete' && asset && st.faceCount[asset.id] !== undefined && (
+              <p className="rd-note" role="status">
+                {st.faceCount[asset.id] === 0
+                  ? 'No faces found. Add regions by hand.'
+                  : `Found ${st.faceCount[asset.id]} ${st.faceCount[asset.id] === 1 ? 'face' : 'faces'}. Check the image: detection can miss faces, especially small, turned, covered or blurry ones.`}
+              </p>
+            )}
+          </section>
           <p className="rd-note">Export flattens the image. The original pixels under a solid box are gone from the exported file, and its metadata is removed. Pixelated or blurred areas can sometimes be guessed.</p>
           <Button variant="primary" block disabled={!!exportHint || !asset || !img} onClick={exportNow} aria-describedby={exportHint ? 'rd-export-hint' : undefined}>
             Export redacted image

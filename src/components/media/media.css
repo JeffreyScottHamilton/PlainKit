@@ -1,0 +1,7 @@
+.media-preview { min-height: 0; padding: var(--s3); }
+.media-preview video { max-width: 100%; max-height: min(48vh, 480px); }
+.media-preview audio { width: 100%; }
+.media-files { display: flex; flex-direction: column; }
+.media-file { display: flex; flex-direction: column; gap: var(--s2); padding: var(--s3) 0; border-top: 1px solid var(--divider); min-width: 0; }
+.media-file:first-child { border-top: 0; }
+.media-notes { margin: 0; padding-left: var(--s5); font-size: 13px; color: var(--text-2); }

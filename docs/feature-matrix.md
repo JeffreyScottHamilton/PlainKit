@@ -13,10 +13,14 @@ Nothing is "verified" yet: all evidence is automated tests in headless Chromium 
 | Compress | JPEG/PNG/WebP by quality | working | `e2e/image.spec.ts`: output magic bytes, dimensions, smaller size |
 | Compress | Target size (bounded search, reports when unreachable) | working | `e2e/image.spec.ts`, `src/engines/image/search.test.ts` |
 | Compress | Cancel and retry; original bytes unchanged (SHA-256) | working | `e2e/image.spec.ts` |
-| Compress | Audio, video, PDF | planned | — |
+| Compress | Video and audio: re-encode at a quality preset, lower height, audio bitrate; formats probed at runtime | experimental | `e2e/convert-more.spec.ts`: a generated 640×480 clip came out 51% smaller and re-opened at the same duration. One synthetic clip, Chromium only; no audio-track video tested |
+| Compress | PDF: lossless rewrite, or flatten pages to JPEG (lossy, clearly warned) | working | unit tests + e2e reload the output and check page count and sizes; a text PDF that grows when flattened is reported as not smaller |
 | Convert | JPEG/PNG/WebP/GIF(first frame)/BMP/AVIF(decode-dependent) → JPEG/PNG/WebP | working | `e2e/image.spec.ts`, `matrix.test.ts`; GIF/BMP/AVIF inputs not yet covered by e2e |
 | Convert | In-memory handoff from Compress (no download) | working | `e2e/image.spec.ts` |
-| Convert | Audio, video, document, 3D | planned | — |
+| Convert | Audio and video between containers this browser can write (Chromium here: MP4, WebM, MKV, MOV, M4A, Ogg, WAV; not MP3 or FLAC) | experimental | e2e: WebM→MP4 and WAV→Ogg, verified by re-opening; formats that do not fit the file are hidden. Synthetic sources only |
+| Convert | Documents: images → one PDF; PDF pages → PNG/JPEG | working | unit tests + e2e check page count, page sizes and decoded image dimensions |
+| Convert | 3D: OBJ, STL, PLY in any direction, geometry only | working | 7 unit tests (all nine pairs, ASCII and binary, polygons, bad input) + e2e checks the STL bytes |
+| Convert | Word/Excel/PowerPoint, EPUB, glTF/FBX/STEP/CAD, MP3 output | unsupported | stated in the tool |
 | Cutout | Local background removal (U²-Net-p), threshold/feather, erase/restore, transparent PNG | experimental | 18 unit tests; e2e runs the real model: PNG with real alpha, same-origin requests only, offline second run, cancel and retry. **Only tested on synthetic shapes, not real photos; refinement tools not exercised by any test** |
 | Dev tools | 40 utilities | working | 197 unit tests in `src/tools/dev-tools/logic`; `e2e/dev-tools.spec.ts` (43): every utility renders and loads its example without page errors; Markdown sanitised; regex time limit checked in browser by the agent only |
 | Metadata | Inspect EXIF/GPS/IPTC/XMP; lossless removal for JPEG, PNG, WebP; output re-checked two ways | working | 20 unit tests on built fixtures (pixel data byte-identical); e2e confirms GPS and EXIF/XMP absent in the download with exifr and a segment walk. Bytes appended after a JPEG's end marker are not removed |
@@ -24,7 +28,7 @@ Nothing is "verified" yet: all evidence is automated tests in headless Chromium 
 | Send files | Manual pairing by invite/reply code, comparison number, explicit accept, chunked transfer with integrity check, cancel | experimental | 21 unit tests; e2e transfers 300 KB between two tabs on one machine and matches SHA-256, plus decline and bad-code cases. **Not tested across two real devices or networks.** STUN mode, expiry, mid-transfer cancel and connection loss have no test |
 | Redact | Rectangles by pointer, keyboard or numbers; solid and pixelate; flattened export; undo/redo | working | 13 unit tests; e2e decodes the PNG and checks every sampled pixel in the region |
 | Redact | Blur export; keyboard move, resize, delete, undo | working | e2e: stripes smeared inside the region, no leak outside it; keyboard edits change the region |
-| Redact | Face detection | planned | needs a model |
+| Redact | Face detection on this device (YuNet, 233 KB, MIT/BSD), boxes added as editable regions in one undo step | experimental | 20 unit tests; e2e detects a drawn cartoon face (score 0.84), same-origin requests only. **Not tested on real photographs**; small or turned faces are missed |
 | PDF | Merge, keyboard reorder, rotate, remove, extract, undo/redo; pages copied not rasterised; export re-verified | working | 34 unit tests (mixed sizes, pre-rotated, blank, 20-page, corrupt, encrypted); `e2e/pdf.spec.ts` reloads the download and checks page order and rotation. No drag-and-drop reorder; thumbnails not visually checked |
 | Audio stems | Audio extraction to 16-bit WAV, sample rate, mono, trim | working | unit tests on the WAV encoder; e2e parses the downloaded WAV header and samples. Only tested with a WAV source, not with a real video file. No memory or runtime benchmark |
 | Audio stems | Stem separation | planned | needs a verified licensed model |
