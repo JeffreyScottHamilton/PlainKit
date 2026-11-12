@@ -1,0 +1,14 @@
+/* Metadata: per-file inspection, options and results. Tokens come from src/app/tokens.css. */
+.meta-note { margin: 0; font-size: 13px; color: var(--text-2); }
+.meta-hint { margin: 0; font-size: 12.5px; color: var(--text-2); }
+.meta-files { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--s4); }
+.meta-file { display: flex; flex-direction: column; gap: var(--s3); padding-top: var(--s3); border-top: 1px solid var(--divider); min-width: 0; }
+.meta-head { display: flex; align-items: center; gap: var(--s3); min-width: 0; }
+.meta-name { margin: 0; font-size: 16px; font-weight: 600; overflow-wrap: anywhere; }
+.meta-groups h3 { margin: var(--s2) 0 var(--s1); font-size: 14px; font-weight: 600; }
+.meta-dl { display: grid; grid-template-columns: minmax(120px, max-content) minmax(0, 1fr); gap: 4px var(--s3); margin: 0; font-size: 14px; }
+.meta-dl dt { color: var(--text-2); }
+.meta-dl dd { margin: 0; overflow-wrap: anywhere; }
+.meta-check { display: flex; align-items: center; gap: var(--s2); min-height: 24px; }
+.meta-check input { width: 18px; height: 18px; accent-color: var(--accent); }
+.meta-verified { font-size: 14px; }

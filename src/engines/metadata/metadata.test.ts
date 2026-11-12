@@ -8,7 +8,7 @@ import { verifyClean } from './verify';
 import { readMetadata } from './read';
 import { readIfd0, tiffOf } from './tiff';
 import { ascii } from './bytes';
-import { b64, jpegWithMetadata, pngWithMetadata, TINY_JPEG_B64, TINY_WEBP_B64, webpWithMetadata } from './testdata';
+import { b64, jpegWithMetadata, pngWithMetadata, TINY_JPEG_B64, webpWithMetadata } from './testdata';
 import { cleanFile, verdictOf } from './clean';
 
 const KEEP_ALL = { keepIcc: true, keepOrientation: false };
@@ -156,7 +156,7 @@ describe('verify', () => {
 
 describe('read and clean wrappers', () => {
   it('reports location and grouped fields, and flags cleanable formats', async () => {
-    const r = await readMetadata(new Blob([jpegWithMetadata({ gps: true })], { type: 'image/jpeg' }));
+    const r = await readMetadata(new Blob([jpegWithMetadata({ gps: true }) as BlobPart], { type: 'image/jpeg' }));
     expect(r.format).toBe('image/jpeg');
     expect(r.cleanable).toBe(true);
     expect(r.hasLocation).toBe(true);
@@ -165,12 +165,12 @@ describe('read and clean wrappers', () => {
   });
 
   it('returns an unsupported state for non-images without throwing', async () => {
-    const r = await readMetadata(new Blob([new TextEncoder().encode('hello')]));
+    const r = await readMetadata(new Blob(['hello']));
     expect(r.format).toBeNull();
   });
 
   it('cleanFile returns a verified output and leaves the input bytes unchanged', async () => {
-    const input = new Blob([jpegWithMetadata({ gps: true })], { type: 'image/jpeg' });
+    const input = new Blob([jpegWithMetadata({ gps: true }) as BlobPart], { type: 'image/jpeg' });
     const before = Buffer.from(await input.arrayBuffer());
     const { blob, verdict } = await cleanFile(input, 'image/jpeg', KEEP_ALL);
     expect(verdict.clean).toBe(true);
