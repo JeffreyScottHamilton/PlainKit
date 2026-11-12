@@ -9,7 +9,8 @@ import { PNG } from 'pngjs';
 // Results are written as JSON under test-results/a11y/ (gitignored output dir) and echoed as A11Y lines.
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const OUT = join(HERE, '..', 'test-results', 'a11y');
+// Output goes to the session scratchpad (Playwright wipes test-results/ on each run).
+const OUT = process.env.PK_AUDIT_OUT ?? '/tmp/claude-0/-home-user-PlainKit/8f13f7c1-b94f-5024-a461-60a90c7cf03f/scratchpad/audit/a11y';
 
 const TOOL_IDS = ['compress', 'convert', 'cutout', 'dev-tools', 'metadata', 'clean-links', 'send-files', 'redact', 'pdf',
   'audio-stems', 'subtitles', 'qr-code', 'csv', 'id-photo', 'clean-text', 'video', 'keep-awake'];
@@ -297,11 +298,14 @@ test.describe('contrast of tokens and states', () => {
           out.push({ pair: p.pair, fg: show(fgC), bg: show(bg), opaque: bg.opaque, ratio: Math.round(ratio(fgC, bg) * 100) / 100, need: p.need });
         }
         return out; })()`;
-      const probeRows = (await page.goto('/')).ok() ? [] : [];
-      void probeRows;
       await settle(page);
       const basic = await page.evaluate(pageContent);
-      for (const r of basic as Record<string, unknown>[]) rows.push(normalize(r));
+      for (const r of basic as Record<string, unknown>[]) if (!String(r.pair).startsWith('active')) rows.push(normalize(r));
+      // Active sidebar link only exists on a tool route.
+      await page.goto('/tools/compress');
+      await settle(page);
+      const onTool = await page.evaluate(pageContent);
+      for (const r of onTool as Record<string, unknown>[]) if (String(r.pair).startsWith('active')) rows.push(normalize(r));
 
       // Primary button (enabled) on accent, and disabled primary, on compress before and after a file is added.
       await page.goto('/tools/compress');
