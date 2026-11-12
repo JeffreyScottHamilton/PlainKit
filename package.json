@@ -20,6 +20,7 @@
     "jsqr": "^1.4.0",
     "lucide-react": "^1.72.0",
     "marked": "^18.2.0",
+    "mediabunny": "^1.65.2",
     "papaparse": "^5.7.1",
     "pdf-lib": "^1.17.1",
     "pdfjs-dist": "^6.5.438",

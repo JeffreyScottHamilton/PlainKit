@@ -12,6 +12,7 @@ Direct dependencies, read from installed package metadata on 2026-11-11. Exact v
 | jsqr | 1.4.0 | Apache-2.0 | runtime |
 | lucide-react | 1.72.0 | ISC | runtime |
 | marked | 18.2.0 | MIT | runtime |
+| mediabunny | 1.65.2 | MPL-2.0 (used unmodified) | runtime |
 | papaparse | 5.7.1 | MIT | runtime |
 | pdf-lib | 1.17.1 | MIT | runtime |
 | pdfjs-dist | 6.5.438 | Apache-2.0 | runtime |

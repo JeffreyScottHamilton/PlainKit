@@ -42,7 +42,7 @@ export const TOOLS: ToolDef[] = [
     id: 'metadata', name: 'Metadata', title: 'Photo metadata', description: 'See and remove EXIF, GPS and other photo metadata.',
     aliases: ['ExifErase', 'Scrub', 'exif'], keywords: ['exif', 'gps', 'location', 'privacy', 'strip', 'iptc', 'xmp'],
     category: 'image', accepts: IMG, produces: IMG, icon: Info, load: () => import('@/tools/metadata'),
-    capabilities: [], network: 'on-device', assetDownloadBytes: 0, maturity: 'planned',
+    capabilities: [], network: 'on-device', assetDownloadBytes: 0, maturity: 'working',
     limitations: ['Cannot remove identifying details visible in the picture itself.', 'Not every possible hidden field is covered.'],
   },
   {
@@ -63,7 +63,7 @@ export const TOOLS: ToolDef[] = [
     id: 'redact', name: 'Redact', title: 'Redact images', description: 'Cover parts of an image with solid boxes, pixels or blur.',
     aliases: ['BlurIt', 'Veil', 'blur', 'censor'], keywords: ['hide', 'blackout', 'pixelate', 'face', 'privacy'],
     category: 'image', accepts: IMG, produces: ['image/png', 'image/jpeg'], icon: ScanFace, load: () => import('@/tools/redact'),
-    capabilities: ['OffscreenCanvas'], network: 'on-device', assetDownloadBytes: 0, maturity: 'planned',
+    capabilities: ['OffscreenCanvas'], network: 'on-device', assetDownloadBytes: 0, maturity: 'working',
     limitations: ['Blur and pixelation can sometimes be reversed. Use solid boxes for sensitive text.', 'Face detection, when available, can miss faces.'],
   },
   {

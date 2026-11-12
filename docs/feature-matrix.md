@@ -18,10 +18,12 @@ Nothing is "verified" yet: all evidence is automated tests in headless Chromium 
 | Convert | Audio, video, document, 3D | planned | — |
 | Cutout | Background removal | planned | needs model host access |
 | Dev tools | 40 utilities | working | 197 unit tests in `src/tools/dev-tools/logic`; `e2e/dev-tools.spec.ts` (43): every utility renders and loads its example without page errors; Markdown sanitised; regex time limit checked in browser by the agent only |
-| Metadata | Inspect / remove EXIF, GPS | planned | — |
+| Metadata | Inspect EXIF/GPS/IPTC/XMP; lossless removal for JPEG, PNG, WebP; output re-checked two ways | working | 20 unit tests on built fixtures (pixel data byte-identical); e2e confirms GPS and EXIF/XMP absent in the download with exifr and a segment walk. Bytes appended after a JPEG's end marker are not removed |
 | Clean links | Tracker removal, signed-link guard, per-parameter restore | working | 15 unit tests; `e2e/small-tools.spec.ts`. Signed-link detection is by parameter name and can false-positive on short names |
 | Send files | WebRTC transfer, manual pairing | planned | — |
-| Redact | Solid / pixelate / blur | planned | — |
+| Redact | Rectangles by pointer, keyboard or numbers; solid and pixelate; flattened export; undo/redo | working | 13 unit tests; e2e decodes the PNG and checks every sampled pixel in the region |
+| Redact | Blur export | experimental | built, not exercised by any test |
+| Redact | Face detection | planned | needs a model |
 | PDF | Merge, keyboard reorder, rotate, remove, extract, undo/redo; pages copied not rasterised; export re-verified | working | 34 unit tests (mixed sizes, pre-rotated, blank, 20-page, corrupt, encrypted); `e2e/pdf.spec.ts` reloads the download and checks page order and rotation. No drag-and-drop reorder; thumbnails not visually checked |
 | Audio stems | Audio extraction | planned | — |
 | Audio stems | Stem separation | planned | needs a verified licensed model |

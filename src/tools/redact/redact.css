@@ -1,0 +1,24 @@
+/* Redact: preview stage, region overlays, numeric fields. Tokens come from src/app/tokens.css. */
+.rd-note { margin: 0; font-size: 13px; color: var(--text-2); }
+.rd-stage { position: relative; width: 100%; height: min(62vh, 620px); min-height: 280px; overflow: hidden; touch-action: none; background: var(--input); border: 1px solid var(--divider); border-radius: var(--r3); user-select: none; }
+.rd-stage:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.rd-stage canvas { position: absolute; display: block; }
+.rd-region { position: absolute; box-sizing: border-box; outline: 1px solid var(--text-2); cursor: move; }
+.rd-region--solid { background: #000000; }
+.rd-region--pixelate { background: repeating-conic-gradient(#7a7f85 0% 25%, #3a3e42 0% 50%) 0 0 / 14px 14px; }
+.rd-region--blur { backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); background: rgba(242, 244, 241, 0.12); }
+.rd-region--sel { outline: 2px solid var(--accent); }
+.rd-draft { position: absolute; box-sizing: border-box; border: 2px dashed var(--accent); pointer-events: none; }
+.rd-handle { position: absolute; width: 24px; height: 24px; margin: -12px 0 0 -12px; cursor: nwse-resize; background: transparent; }
+.rd-handle::after { content: ''; display: block; width: 10px; height: 10px; margin: 7px; background: var(--text); }
+.rd-handle--nw { left: 0; top: 0; }
+.rd-handle--ne { left: 100%; top: 0; margin-left: -12px; cursor: nesw-resize; }
+.rd-handle--sw { left: 0; top: 100%; margin-top: -12px; cursor: nesw-resize; }
+.rd-handle--se { left: 100%; top: 100%; margin: -12px 0 0 -12px; }
+.rd-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s2); border: 0; margin: 0; padding: 0; }
+.rd-fields legend { font-size: 14px; font-weight: 600; margin-bottom: var(--s2); }
+.rd-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--s1); }
+.rd-list button { width: 100%; min-height: 36px; text-align: left; padding: 6px 10px; background: var(--input); color: var(--text); border: 1px solid var(--divider); border-radius: var(--r2); }
+.rd-list button[aria-pressed='true'] { border-color: var(--accent); }
+.rd-row { display: flex; gap: var(--s2); flex-wrap: wrap; }
+.rd-color { width: 56px; height: 36px; padding: 2px; background: var(--input); border: 1px solid var(--border-strong); border-radius: var(--r2); }

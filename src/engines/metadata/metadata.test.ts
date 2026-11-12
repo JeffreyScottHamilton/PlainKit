@@ -131,6 +131,13 @@ describe('strip: lossless removal', () => {
     expect(out[vp8x.payload]).toBe(0x20);
   });
 
+  it('WebP keepOrientation keeps an orientation-only EXIF chunk and sets its VP8X flag', async () => {
+    const out = stripMetadata(webpWithMetadata(0x0c, { exif: true, xmp: true }), { keepIcc: true, keepOrientation: true });
+    expect(kinds(out)).toEqual(['keep', 'keep', 'exif']);
+    expect(out[listSegments(out).segments[0]!.payload]).toBe(0x08);
+    expect(await verifyClean(out)).toMatchObject({ clean: true, keptOrientation: true });
+  });
+
   it('stripping an already-clean file is a no-op', () => {
     const clean = [b64(TINY_JPEG_B64), pngWithMetadata({}), webpWithMetadata(0)];
     for (const c of clean) expect(Buffer.from(stripMetadata(c, KEEP_ALL)).equals(Buffer.from(c))).toBe(true);
