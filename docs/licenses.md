@@ -43,3 +43,5 @@ Direct dependencies, read from installed package metadata on 2026-11-11. Exact v
 - Third-party Claude skills are listed in `docs/skills-manifest.md`.
 - Transitive dependency licences have not been audited yet.
 - Model weights: Spleeter 4 stems (Deezer, MIT) as ONNX fp16 via Best-Practice/spleeter-4stems-onnx (Apache-2.0 conversion derived from sherpa-onnx, Apache-2.0), self-hosted. Upstream weights-licence wording is an open question, see `docs/models.md` and `docs/audits/stems-feasibility.md`. Files in `public/models/spleeter-4stems/`.
+- Model weights: Whisper tiny.en 8-bit ONNX (onnx-community/whisper-tiny.en), Apache-2.0 per the model cards, MIT upstream (OpenAI Whisper), self-hosted unmodified. See `docs/models.md` and `public/models/whisper-tiny-en/`.
+- Runtime: @huggingface/transformers 4.3.2 (Apache-2.0) and its nested onnxruntime-web 1.31.0-dev (MIT), loaded on demand by the Subtitles transcription worker. Audio fixture `e2e/fixtures/jfk.wav`: JFK 1961 inaugural address excerpt, US federal-government work, treated as public domain.
