@@ -77,7 +77,7 @@ export const TOOLS: ToolDef[] = [
     id: 'audio-stems', name: 'Audio stems', title: 'Audio and stems', description: 'Pull the audio out of a video. Stem separation is experimental.',
     aliases: ['VoiceRip', 'Stems', 'vocal remover'], keywords: ['extract audio', 'vocals', 'instrumental', 'karaoke', 'wav', 'mp3'],
     category: 'media', accepts: ['video/*', 'audio/*'], produces: ['audio/wav'], icon: AudioLines, load: () => import('@/tools/audio-stems'),
-    capabilities: ['AudioContext'], network: 'on-device', assetDownloadBytes: 0, maturity: 'planned',
+    capabilities: ['AudioContext'], network: 'on-device', assetDownloadBytes: 0, maturity: 'working',
     limitations: ['Stem separation is not available until a licensed local model is verified.'],
   },
   {
@@ -105,7 +105,7 @@ export const TOOLS: ToolDef[] = [
     id: 'id-photo', name: 'ID photo', title: 'ID photo', description: 'Crop a photo to passport and ID sizes with guides.',
     aliases: ['IDPhoto', 'Frame', 'passport photo'], keywords: ['passport', 'visa', 'crop', 'print', 'headshot'],
     category: 'image', accepts: IMG, produces: ['image/jpeg', 'application/pdf'], icon: CircleUserRound, load: () => import('@/tools/id-photo'),
-    capabilities: ['OffscreenCanvas'], network: 'on-device', assetDownloadBytes: 0, maturity: 'planned',
+    capabilities: ['OffscreenCanvas'], network: 'on-device', assetDownloadBytes: 0, maturity: 'experimental',
     limitations: ['Guides only. Acceptance is decided by the issuing authority, not by this tool.'],
   },
   {
