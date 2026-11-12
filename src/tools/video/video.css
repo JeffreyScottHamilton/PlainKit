@@ -1,0 +1,16 @@
+.vd-section { display: flex; flex-direction: column; gap: var(--s3); min-width: 0; }
+.vd-section + .vd-section { border-top: 1px solid var(--divider); padding-top: var(--s4); }
+.vd-video { width: 100%; max-width: 760px; max-height: 60vh; background: #000; border-radius: var(--r2); }
+.vd-facts { display: grid; grid-template-columns: max-content 1fr; gap: 4px 16px; margin: 0; font-size: 14px; }
+.vd-facts dt { color: var(--text-2); }
+.vd-facts dd { margin: 0; font-family: var(--mono, ui-monospace, monospace); }
+.vd-times { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--s3); }
+.vd-range { width: 100%; accent-color: var(--accent); min-height: 24px; }
+.vd-row { display: flex; flex-wrap: wrap; gap: var(--s2); align-items: center; }
+.vd-result { display: flex; flex-direction: column; gap: var(--s3); min-width: 0; }
+.vd-result video { width: 100%; max-width: 640px; background: #000; border-radius: var(--r2); }
+.vd-verified { font-family: var(--mono, ui-monospace, monospace); font-size: 14px; }
+.vd-link-note { color: var(--text-2); font-size: 14px; }
+@media (max-width: 480px) {
+  .vd-facts { grid-template-columns: 1fr; }
+}

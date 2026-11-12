@@ -56,7 +56,7 @@ export const TOOLS: ToolDef[] = [
     id: 'send-files', name: 'Send files', title: 'Send files', description: 'Send files straight to another device.',
     aliases: ['FileBeam', 'Relay', 'airdrop'], keywords: ['transfer', 'share', 'p2p', 'webrtc', 'peer', 'device'],
     category: 'network', accepts: ['*/*'], produces: [], icon: Send, load: () => import('@/tools/send-files'),
-    capabilities: ['RTCPeerConnection'], network: 'peer', assetDownloadBytes: 0, maturity: 'planned',
+    capabilities: ['RTCPeerConnection'], network: 'peer', assetDownloadBytes: 0, maturity: 'experimental',
     limitations: ['Both devices must stay open during the transfer.', 'Some networks block direct connections.'],
   },
   {

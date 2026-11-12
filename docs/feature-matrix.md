@@ -20,7 +20,7 @@ Nothing is "verified" yet: all evidence is automated tests in headless Chromium 
 | Dev tools | 40 utilities | working | 197 unit tests in `src/tools/dev-tools/logic`; `e2e/dev-tools.spec.ts` (43): every utility renders and loads its example without page errors; Markdown sanitised; regex time limit checked in browser by the agent only |
 | Metadata | Inspect EXIF/GPS/IPTC/XMP; lossless removal for JPEG, PNG, WebP; output re-checked two ways | working | 20 unit tests on built fixtures (pixel data byte-identical); e2e confirms GPS and EXIF/XMP absent in the download with exifr and a segment walk. Bytes appended after a JPEG's end marker are not removed |
 | Clean links | Tracker removal, signed-link guard, per-parameter restore | working | 15 unit tests; `e2e/small-tools.spec.ts`. Signed-link detection is by parameter name and can false-positive on short names |
-| Send files | WebRTC transfer, manual pairing | planned | — |
+| Send files | Manual pairing by invite/reply code, comparison number, explicit accept, chunked transfer with integrity check, cancel | experimental | 21 unit tests; e2e transfers 300 KB between two tabs on one machine and matches SHA-256, plus decline and bad-code cases. **Not tested across two real devices or networks.** STUN mode, expiry, mid-transfer cancel and connection loss have no test |
 | Redact | Rectangles by pointer, keyboard or numbers; solid and pixelate; flattened export; undo/redo | working | 13 unit tests; e2e decodes the PNG and checks every sampled pixel in the region |
 | Redact | Blur export | experimental | built, not exercised by any test |
 | Redact | Face detection | planned | needs a model |
