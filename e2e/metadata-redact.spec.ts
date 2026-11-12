@@ -84,6 +84,45 @@ test.describe('Redact', () => {
     }
     expect(px(pix, R.x - 1, R.y)).toEqual([255, 255, 255, 255]);
     expect([pix.width, pix.height]).toEqual([W, H]);
+
+    // Blur: 1px red/blue stripes must be smeared (neighbouring columns nearly equal, no pure stripe colour left),
+    // and the blur must not leak outside the region.
+    await main.getByRole('radio', { name: 'Blur', exact: true }).click();
+    const blur = await exportAndRead(page);
+    const cy = R.y + Math.floor(R.h / 2);
+    for (let x = R.x + 20; x < R.x + R.w - 20; x++) {
+      const a = px(blur, x, cy);
+      const b = px(blur, x + 1, cy);
+      expect(a).not.toEqual([255, 0, 0, 255]);
+      expect(a).not.toEqual([0, 0, 255, 255]);
+      expect(Math.abs(a[0]! - b[0]!) + Math.abs(a[2]! - b[2]!)).toBeLessThan(40);
+    }
+    expect(px(blur, R.x - 1, R.y)).toEqual([255, 255, 255, 255]);
+    expect(px(blur, R.x + R.w, cy)).toEqual([255, 255, 255, 255]);
+  });
+
+  test('a region can be moved, resized and removed from the keyboard, and undone', async ({ page }) => {
+    await page.goto('/tools/redact');
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+    await page.locator('input[type=file]').first().setInputFiles({ name: 'scan.png', mimeType: 'image/png', buffer: await makeStripedPng(page) });
+    const main = page.getByRole('main');
+    const canvas = main.getByRole('application', { name: /Redaction canvas for scan\.png/ });
+    await main.getByRole('button', { name: 'Add region', exact: true }).click();
+    const x = main.getByRole('spinbutton', { name: 'X' });
+    const w = main.getByRole('spinbutton', { name: 'Width' });
+    const x0 = Number(await x.inputValue());
+    const w0 = Number(await w.inputValue());
+    await canvas.focus();
+    await page.keyboard.press('ArrowRight');
+    await expect(x).toHaveValue(String(x0 + 1));
+    await page.keyboard.press('Shift+ArrowRight');
+    await expect(x).toHaveValue(String(x0 + 11));
+    await page.keyboard.press('Alt+ArrowRight');
+    await expect(w).toHaveValue(String(w0 + 1));
+    await page.keyboard.press('Control+z');
+    await expect(w).toHaveValue(String(w0));
+    await page.keyboard.press('Delete');
+    await expect(main.getByRole('button', { name: /^Region 1/ })).toHaveCount(0);
   });
 });
 

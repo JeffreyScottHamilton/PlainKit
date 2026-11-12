@@ -19,8 +19,9 @@ function ToolRow({ tool }: { tool: ToolDef }) {
 }
 
 export function Home() {
-  const { favorites } = usePrefs();
+  const { favorites, recents } = usePrefs();
   const favs = TOOLS.filter((t) => favorites.includes(t.id));
+  const recent = recents.flatMap((id) => TOOLS.find((t) => t.id === id) ?? []).filter((t) => !favorites.includes(t.id));
   const [left, right] = HOME_DIRECTORY.map((col) => col.flatMap((id) => getTool(id) ?? []));
 
   return (
@@ -39,6 +40,21 @@ export function Home() {
           </h2>
           <ul className="row-list">
             {favs.map((t) => (
+              <li key={t.id}>
+                <ToolRow tool={t} />
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {recent.length > 0 && (
+        <section aria-labelledby="home-recent">
+          <h2 id="home-recent" className="section-h">
+            Recent
+          </h2>
+          <ul className="row-list">
+            {recent.map((t) => (
               <li key={t.id}>
                 <ToolRow tool={t} />
               </li>
