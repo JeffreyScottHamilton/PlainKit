@@ -74,11 +74,11 @@ export const TOOLS: ToolDef[] = [
     limitations: ['Password-protected PDFs are not supported.', 'Editing pages can invalidate digital signatures.', 'No OCR, text editing or PDF compression.'],
   },
   {
-    id: 'audio-stems', name: 'Audio stems', title: 'Audio and stems', description: 'Pull the audio out of a video. Stem separation is experimental.',
+    id: 'audio-stems', name: 'Audio stems', title: 'Audio and stems', description: 'Pull the audio out of a video, or split a song into stems.',
     aliases: ['VoiceRip', 'Stems', 'vocal remover'], keywords: ['extract audio', 'vocals', 'instrumental', 'karaoke', 'wav', 'mp3'],
     category: 'media', accepts: ['video/*', 'audio/*'], produces: ['audio/wav'], icon: AudioLines, load: () => import('@/tools/audio-stems'),
-    capabilities: ['AudioContext'], network: 'on-device', assetDownloadBytes: 0, maturity: 'working',
-    limitations: ['Stem separation is not available until a licensed local model is verified.'],
+    capabilities: ['AudioContext'], network: 'on-device', assetDownloadBytes: 93_705_412, maturity: 'working',
+    limitations: ['Stem separation is experimental: up to 5 minutes of audio, four stems (vocals, drums, bass, other), with bleed and artefacts.', 'Stem separation needs a 94 MB download the first time and a lot of memory; it may fail on phones.', 'Nothing above about 11 kHz is separated cleanly.'],
   },
   {
     id: 'subtitles', name: 'Subtitles', title: 'Subtitles', description: 'Edit, shift and convert SRT and VTT subtitles.',

@@ -42,3 +42,4 @@ Direct dependencies, read from installed package metadata on 2026-11-11. Exact v
 - Model weights: YuNet face detector (face_detection_yunet_2023mar), MIT via OpenCV Zoo, upstream weights BSD-3-Clause (Shiqi Yu), self-hosted. See `docs/models.md` and `public/models/yunet/`.
 - Third-party Claude skills are listed in `docs/skills-manifest.md`.
 - Transitive dependency licences have not been audited yet.
+- Model weights: Spleeter 4 stems (Deezer, MIT) as ONNX fp16 via Best-Practice/spleeter-4stems-onnx (Apache-2.0 conversion derived from sherpa-onnx, Apache-2.0), self-hosted. Upstream weights-licence wording is an open question, see `docs/models.md` and `docs/audits/stems-feasibility.md`. Files in `public/models/spleeter-4stems/`.

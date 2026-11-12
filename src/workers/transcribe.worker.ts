@@ -13,7 +13,8 @@ const origin = self.location.origin;
 serve<TranscribeRequest, TranscribeResponse>(async (req, onProgress) => {
   env.allowRemoteModels = false;
   env.allowLocalModels = true;
-  env.localModelPath = new URL(WHISPER.localModelPath, origin).href;
+  // Must stay a path, not an absolute URL: the library only checks for local metadata files when it is not an http(s) URL.
+  env.localModelPath = WHISPER.localModelPath;
   env.useWasmCache = false; // ORT fetches its own wasm from wasmPaths; no hidden cache outside plainkit-model-*
   env.useBrowserCache = false;
   env.useCustomCache = false;

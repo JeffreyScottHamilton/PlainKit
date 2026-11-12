@@ -68,7 +68,7 @@ test('transcribes real speech on this device, same-origin only', async ({ page, 
   info.annotations.push({ type: 'measured', description: timing });
 
   assertSameOrigin(urls, new URL(baseURL ?? page.url()).origin);
-  expect(urls.some((u) => /huggingface|jsdelivr|unpkg|cdn/.test(u))).toBe(false);
+  expect(urls.some((u) => !u.startsWith('data:') && !u.startsWith('blob:') && /huggingface|jsdelivr|unpkg|cdn/.test(new URL(u).hostname))).toBe(false);
   expect(urls.filter((u) => u.includes('/models/whisper-tiny-en/')).length).toBeGreaterThanOrEqual(5);
   console.log(`requests under /models or /engines: ${urls.filter((u) => /\/(models|engines)\//.test(u)).map((u) => new URL(u).pathname).join(' ')}`);
 });
@@ -92,6 +92,15 @@ test('existing cues need confirmation; replace is one undo step; cancel then ret
   await section(page).getByRole('button', { name: 'Keep current' }).click();
   await expect(main(page).locator('.sub-table tbody tr')).toHaveCount(2);
   await expect(section(page).getByText(/Kept the current subtitles/)).toBeVisible();
+
+  // Second run: replace, then one Undo brings the old cues back.
+  await section(page).getByRole('button', { name: 'Transcribe' }).click();
+  await section(page).getByRole('button', { name: 'Replace current subtitles' }).click({ timeout: 200_000 });
+  await expect(main(page).locator('.sub-table textarea').first()).not.toHaveValue('First');
+  await expect(main(page).locator('.sub-table textarea').first()).toHaveValue(/Americans/i);
+  await main(page).getByRole('button', { name: 'Undo' }).click();
+  await expect(main(page).locator('.sub-table tbody tr')).toHaveCount(2);
+  await expect(main(page).locator('.sub-table textarea').first()).toHaveValue('First');
 });
 
 test('refuses recordings over 30 minutes and warns over 10', async ({ page }) => {

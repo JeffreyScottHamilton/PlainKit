@@ -11,6 +11,7 @@ import { enqueue, isActive, useJobs } from '@/jobs/queue';
 import { formatBytes, outputName } from '@/lib/format';
 import { extractAudio, SAMPLE_RATES, type ExtractResult, type SampleRate } from '@/engines/audio/extract';
 import type { Peaks } from '@/engines/audio/peaks';
+import { StemPanel, STEM_JOB_PREFIX } from './StemPanel';
 import './audio-stems.css';
 
 type Stored = { sampleRate: SampleRate; mono: boolean; startText: string; endText: string };
@@ -32,7 +33,7 @@ const channelsLabel = (n: number) => (n === 1 ? 'mono' : n === 2 ? 'stereo' : `$
 export default function Tool() {
   const inputs = useToolInputs('audio-stems');
   const [st, set] = useToolState<Stored>('audio-stems', INITIAL);
-  const jobs = useJobs('audio-stems');
+  const jobs = useJobs('audio-stems').filter((j) => !j.label.startsWith(STEM_JOB_PREFIX));
   const asset = inputs[0];
   const startErr = trimError(st.startText, 'Start');
   const endErr = trimError(st.endText, 'End');
@@ -144,10 +145,7 @@ export default function Tool() {
         <DropZone toolId="audio-stems" multiple={false} hint="Video or audio file. Processed in this browser. Nothing is uploaded." />
       )}
 
-      <section aria-labelledby="stems-h" className="as-section as-stems">
-        <h2 id="stems-h">Stem separation</h2>
-        <Notice>Not available. Separating vocals and instruments needs a local AI model that has not been verified for licence, memory use and quality in this app yet.</Notice>
-      </section>
+      <StemPanel />
     </ToolPage>
   );
 }

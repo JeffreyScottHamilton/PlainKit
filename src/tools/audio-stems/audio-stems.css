@@ -3,3 +3,10 @@
 .as-detail, .as-result { display: flex; flex-direction: column; gap: var(--s3); min-width: 0; }
 .as-wave { width: 100%; max-width: 640px; height: 120px; background: var(--input); border: 1px solid var(--divider); border-radius: var(--r2); }
 .as-stems .pk-notice { max-width: 640px; }
+.as-tag { font-size: 12px; font-weight: 500; color: var(--text-2); border: 1px solid var(--divider); border-radius: var(--r1); padding: 1px 6px; vertical-align: middle; margin-left: var(--s2); }
+.as-hint { color: var(--text-2); margin: 0; max-width: 640px; }
+.as-facts { display: grid; grid-template-columns: max-content 1fr; gap: var(--s1) var(--s3); margin: 0; max-width: 640px; }
+.as-facts dt { color: var(--text-2); }
+.as-facts dd { margin: 0; }
+.as-stem { display: flex; flex-direction: column; gap: var(--s2); min-width: 0; }
+.as-stem h3 { margin: 0; font-size: 16px; text-transform: capitalize; }

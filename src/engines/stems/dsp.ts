@@ -246,3 +246,18 @@ export function correlation(a: Float32Array, b: Float32Array): number {
   }
   return saa > 0 && sbb > 0 ? sab / Math.sqrt(saa * sbb) : 0;
 }
+
+/**
+ * Streaming overlap-add. `y` is one separated segment. Returns the samples that are now final and the
+ * faded tail to carry into the next segment, so a long track never needs a whole-song float buffer.
+ * Equivalent to overlapAdd() over all segments (tested).
+ */
+export function mixSegment(y: Float32Array, carry: Float32Array | null, overlap: number, first: boolean, last: boolean): { final: Float32Array; carry: Float32Array | null } {
+  const fin = first ? 0 : overlap;
+  const fout = last ? 0 : overlap;
+  const z = new Float32Array(y.length);
+  for (let i = 0; i < y.length; i++) z[i] = y[i]! * fadeGain(i, y.length, fin, fout);
+  if (carry) for (let i = 0; i < carry.length; i++) z[i]! += carry[i]!;
+  if (last) return { final: z, carry: null };
+  return { final: z.slice(0, y.length - overlap), carry: z.slice(y.length - overlap) };
+}

@@ -32,5 +32,14 @@ The agent that made this choice stopped (usage limit) before writing its compari
 - BlazeFace exports: licence metadata on re-uploads varies; not evaluated.
 - YuNet int8 variants (100 KB and 122 KB): not tested; the 232 KB float file is small enough.
 
-## Not shipped
-No model for stem separation or speech transcription has been evaluated. Those features are not offered.
+
+## Audio stems: Spleeter 4 stems (`spleeter-4stems`), experimental
+Supersedes the "Not shipped" line above for stem separation (speech transcription is still not shipped here).
+
+- **Files**: `public/models/spleeter-4stems/{vocals,drums,bass,other}.fp16.onnx`, 19,714,141 / 19,714,140 / 19,714,139 / 19,714,140 bytes (78,856,560 total), SHA-256 in `NOTICE.md`. Unmodified. Engine is the same ORT 1.31.1 single-thread WASM as Cutout.
+- **Source**: huggingface.co/Best-Practice/spleeter-4stems-onnx at revision `486643021f18a4d057d282fff1d11b89a30e9887` (HF card: Apache-2.0).
+- **Licence**: Spleeter by Deezer, MIT (`LICENSE` copied from upstream; JOSS paper says pre-trained models are MIT too). ONNX graph via sherpa-onnx (Apache-2.0, `LICENSE-sherpa-onnx.txt`, modified: activations parameterised). Open uncertainty: the upstream README licenses "the code" and the weights wording rests on the paper (deezer/spleeter#898 unanswered per the HF card). See `docs/audits/stems-feasibility.md`.
+- **Interface**: magnitudes `[2, splits, 512, 1024]` in and out; STFT (periodic Hann, 4096/1024, 44.1 kHz), ratio masks across all four stems and iSTFT are done in `src/engines/stems/dsp.ts`.
+- **Measured** (headless Chromium, Linux container, single thread, synthetic 180 s stereo mix): 77 to 84 s after the model was loaded, about 0.45 s per audio second; separation added about 0.55 GB. Not measured on real music or on a phone.
+- **What it is bad at**: bleed between stems, artefacts, and nothing above about 11 kHz is separated (it is split with the average mask). Quality on real music was not evaluated.
+- **Not chosen**: Open-Unmix umxhq (MIT per card, 142 MB, MUSDB-trained), htdemucs ONNX (170 MB or more, weights licence wording not stated upstream), UVR/MDX community packs (unclear or restrictive), umxl (CC BY-NC-SA, rejected).
