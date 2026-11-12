@@ -119,7 +119,7 @@ export const TOOLS: ToolDef[] = [
     id: 'video', name: 'Video', title: 'Video', description: 'Trim a local video, or save a direct media link.',
     aliases: ['VidGrab', 'Reel', 'video downloader'], keywords: ['trim', 'cut', 'download', 'hls', 'm3u8', 'mp4'],
     category: 'media', accepts: ['video/*'], produces: ['video/mp4', 'video/webm'], icon: SquarePlay, load: () => import('@/tools/video'),
-    capabilities: ['WebCodecs'], network: 'on-device', assetDownloadBytes: 0, maturity: 'planned',
+    capabilities: ['WebCodecs'], network: 'on-device', assetDownloadBytes: 0, maturity: 'working',
     limitations: ['Downloading from a link contacts that site and only works if the site allows it (CORS).', 'DRM-protected and platform-page videos are not supported.'],
   },
   {

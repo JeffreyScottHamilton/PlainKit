@@ -33,7 +33,11 @@ Nothing is "verified" yet: all evidence is automated tests in headless Chromium 
 | CSV | Encoding/delimiter settings, trim, dedupe (exact or normalised), rename/reorder/split, find/replace, undo/redo, CSV/TSV/JSON export, opt-in formula protection | working | unit tests in `src/engines/csv` (57 with subtitles); e2e re-parses the download in Node. Whole file in memory; export is always UTF-8 |
 | ID photo | 10 presets, crop with guides, exact-size JPEG, printable PDF sheet | experimental | geometry unit tests; e2e checks 413×531 px at 300 DPI and the sheet page size. **Preset rules were written from memory and not re-checked against official sources** (shown in the tool); source links unverified; head-height guide is a scale, not a position |
 | Clean text | Invisible character report and configurable cleanup | working | 17 unit tests (emoji ZWJ, Persian ZWNJ, RTL marks preserved by default); e2e |
-| Video | Local trim; direct link / HLS | planned | — |
+| Video | Local trim to MP4/WebM by stream copy (cuts land on keyframes), duration re-verified, cancel | working | 26 unit tests; e2e trims a generated WebM, re-opens the download at 2.00 s, and records zero external requests |
+| Video | Trim by re-encoding | experimental | implemented, not exercised by any browser test |
+| Video | Save a direct media link (CORS permitting) | working | e2e with routed responses, including the CORS-blocked message |
+| Video | HLS VOD: remux MPEG-TS to MP4, or joined .ts fallback; live, encrypted, byte-range and fMP4 refused | experimental | e2e on one real single-segment H.264 stream; multi-segment remux untested |
+| Video | Platform pages, DRM | unsupported | refused with a message |
 | Keep awake | Screen Wake Lock, timer, stop key, re-acquire on return | experimental | 17 unit tests with a fake wake lock; e2e accepts Active or a clear error, so a real lock has not been observed in headless Chromium |
 
 ## Known gaps on working features
