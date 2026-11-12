@@ -1,0 +1,5 @@
+.as-section { display: flex; flex-direction: column; gap: var(--s3); min-width: 0; }
+.as-audio { width: 100%; max-width: 640px; }
+.as-detail, .as-result { display: flex; flex-direction: column; gap: var(--s3); min-width: 0; }
+.as-wave { width: 100%; max-width: 640px; height: 120px; background: var(--input); border: 1px solid var(--divider); border-radius: var(--r2); }
+.as-stems .pk-notice { max-width: 640px; }
