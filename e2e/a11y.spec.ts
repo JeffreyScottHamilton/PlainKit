@@ -1,16 +1,14 @@
 import { expect, test, type Page, type TestInfo } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync, writeFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
 import { PNG } from 'pngjs';
 
 // Audit spec: axe per route and theme, reflow, keyboard, target size, reduced motion, token contrast.
 // Results are written as JSON under test-results/a11y/ (gitignored output dir) and echoed as A11Y lines.
 
-const HERE = dirname(fileURLToPath(import.meta.url));
 // Output goes to the session scratchpad (Playwright wipes test-results/ on each run).
-const OUT = process.env.PK_AUDIT_OUT ?? '/tmp/claude-0/-home-user-PlainKit/8f13f7c1-b94f-5024-a461-60a90c7cf03f/scratchpad/audit/a11y';
+const OUT = process.env.PK_AUDIT_OUT ?? '.audit/a11y';
 
 const TOOL_IDS = ['compress', 'convert', 'cutout', 'dev-tools', 'metadata', 'clean-links', 'send-files', 'redact', 'pdf',
   'audio-stems', 'subtitles', 'qr-code', 'csv', 'id-photo', 'clean-text', 'video', 'keep-awake'];
@@ -41,7 +39,7 @@ async function settle(page: Page) {
 }
 
 async function runAxe(page: Page, route: string, theme: Theme, state: string): Promise<Finding[]> {
-  const res = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
+  const res = await new AxeBuilder({ page: page as never }).withTags(WCAG_TAGS).analyze();
   return res.violations.map((v) => ({
     route, theme, state, rule: v.id, impact: v.impact, nodes: v.nodes.length,
     selector: v.nodes[0]?.target.join(' ') ?? '', help: v.help,
@@ -189,10 +187,12 @@ test('keyboard: 390px drawer opens from hamburger, focus moves in, Tab stays ins
 // ---------- 5. target size at 390px
 const TARGET_JS = (containers: string[]) => {
   const out: { where: string; desc: string; w: number; h: number }[] = [];
+  let measured = 0;
   for (const c of containers) {
     for (const el of Array.from(document.querySelectorAll<HTMLElement>(`${c} button, ${c} a[href], ${c} input, ${c} select, ${c} textarea, ${c} [role="button"]`))) {
       const r = el.getBoundingClientRect();
       if (r.width === 0 || r.height === 0) continue;
+      measured++;
       if (r.width < 24 || r.height < 24) {
         out.push({
           where: c,
@@ -202,7 +202,7 @@ const TARGET_JS = (containers: string[]) => {
       }
     }
   }
-  return out;
+  return { measured, small: out };
 };
 
 test('target size at 390px: shell controls (top bar, tray, drawer) at least 24x24 CSS px', async ({ page }, testInfo) => {
@@ -212,13 +212,18 @@ test('target size at 390px: shell controls (top bar, tray, drawer) at least 24x2
   for (const route of ['/', '/tools/compress']) {
     await page.goto(route);
     await settle(page);
-    small.push(...(await page.evaluate(TARGET_JS, ['.topbar', '.tray'])).map((x) => ({ route, state: 'closed', ...x })));
+    const closed = await page.evaluate(TARGET_JS, ['.topbar', '.tray']);
+    console.log(`TARGET-MEASURED|${route}|closed|${closed.measured}`);
+    small.push(...closed.small.map((x) => ({ route, state: 'closed', ...x })));
     await page.getByRole('button', { name: 'Open tools menu' }).click();
     await expect(page.locator('#tools-drawer')).toBeVisible();
-    small.push(...(await page.evaluate(TARGET_JS, ['#tools-drawer'])).map((x) => ({ route, state: 'drawer open', ...x })));
+    const drawer = await page.evaluate(TARGET_JS, ['#tools-drawer']);
+    console.log(`TARGET-MEASURED|${route}|drawer|${drawer.measured}`);
+    small.push(...drawer.small.map((x) => ({ route, state: 'drawer open', ...x })));
     await page.keyboard.press('Escape');
   }
   for (const s of small) console.log(`TARGET|${JSON.stringify(s)}`);
+  expect(small.length).toBeGreaterThanOrEqual(0);
   report('target-size-390', testInfo, small);
   expect.soft(small, 'controls under 24x24').toEqual([]);
 });
@@ -298,6 +303,7 @@ test.describe('contrast of tokens and states', () => {
           out.push({ pair: p.pair, fg: show(fgC), bg: show(bg), opaque: bg.opaque, ratio: Math.round(ratio(fgC, bg) * 100) / 100, need: p.need });
         }
         return out; })()`;
+      await page.goto('/');
       await settle(page);
       const basic = await page.evaluate(pageContent);
       for (const r of basic as Record<string, unknown>[]) if (!String(r.pair).startsWith('active')) rows.push(normalize(r));
@@ -367,7 +373,7 @@ test.describe('contrast of tokens and states', () => {
 
       // Status text on soft backgrounds, injected as real .pk-notice markup for measurement only.
       for (const kind of ['error', 'warn', 'success'] as const) {
-        const r = await page.evaluate(`(() => { ${helpers}
+        const r = await page.evaluate<{ fg: string; bg: string; opaque: boolean; ratio: number }>(`(() => { ${helpers}
           const host = document.querySelector('main') || document.body;
           const n = document.createElement('div'); n.className = 'pk-notice pk-notice--${kind}'; n.setAttribute('data-a11y-probe', '1');
           const span = document.createElement('span'); span.textContent = 'probe'; n.appendChild(span); host.appendChild(n);

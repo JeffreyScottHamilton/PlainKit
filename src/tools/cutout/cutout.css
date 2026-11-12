@@ -1,0 +1,24 @@
+/* Cutout: preview stage, matte editor, model facts. Tokens come from src/app/tokens.css. */
+.cut { margin: 0; display: flex; flex-direction: column; gap: var(--s2); min-width: 0; }
+.cut__stage { position: relative; height: min(60vh, 560px); min-height: 280px; overflow: hidden; border: 1px solid var(--divider); border-radius: var(--r3); }
+.cut__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+.cut__canvas { touch-action: none; cursor: crosshair; }
+.cut__line { position: absolute; top: 0; bottom: 0; width: 2px; margin-left: -1px; background: var(--text); pointer-events: none; }
+.cut__tag { position: absolute; top: var(--s2); padding: 4px 8px; border-radius: var(--r2); background: rgba(24, 26, 28, 0.88); color: #f2f4f1; font-size: 13px; pointer-events: none; }
+.cut__tag--l { left: var(--s2); }
+.cut__tag--r { right: var(--s2); }
+.cut-plain { display: block; max-width: 100%; max-height: min(60vh, 560px); object-fit: contain; border: 1px solid var(--divider); border-radius: var(--r3); }
+.cut-actions, .cut-wrap { flex-wrap: wrap; gap: var(--s2); align-items: flex-end; }
+.cut-hint { font-size: 12.5px; color: var(--text-2); }
+.cut-err { font-size: 13px; color: var(--error); }
+.cut-range { display: flex; align-items: center; gap: var(--s2); }
+.cut-range > input { flex: 1 1 auto; }
+.cut-facts { display: grid; grid-template-columns: auto 1fr; gap: 4px var(--s2); margin: 0; font-size: 13px; }
+.cut-facts dt { color: var(--text-2); }
+.cut-facts dd { margin: 0; overflow-wrap: anywhere; }
+.cut-edit { display: flex; flex-direction: column; gap: var(--s2); border: 1px solid var(--divider); border-radius: var(--r3); padding: var(--s3); min-width: 0; }
+.cut-edit legend { padding: 0 4px; font-weight: 600; }
+.cut-rect { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s2); }
+.cut-result { display: flex; flex-direction: column; gap: var(--s2); padding-top: var(--s3); border-top: 1px solid var(--divider); min-width: 0; }
+.cut-result h2 { font-size: 16px; font-weight: 600; }
+@media (max-width: 520px) { .cut-rect { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
