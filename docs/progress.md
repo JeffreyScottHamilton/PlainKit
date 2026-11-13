@@ -6,10 +6,10 @@
 - 2026-11-12 — Gate 6: Send files (manual pairing), Video (trim, direct link, HLS VOD).
 - 2026-11-12 — Gate 7: a11y audit 50/50, network audit clean, offline via service worker, production build + CSP, 452 unit and 144 browser tests, README, release notes.
 
+- 2026-11-12/13 — "The rest": media conversion and compression, PDF compression, document and 3D conversion, face detection, MKV/WebM subtitle tracks, transcription, stem separation, HEIC.
+
 ## Open
-- Real-device and Safari/Firefox testing. Vercel deploy untested.
+- Real-device and Safari/Firefox testing. Vercel deploy untested (site is ~160 MB).
 - ID photo presets need checking against official sources.
-- Untested paths listed in `docs/release-notes.md`.
-- Benchmarks on named fixtures/devices not done.
-- Specialist milestone review not done (subagent models hit the weekly usage limit; resets 2026-11-16 19:00 UTC).
-- `main` is behind the working branch.
+- AI features need real photos, music and speech.
+- Independent review findings (see docs/audits/review.md when written).

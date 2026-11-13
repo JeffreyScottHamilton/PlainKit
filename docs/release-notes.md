@@ -1,5 +1,25 @@
 # Release notes
 
+## 0.2.0 — 2026-11-13 (not deployed)
+
+Added
+- Convert: HEIC/HEIF to JPEG, PNG, WebP; audio and video between the containers the browser can write; images to PDF and PDF pages to images; OBJ, STL and PLY meshes.
+- Compress: video and audio re-encoding; PDF by lossless rewrite or by flattening pages to pictures.
+- Redact: optional on-device face detection (YuNet).
+- Subtitles: read text tracks stored in MKV/WebM; on-device English speech transcription (Whisper tiny).
+- Audio stems: experimental four-stem separation (Spleeter), up to 5 minutes.
+- Home shows recent tools. Benchmarks in `docs/benchmarks.md`.
+
+Evidence: 506 unit tests; the browser suite on the production build in two passes (see the latest run in the session report). New AI features were each run with the real model in a browser, but only on synthetic inputs or one sample: a drawn face, generated tones, one 11-second speech clip, one HEIC photo.
+
+New limitations
+- Stem separation: about 1.9 GB peak browser memory on a 3-minute clip; expect failures on phones. Weights licence rests on the Spleeter paper's statement (see `docs/audits/stems-feasibility.md`).
+- Transcription: English only, no punctuation guarantees, invents text on silence or music.
+- Face detection misses small, turned or covered faces.
+- Media conversion offers only what the browser can encode: no MP3 or FLAC output in Chromium.
+- HEIC uses an LGPL-3.0 decoder; only the main picture is converted.
+- The deployed site is about 160 MB because models are self-hosted.
+
 ## 0.1.0 — 2026-11-12 (not deployed)
 
 First build with all 17 tool families present in one app.
