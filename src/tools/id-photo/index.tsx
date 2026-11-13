@@ -232,6 +232,30 @@ function Editor({ asset, st, set, preset, size, paper, jobs, onRemove }: EditorP
 
   return (
     <>
+      <section aria-labelledby="ip-out-h" className="ip-out">
+        <h2 id="ip-out-h">Export</h2>
+        <p className="ip-readout" aria-live="polite">
+          {size && px
+            ? `Photo: ${mm(size.wMm)} × ${mm(size.hMm)} mm · ${px.w} × ${px.h} px at ${st.dpi} DPI`
+            : 'Enter a valid width and height to see the size.'}
+        </p>
+        {sheet && <p className="ip-readout">{`Print sheet: ${sheet.count} photo${sheet.count === 1 ? '' : 's'} on ${paper.name}, ${sheet.orientation}.`}</p>}
+        <div className="pk-row">
+          <Button variant="primary" disabled={!ready} onClick={exportPhoto}>
+            Export photo
+          </Button>
+          <Button disabled={!ready || !sheet || sheet.count === 0} onClick={exportSheet}>
+            Export print sheet (PDF)
+          </Button>
+        </div>
+        <p className="ip-note">Print at 100% / actual size. Do not use &lsquo;fit to page&rsquo;.</p>
+        <div className="pk-row">
+          <Button size="sm" variant="ghost" onClick={onRemove}>
+            Remove photo from this tool
+          </Button>
+        </div>
+      </section>
+
       <section aria-labelledby="ip-preview-h" className="ip-editor">
         <h2 id="ip-preview-h">Crop preview</h2>
         <div
@@ -298,29 +322,6 @@ function Editor({ asset, st, set, preset, size, paper, jobs, onRemove }: EditorP
         </p>
       </section>
 
-      <section aria-labelledby="ip-out-h" className="ip-out">
-        <h2 id="ip-out-h">Export</h2>
-        <p className="ip-readout" aria-live="polite">
-          {size && px
-            ? `Photo: ${mm(size.wMm)} × ${mm(size.hMm)} mm · ${px.w} × ${px.h} px at ${st.dpi} DPI`
-            : 'Enter a valid width and height to see the size.'}
-        </p>
-        {sheet && <p className="ip-readout">{`Print sheet: ${sheet.count} photo${sheet.count === 1 ? '' : 's'} on ${paper.name}, ${sheet.orientation}.`}</p>}
-        <div className="pk-row">
-          <Button variant="primary" disabled={!ready} onClick={exportPhoto}>
-            Export photo
-          </Button>
-          <Button disabled={!ready || !sheet || sheet.count === 0} onClick={exportSheet}>
-            Export print sheet (PDF)
-          </Button>
-        </div>
-        <p className="ip-note">Print at 100% / actual size. Do not use &lsquo;fit to page&rsquo;.</p>
-        <div className="pk-row">
-          <Button size="sm" variant="ghost" onClick={onRemove}>
-            Remove photo from this tool
-          </Button>
-        </div>
-      </section>
 
       <section aria-labelledby="ip-res-h" className="ip-results">
         <h2 id="ip-res-h">Results</h2>

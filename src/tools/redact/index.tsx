@@ -124,10 +124,12 @@ export default function Tool() {
     return () => ro.disconnect();
   }, [img]);
 
+  const hasLayout = !!img && box.w > 0 && box.h > 0;
   useEffect(() => {
+    // The canvas only exists once the stage has been measured, so this must also run when the layout first appears.
     const c = canvasRef.current;
     if (c && img) c.getContext('2d')?.drawImage(img.bitmap, 0, 0);
-  }, [img]);
+  }, [img, hasLayout]);
 
   // Ctrl+Z / Ctrl+Shift+Z / Ctrl+Y, unless focus is in a form field.
   useEffect(() => {

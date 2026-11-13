@@ -132,6 +132,8 @@ test('cutout: real model download, local inference, offline rerun, cancel', asyn
 
   // 1) cold: download model + engine, then inference.
   const r1 = await runAndDownload(page, 'Download model and remove background');
+  // The original must not show underneath the result (it once did, so the background looked untouched).
+  expect(await page.getByRole('img', { name: `Original: ${MARKER}-person.png` }).first().evaluate((el) => getComputedStyle(el).clipPath)).toContain('100%');
   const stages = await page.evaluate(() => (window as unknown as { __stages: string[] }).__stages);
   expect(stages.indexOf('loading-engine')).toBeGreaterThanOrEqual(0);
   expect(stages.indexOf('loading-engine')).toBeLessThan(stages.indexOf('processing'));

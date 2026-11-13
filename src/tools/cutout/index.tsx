@@ -349,7 +349,8 @@ function Editor({ input, edit, st, set }: EditorProps) {
     <div className="pk-stack">
       <figure className="cut">
         <div className="cut__stage pk-checker">
-          <img className="cut__img" src={assetUrl(input)} alt={`Original: ${input.name}`} />
+          {/* The original is only shown left of the divider, so removed areas reveal the checkerboard, not the old background. */}
+          <img className="cut__img" src={assetUrl(input)} alt={`Original: ${input.name}`} style={{ clipPath: `inset(0 ${100 - pos}% 0 0)` }} />
           <canvas
             ref={canvas}
             width={edit.ew}

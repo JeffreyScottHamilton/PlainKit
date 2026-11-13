@@ -53,6 +53,13 @@ test.describe('Redact', () => {
     await page.locator('input[type=file]').first().setInputFiles({ name: 'scan.png', mimeType: 'image/png', buffer: await makeStripedPng(page) });
     const main = page.getByRole('main');
     await expect(main.getByRole('application', { name: /Redaction canvas for scan\.png/ })).toBeVisible();
+    // The picture itself must be painted in the editing area (it once was not: only the boxes showed).
+    await expect
+      .poll(() => main.getByRole('application').locator('canvas').evaluate((c: HTMLCanvasElement) => {
+        const d = c.getContext('2d')!.getImageData(Math.floor(c.width / 2), Math.floor(c.height / 2), 1, 1).data;
+        return d[3];
+      }))
+      .toBe(255);
 
     await main.getByRole('button', { name: 'Add region', exact: true }).click();
     await main.getByRole('spinbutton', { name: 'Width' }).fill(String(R.w));
