@@ -7,7 +7,7 @@ What the app is designed to contact. "Audited" means a recorded browser network 
 | Shell and 13 local tools (Compress, Convert, Metadata, Redact, PDF, CSV, QR code, Clean links, Clean text, Subtitles, ID photo, Audio extraction, Dev tools) | On this device | Own origin for page and assets only | No | Yes: `docs/audits/network.md`, 0 external requests, 0 marker hits |
 | Keep awake | On this device | Own origin only | No | No |
 | Cutout | On this device | Own origin only: model (4.6 MB) and ONNX runtime (14.8 MB) are self-hosted | No | e2e: all requests same-origin, marker absent, second image processed offline |
-| Subtitles (transcription), Redact (face detection), Audio stems (separation) | — | Not built; no model evaluated | — | — |
+| Subtitles (transcription), Redact (face detection), Audio stems (separation) | On this device | Own origin only: each model and its runtime are self-hosted (Whisper 42 MB + 14 MB; YuNet 0.2 MB; Spleeter 79 MB; shared ONNX runtime 15 MB) | No | e2e for each: all requests same-origin, on the dev server |
 | Send files | Connects to another device | The other device; a public STUN server only if the user turns it on (sees IP addresses, not files). Manual pairing: no signalling server. No TURN relay. | File bytes go to the paired device only | No (tested between two tabs only) |
 | Video: local trim | On this device | Own origin only | No | e2e: 0 external requests |
 | Video: save from a link | Needs network access | The host in the URL the user pastes, directly from the browser. No proxy. | The URL request itself | By design |

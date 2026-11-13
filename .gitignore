@@ -7,3 +7,4 @@ playwright-report
 public/engines/ort/
 .audit/
 public/engines/transformers/
+.e2e-all.log

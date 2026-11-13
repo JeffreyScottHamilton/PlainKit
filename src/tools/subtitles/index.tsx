@@ -13,6 +13,7 @@ import { toSrt, toVtt } from '@/engines/subtitles/serialize';
 import { countBySeverity, validate } from '@/engines/subtitles/validate';
 import { canRedo, canUndo, current, pushHistory, redo, startHistory, undo, type History } from '@/engines/subtitles/history';
 import { deleteCue, editCue, findCues, insertAfter, mergeWithNext, replaceInCues, shiftCues, splitCue } from '@/engines/subtitles/ops';
+import { ExtractTracks } from './ExtractTracks';
 import { Transcribe } from './Transcribe';
 import './subtitles.css';
 
@@ -269,7 +270,7 @@ export default function Tool() {
       <section className="sub-section" aria-labelledby="sub-in-h">
         <h2 id="sub-in-h">Subtitle file</h2>
         <p className="sub-muted">
-          This edits subtitle text files. It does not extract subtitle tracks embedded in a video or read subtitles burned into the picture. Speech transcription is a separate, optional section below.
+          This edits subtitle text files. Reading text tracks stored in an MKV or WebM file, and speech transcription, are separate optional sections below. It cannot read subtitles that are burned into the picture.
         </p>
         <DropZone toolId="subtitles" multiple={false} accept=".srt,.vtt,.txt" hint="SRT or WebVTT, UTF-8 text. Read in this browser." />
         <details>
@@ -300,6 +301,8 @@ export default function Tool() {
         {!source && !file && <p className="sub-muted">Choose a file or paste text to start. Nothing changes until you edit it.</p>}
         {file && !source?.error && !parsed && <p className="sub-muted">Reading file…</p>}
       </section>
+
+      <ExtractTracks hasCues={cues.length > 0} onApply={applyTranscript} />
 
       <Transcribe hasCues={cues.length > 0} onApply={applyTranscript} />
 

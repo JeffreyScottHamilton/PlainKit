@@ -3,7 +3,7 @@ import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
-import { readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 // Production-only CSP. Dev needs inline scripts and websockets for HMR.
@@ -55,7 +55,11 @@ const serviceWorker = (): Plugin => ({
   closeBundle() {
     if (shellFiles.size === 0) return; // worker sub-builds
     const dist = fileURLToPath(new URL('./dist', import.meta.url));
-    const assets = readdirSync(join(dist, 'assets')).map((f) => ({ url: `/assets/${f}`, bytes: statSync(join(dist, 'assets', f)).size }));
+    // Runtime wasm binaries bundled by libraries are never fetched (engines are loaded from /engines), so they are not listed for offline use.
+    const assets = readdirSync(join(dist, 'assets')).filter((f) => !f.endsWith('.wasm')).map((f) => ({ url: `/assets/${f}`, bytes: statSync(join(dist, 'assets', f)).size }));
+    // transformers.js bundles a reference to its own ONNX wasm, which Vite copies into assets. The worker loads the
+    // runtime from /engines/transformers instead, so this copy (about 27 MB) is never requested: drop it from the deploy.
+    for (const f of readdirSync(join(dist, 'assets'))) if (/^ort-wasm.*\.wasm$/.test(f)) rmSync(join(dist, 'assets', f));
     const html = readFileSync(join(dist, 'index.html'), 'utf8');
     const shell = ['/', '/icon.svg', ...assets.map((a) => a.url).filter((u) => shellFiles.has(u.slice(1)) || html.includes(u) || /inter-latin-wght.*\.woff2$/.test(u))];
     const version = createHash('sha256').update(assets.map((a) => a.url).join('|') + html).digest('hex').slice(0, 12);

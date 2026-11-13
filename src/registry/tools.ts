@@ -81,11 +81,11 @@ export const TOOLS: ToolDef[] = [
     limitations: ['Stem separation is experimental: up to 5 minutes of audio, four stems (vocals, drums, bass, other), with bleed and artefacts.', 'Stem separation needs a 94 MB download the first time and a lot of memory; it may fail on phones.', 'Nothing above about 11 kHz is separated cleanly.'],
   },
   {
-    id: 'subtitles', name: 'Subtitles', title: 'Subtitles', description: 'Edit, shift and convert SRT and VTT subtitles.',
+    id: 'subtitles', name: 'Subtitles', title: 'Subtitles', description: 'Edit, shift and convert subtitles; read them from MKV; transcribe speech.',
     aliases: ['SubtitleLab', 'Caption', 'captions'], keywords: ['srt', 'vtt', 'timing', 'offset', 'transcribe', 'cue'],
     category: 'media', accepts: ['application/x-subrip', 'text/vtt', 'text/plain'], produces: ['application/x-subrip', 'text/vtt'], icon: Captions, load: () => import('@/tools/subtitles'),
-    capabilities: [], network: 'on-device', assetDownloadBytes: 0, maturity: 'working',
-    limitations: ['Burned-in subtitles cannot be extracted as text.', 'Local transcription needs a separate model download.'],
+    capabilities: [], network: 'on-device', assetDownloadBytes: 55_801_212, maturity: 'working',
+    limitations: ['Burned-in subtitles cannot be read as text.', 'Stored subtitle tracks can be read from MKV and WebM only, and only text formats (not PGS or VobSub).', 'Transcription is English only, needs a 55 MB download the first time, and makes mistakes.'],
   },
   {
     id: 'qr-code', name: 'QR code', title: 'QR code', description: 'Make a static QR code as PNG or SVG.',
