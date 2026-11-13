@@ -10,6 +10,7 @@ Direct dependencies, read from installed package metadata on 2026-11-11. Exact v
 | dompurify | 3.4.17 | (MPL-2.0 OR Apache-2.0) | runtime |
 | exifr | 7.1.3 | MIT | runtime |
 | jsqr | 1.4.0 | Apache-2.0 | runtime |
+| libheif-js | 1.23.5 | **LGPL-3.0** | runtime, HEIC decoding only. Served as a separate unmodified file (`/engines/libheif/`), loaded on demand, with its licence and a notice beside it |
 | lucide-react | 1.72.0 | ISC | runtime |
 | marked | 18.2.0 | MIT | runtime |
 | mediabunny | 1.65.2 | MPL-2.0 (used unmodified) | runtime |

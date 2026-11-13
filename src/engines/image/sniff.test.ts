@@ -64,3 +64,18 @@ describe('isAnimated', () => {
     expect(isAnimated(pad(ascii('GIF89a')), 'image/gif')).toBe(false);
   });
 });
+
+import { describe as d2, expect as e2, it as i2 } from 'vitest';
+import { sniffImageMime as sniff2 } from './sniff';
+
+const ftyp = (major: string, ...compat: string[]) => {
+  const brands = [major, '\0\0\0\0', ...compat].join('');
+  const size = 8 + brands.length;
+  return new Uint8Array([0, 0, 0, size, ...'ftyp'.split('').map((c) => c.charCodeAt(0)), ...brands.split('').map((c) => c.charCodeAt(0)), 0, 0, 0, 0]);
+};
+d2('HEIF family sniffing', () => {
+  i2('recognises iPhone HEIC by major brand', () => e2(sniff2(ftyp('heic', 'mif1', 'heic'))).toBe('image/heic'));
+  i2('recognises generic mif1 with a heic compatible brand', () => e2(sniff2(ftyp('mif1', 'mif1', 'heic'))).toBe('image/heic'));
+  i2('keeps AVIF as AVIF even with a generic major brand', () => e2(sniff2(ftyp('mif1', 'avif', 'miaf'))).toBe('image/avif'));
+  i2('does not treat an MP4 video as HEIC', () => e2(sniff2(ftyp('isom', 'isom', 'mp42'))).toBeNull());
+});

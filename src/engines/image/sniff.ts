@@ -1,5 +1,5 @@
 /** Image formats recognised by content (magic bytes), never by file name. */
-export type ImageMime = 'image/jpeg' | 'image/png' | 'image/webp' | 'image/gif' | 'image/bmp' | 'image/avif';
+export type ImageMime = 'image/jpeg' | 'image/png' | 'image/webp' | 'image/gif' | 'image/bmp' | 'image/avif' | 'image/heic';
 
 /** BMP DIB header sizes that exist in practice (OS/2 12, then Windows 16/40/52/56/64/108/124). */
 const BMP_DIB_SIZES = new Set([12, 16, 40, 52, 56, 64, 108, 124]);
@@ -31,6 +31,14 @@ export function sniffImageMime(bytes: Uint8Array): ImageMime | null {
   if (ascii(bytes, 0, 'RIFF') && ascii(bytes, 8, 'WEBP')) return 'image/webp';
   if (ascii(bytes, 0, 'GIF87a') || ascii(bytes, 0, 'GIF89a')) return 'image/gif';
   if (ascii(bytes, 4, 'ftyp') && (ascii(bytes, 8, 'avif') || ascii(bytes, 8, 'avis'))) return 'image/avif';
+  if (ascii(bytes, 4, 'ftyp')) {
+    // HEIF family. The major brand can be generic (mif1/msf1), so the compatible brands decide between AVIF and HEIC.
+    const size = Math.min(u32be(bytes, 0), bytes.length);
+    const brands: string[] = [];
+    for (let o = 8; o + 4 <= size; o += o === 8 ? 8 : 4) brands.push(String.fromCharCode(bytes[o]!, bytes[o + 1]!, bytes[o + 2]!, bytes[o + 3]!));
+    if (brands.some((b) => b === 'avif' || b === 'avis')) return 'image/avif';
+    if (brands.some((b) => ['heic', 'heix', 'heim', 'heis', 'hevc', 'hevx', 'hevm', 'hevs', 'mif1', 'msf1'].includes(b))) return 'image/heic';
+  }
   if (
     ascii(bytes, 0, 'BM') &&
     bytes.length >= 18 &&

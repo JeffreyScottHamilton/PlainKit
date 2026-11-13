@@ -12,6 +12,7 @@ export const CONVERT_INPUTS: readonly InputRow[] = [
   { mime: 'image/gif', label: 'GIF', note: 'First frame only. Animation is not kept.' },
   { mime: 'image/bmp', label: 'BMP', note: 'Uncompressed input. Usually much smaller as JPEG, PNG or WebP.' },
   { mime: 'image/avif', label: 'AVIF', note: 'Only when this browser can decode AVIF.', needsAvifDecode: true },
+  { mime: 'image/heic', label: 'HEIC / HEIF', note: 'iPhone photos. Main picture only: Live Photo motion, bursts and depth are not kept. Chrome and Firefox download a 2 MB decoder on first use.' },
 ];
 
 export const CONVERT_OUTPUTS: readonly OutputCol[] = [
@@ -28,6 +29,7 @@ export const CONVERT_MATRIX: Readonly<Record<ImageMime, readonly OutputMime[]>> 
   'image/gif': ['image/jpeg', 'image/png', 'image/webp'],
   'image/bmp': ['image/jpeg', 'image/png', 'image/webp'],
   'image/avif': ['image/jpeg', 'image/png', 'image/webp'],
+  'image/heic': ['image/jpeg', 'image/png', 'image/webp'],
 };
 
 export function isConvertInput(m: ImageMime | null | undefined): m is ImageMime {
@@ -47,5 +49,5 @@ export function targetsFor(input: ImageMime): readonly OutputMime[] {
 
 /** Input can carry transparency, so JPEG output needs a deliberate background. */
 export function mayHaveAlpha(input: ImageMime): boolean {
-  return input === 'image/png' || input === 'image/webp' || input === 'image/gif' || input === 'image/avif';
+  return input === 'image/png' || input === 'image/webp' || input === 'image/gif' || input === 'image/avif' || input === 'image/heic';
 }

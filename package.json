@@ -11,8 +11,8 @@
     "test": "vitest run",
     "e2e": "playwright test --project=fast --trace off && playwright test --project=models --workers=1 --trace off",
     "copy-ort": "node scripts/copy-ort.mjs",
-    "predev": "node scripts/copy-ort.mjs && node scripts/copy-transcribe.mjs",
-    "prebuild": "node scripts/copy-ort.mjs && node scripts/copy-transcribe.mjs",
+    "predev": "node scripts/copy-ort.mjs && node scripts/copy-transcribe.mjs && node scripts/copy-heif.mjs",
+    "prebuild": "node scripts/copy-ort.mjs && node scripts/copy-transcribe.mjs && node scripts/copy-heif.mjs",
     "copy-transcribe": "node scripts/copy-transcribe.mjs"
   },
   "dependencies": {
@@ -23,6 +23,7 @@
     "dompurify": "^3.4.17",
     "exifr": "^7.1.3",
     "jsqr": "^1.4.0",
+    "libheif-js": "^1.23.5",
     "lucide-react": "^1.72.0",
     "marked": "^18.2.0",
     "mediabunny": "^1.65.2",

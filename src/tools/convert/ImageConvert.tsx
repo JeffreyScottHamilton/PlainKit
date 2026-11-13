@@ -1,5 +1,5 @@
 import { isImage } from '@/components/KindTabs';
-import { useMemo, type ReactNode } from 'react';
+import { useMemo, type ReactNode, useEffect, useState } from 'react';
 import { ToolPage } from '@/components/ToolPage';
 import { DropZone } from '@/components/DropZone';
 import { AssetRow } from '@/components/AssetList';
@@ -255,16 +255,54 @@ export function ImageConvert({ tabs }: { tabs?: ReactNode }) {
             </tbody>
           </table>
         </div>
-        <p className="muted">Audio, video, document and 3D conversions are not available yet.</p>
+        <p className="muted">Other file types are on the tabs above.</p>
       </section>
     </ToolPage>
   );
 }
 
+// Decoded previews for formats the browser cannot show in an <img> (HEIC in Chrome and Firefox).
+const decodedPreview = new WeakMap<Blob, Blob>();
+
 function Preview({ asset }: { asset: SessionAsset }) {
+  const [fallback, setFallback] = useState<string | null>(null);
+  const [state, setState] = useState<'native' | 'decoding' | 'failed'>('native');
+  useEffect(() => {
+    setFallback(null);
+    setState('native');
+  }, [asset.id]);
+  useEffect(() => {
+    if (state !== 'decoding') return;
+    const ctl = new AbortController();
+    let url: string | null = null;
+    const show = (b: Blob) => {
+      url = URL.createObjectURL(b);
+      setFallback(url);
+    };
+    const cached = decodedPreview.get(asset.blob);
+    if (cached) show(cached);
+    else
+      encodeImage(asset.blob, { mime: 'image/jpeg', mode: { kind: 'quality', quality: 0.8 }, maxDimension: 1600 }, { signal: ctl.signal, onProgress: () => {} }).then(
+        (r) => {
+          decodedPreview.set(asset.blob, r.blob);
+          if (!ctl.signal.aborted) show(r.blob);
+        },
+        () => ctl.signal.aborted || setState('failed'),
+      );
+    return () => {
+      ctl.abort();
+      if (url) URL.revokeObjectURL(url);
+    };
+  }, [state, asset]);
   return (
     <figure className="pk-preview conv-preview">
-      <img src={assetUrl(asset)} alt={`Preview of ${asset.name}`} />
+      {fallback ? (
+        <img src={fallback} alt={`Preview of ${asset.name}`} />
+      ) : state === 'native' ? (
+        <img src={assetUrl(asset)} alt={`Preview of ${asset.name}`} onError={() => setState('decoding')} />
+      ) : (
+        <p className="muted">{state === 'decoding' ? 'Preparing a preview…' : 'No preview for this file. It may still convert.'}</p>
+      )}
     </figure>
   );
 }

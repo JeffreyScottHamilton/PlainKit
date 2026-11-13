@@ -23,6 +23,7 @@ export const NAME_OF: Record<ImageMime, string> = {
   'image/gif': 'GIF',
   'image/bmp': 'BMP',
   'image/avif': 'AVIF',
+  'image/heic': 'HEIC',
 };
 export const OUTPUT_CHOICES: readonly OutputMime[] = ['image/jpeg', 'image/png', 'image/webp'];
 export const OUTPUT_LABEL: Record<OutputMime, string> = { 'image/jpeg': 'JPEG', 'image/png': 'PNG', 'image/webp': 'WebP' };

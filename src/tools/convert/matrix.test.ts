@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { CONVERT_INPUTS, CONVERT_MATRIX, CONVERT_OUTPUTS, isConvertInput, mayHaveAlpha, outputCol, targetsFor } from './matrix';
 
 describe('convert format matrix', () => {
-  it('lists the six inputs and three outputs, no document/3D/audio/video', () => {
-    expect(CONVERT_INPUTS.map((i) => i.mime)).toEqual(['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/bmp', 'image/avif']);
+  it('lists the seven image inputs and three outputs, no document/3D/audio/video', () => {
+    expect(CONVERT_INPUTS.map((i) => i.mime)).toEqual(['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/bmp', 'image/avif', 'image/heic']);
     expect(CONVERT_OUTPUTS.map((o) => o.mime)).toEqual(['image/jpeg', 'image/png', 'image/webp']);
   });
 

@@ -9,7 +9,7 @@ export const session = createStore<State>({ assets: [], inputs: {} });
 
 const EXT_MIME: Record<string, string> = {
   jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', webp: 'image/webp', gif: 'image/gif', avif: 'image/avif',
-  bmp: 'image/bmp', svg: 'image/svg+xml', heic: 'image/heic', tif: 'image/tiff', tiff: 'image/tiff',
+  bmp: 'image/bmp', svg: 'image/svg+xml', heic: 'image/heic', heif: 'image/heic', tif: 'image/tiff', tiff: 'image/tiff',
   pdf: 'application/pdf', csv: 'text/csv', tsv: 'text/tab-separated-values', json: 'application/json', txt: 'text/plain',
   md: 'text/markdown', srt: 'application/x-subrip', vtt: 'text/vtt',
   mp3: 'audio/mpeg', wav: 'audio/wav', ogg: 'audio/ogg', m4a: 'audio/mp4', flac: 'audio/flac', aac: 'audio/aac', opus: 'audio/ogg',
