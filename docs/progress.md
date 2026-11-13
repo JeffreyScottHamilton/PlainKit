@@ -8,8 +8,15 @@
 
 - 2026-11-12/13 — "The rest": media conversion and compression, PDF compression, document and 3D conversion, face detection, MKV/WebM subtitle tracks, transcription, stem separation, HEIC.
 
-## Open
-- Real-device and Safari/Firefox testing. Vercel deploy untested (site is ~160 MB).
-- ID photo presets need checking against official sources.
-- AI features need real photos, music and speech.
-- Independent review findings (see docs/audits/review.md when written).
+- 2026-11-13 — Independent review and two visual sweeps with real inputs; fixes recorded in `docs/audits/review.md`.
+
+## Open (needs the owner or real hardware)
+- First Vercel deploy (site is ~160 MB; limits unchecked).
+- Real phone, Safari and Firefox.
+- ID photo presets against official sources; a clearer head-position guide.
+- Real music for stems, noisy or long speech for transcription, iPhone photos (rotated, HDR, Live) for HEIC.
+- Send files between two real devices on different networks.
+- Licence decisions to confirm: libheif (LGPL-3.0); Spleeter weights (MIT per the paper, see `docs/audits/stems-feasibility.md`).
+
+## Open (cleanup)
+- Model download and cache code is duplicated across Cutout, face detection, stems and transcription.
