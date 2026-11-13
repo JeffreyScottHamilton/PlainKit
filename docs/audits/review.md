@@ -26,3 +26,17 @@ No off-origin request, remote import or CDN reference in the app's own code. One
 
 ## Not reviewed
 Accessibility of the newer panels beyond two of them, ID photo geometry, the Cutout/face/stems/HEIC pipelines, object-URL leaks in depth, and the built `dist/` for stray remote references.
+
+## Found later by looking at real inputs (2026-11-13)
+
+Automated tests had passed over all of these, because they checked exported files and not what the screen showed.
+
+| Finding | Fix |
+|---|---|
+| **Redact did not show the photo** in its editing area: only the boxes were drawn. | The photo is painted once the canvas exists; a test now reads a pixel from it. |
+| **Cutout showed the original underneath the result**, so a removed background looked untouched until the divider was moved. | The original is clipped to the left of the divider; a test checks it. |
+| ID photo's export buttons were below the visible area. | Moved above the preview. |
+| HEIC thumbnails showed a broken-image icon in Chromium. | Thumbnails fall back to a file icon. |
+| In Subtitles, an open file's editor was pushed below two optional sections. | The optional sections moved below the editor. |
+
+Twelve tools were looked at in a loaded state with real or realistic inputs. Not looked at: Dev tools beyond earlier screenshots, Clean links, Clean text, Keep awake, QR code, the 3D, document and media panels, and anything at phone width beyond Compress and home.

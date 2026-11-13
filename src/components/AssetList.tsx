@@ -64,7 +64,10 @@ export function UseInMenu({ asset, exclude, down }: { asset: SessionAsset; exclu
 }
 
 export function AssetThumb({ asset }: { asset: SessionAsset }) {
-  return <span className="pk-asset__thumb">{asset.mime.startsWith('image/') ? <img src={assetUrl(asset)} alt="" /> : <FileIcon aria-hidden size={18} />}</span>;
+  // Some image formats cannot be displayed by every browser (HEIC outside Safari): fall back to the file icon.
+  const [broken, setBroken] = useState(false);
+  useEffect(() => setBroken(false), [asset.id]);
+  return <span className="pk-asset__thumb">{asset.mime.startsWith('image/') && !broken ? <img src={assetUrl(asset)} alt="" onError={() => setBroken(true)} /> : <FileIcon aria-hidden size={18} />}</span>;
 }
 
 type RowProps = { asset: SessionAsset; detail?: ReactNode; exclude?: string; onRemove?: (a: SessionAsset) => void; extra?: ReactNode; menuDown?: boolean };

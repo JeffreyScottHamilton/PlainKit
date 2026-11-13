@@ -302,10 +302,6 @@ export default function Tool() {
         {file && !source?.error && !parsed && <p className="sub-muted">Reading file…</p>}
       </section>
 
-      <ExtractTracks hasCues={cues.length > 0} onApply={applyTranscript} />
-
-      <Transcribe hasCues={cues.length > 0} onApply={applyTranscript} />
-
       {parsed && hist && (
         <>
           <section className="sub-section" aria-labelledby="sub-stat-h">
@@ -445,6 +441,11 @@ export default function Tool() {
           </section>
         </>
       )}
+
+      {/* Optional sources, kept below the editor so an open file is not pushed down the page. */}
+      <ExtractTracks hasCues={cues.length > 0} onApply={applyTranscript} />
+
+      <Transcribe hasCues={cues.length > 0} onApply={applyTranscript} />
     </ToolPage>
   );
 }
