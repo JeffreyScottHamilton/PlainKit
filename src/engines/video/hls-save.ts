@@ -26,6 +26,12 @@ export async function saveHls(url: URL, variantIndex: number | undefined, ctx: E
   if (playlist.kind !== 'media') throw new ToolError('hls-unsupported', 'This link is not a media playlist.', 'Try a different link.');
 
   const segments = playlist.segments;
+  // Only sites the user was shown: the pasted link's host and, for a chosen quality, that quality's host.
+  const allowed = new Set([url.host, new URL(playlistUrl).host]);
+  if (variantIndex !== undefined) {
+    const stray = segments.map((s) => new URL(s.url).host).find((h) => !allowed.has(h));
+    if (stray) throw new ToolError('hls-other-host', `This quality loads its video from another site (${stray}) that was not shown before downloading.`, 'Paste that quality\'s own playlist link instead, so the site is shown first.');
+  }
   const parts: ArrayBuffer[] = [];
   let bytes = 0;
   for (let i = 0; i < segments.length; i++) {

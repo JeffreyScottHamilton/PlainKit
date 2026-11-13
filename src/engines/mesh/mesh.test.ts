@@ -52,6 +52,15 @@ describe('mesh', () => {
     expect(detectFormat('x.glb', enc('glTF'))).toBeNull();
     expect(new TextDecoder().decode(writeObj(parseObj(TETRA)))).toContain('f 1 2 3');
   });
+  it('refuses a header that claims more elements than the file holds, without looping', () => {
+    const ply = 'ply\nformat ascii 1.0\nelement vertex 4000000000\nproperty float x\nproperty float y\nproperty float z\nelement face 1\nproperty list uchar int vertex_indices\nend_header\n0 0 0\n';
+    const t0 = Date.now();
+    expect(() => parsePly(new TextEncoder().encode(ply))).toThrow(/could not be read/);
+    expect(Date.now() - t0).toBeLessThan(500);
+    const stl = new Uint8Array(84 + 50);
+    new DataView(stl.buffer).setUint32(80, 1, true);
+    expect(stats(parseStl(stl)).triangles).toBe(1);
+  });
   it('rejects junk, bad indices and unknown formats with a ToolError', () => {
     expect(() => convertMesh('x.obj', enc('hello'), 'stl')).toThrow(/could not be read/);
     expect(() => parseObj('v 0 0 0\nf 1 2 9\n')).toThrow(/could not be read/);

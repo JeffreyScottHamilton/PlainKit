@@ -96,9 +96,10 @@ function parseBlock(data: Uint8Array): { track: number; rel: number; payload: Ui
 }
 
 const provisional = new WeakSet<Cue>();
+type ClusterState = { base: number };
 
-function parseCluster(data: Uint8Array, scaleMs: number, tracks: Map<number, SubtitleTrack>, out: Map<number, Cue[]>) {
-  let base = 0;
+/** One element inside a cluster. Shared by sized clusters (parsed in memory) and unknown-size ones (walked in place). */
+function clusterChild(id: number, data: Uint8Array, state: ClusterState, scaleMs: number, tracks: Map<number, SubtitleTrack>, out: Map<number, Cue[]>) {
   const add = (blockData: Uint8Array, duration: number | null) => {
     const blk = parseBlock(blockData);
     if (!blk) return;
@@ -107,26 +108,29 @@ function parseCluster(data: Uint8Array, scaleMs: number, tracks: Map<number, Sub
     const raw = utf8(blk.payload);
     const text = (t.codec === 'S_TEXT/ASS' || t.codec === 'S_TEXT/SSA' ? assText(raw) : raw).replace(/\r\n/g, '\n').trim();
     if (!text) return;
-    const start = Math.max(0, Math.round((base + blk.rel) * scaleMs));
+    const start = Math.max(0, Math.round((state.base + blk.rel) * scaleMs));
     // A block with no duration (SimpleBlock) gets a provisional 2 s, fixed up against the next cue below.
     const end = start + (duration !== null ? Math.max(1, Math.round(duration * scaleMs)) : 2000);
     const cue: Cue = { start, end, text };
     if (duration === null) provisional.add(cue);
     out.get(t.number)!.push(cue);
   };
-  for (const el of children(data, 0, data.length)) {
-    if (el.id === ID.timecode) base = uint(el.data);
-    else if (el.id === ID.simpleBlock) add(el.data, null);
-    else if (el.id === ID.blockGroup) {
-      let block: Uint8Array | null = null;
-      let dur: number | null = null;
-      for (const f of children(el.data, 0, el.data.length)) {
-        if (f.id === ID.block) block = f.data;
-        else if (f.id === ID.blockDuration) dur = uint(f.data);
-      }
-      if (block) add(block, dur);
+  if (id === ID.timecode) state.base = uint(data);
+  else if (id === ID.simpleBlock) add(data, null);
+  else if (id === ID.blockGroup) {
+    let block: Uint8Array | null = null;
+    let dur: number | null = null;
+    for (const f of children(data, 0, data.length)) {
+      if (f.id === ID.block) block = f.data;
+      else if (f.id === ID.blockDuration) dur = uint(f.data);
     }
+    if (block) add(block, dur);
   }
+}
+
+function parseCluster(data: Uint8Array, scaleMs: number, tracks: Map<number, SubtitleTrack>, out: Map<number, Cue[]>) {
+  const state: ClusterState = { base: 0 };
+  for (const el of children(data, 0, data.length)) clusterChild(el.id, el.data, state, scaleMs, tracks, out);
 }
 
 /** Walks the file. onProgress gets a real fraction (bytes scanned / file size). */
@@ -144,10 +148,28 @@ export async function readMkvSubtitles(file: Blob, opts: { signal?: AbortSignal;
   let tracks: SubtitleTrack[] = [];
   const byNumber = new Map<number, SubtitleTrack>();
   const cues = new Map<number, Cue[]>();
+  const open: ClusterState = { base: 0 };
+  let inOpenCluster = false;
   while (o < end) {
     if (opts.signal?.aborted) throw new DOMException('Canceled', 'AbortError');
     const h = readHead(await read(o, 16), 0);
     if (!h) break;
+    // A cluster written without a size (live recordings) has no end marker: step inside it and treat what follows
+    // as its children until the next top-level element.
+    if (h.id === ID.cluster && h.unknown) {
+      open.base = 0;
+      inOpenCluster = true;
+      o += h.headLen;
+      continue;
+    }
+    if (inOpenCluster && (h.id === ID.timecode || h.id === ID.simpleBlock || h.id === ID.blockGroup)) {
+      if (h.unknown || h.size > MAX_ELEMENT) break;
+      const wantedChild = h.id === ID.timecode || tracks.some((t) => t.text);
+      if (wantedChild) clusterChild(h.id, await read(o + h.headLen, h.size), open, scaleMs, byNumber, cues);
+      o += h.headLen + h.size;
+      opts.onProgress?.(Math.min(1, o / file.size));
+      continue;
+    }
     const size = h.unknown ? end - o - h.headLen : h.size;
     const wanted = h.id === ID.info || h.id === ID.tracks || (h.id === ID.cluster && tracks.some((t) => t.text));
     if (wanted) {

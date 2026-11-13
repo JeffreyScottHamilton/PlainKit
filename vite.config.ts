@@ -7,7 +7,8 @@ import { readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node
 import { join } from 'node:path';
 
 // Production-only CSP. Dev needs inline scripts and websockets for HMR.
-// connect-src stays 'self' + blob/data: tools that contact other hosts are documented in docs/network-boundaries.md.
+// connect-src allows any https: host because the Video tool fetches links the user pastes. So this policy does not, by
+// itself, stop a local tool from making a request: that is checked by the network audit (docs/audits/network.md).
 const CSP = [
   "default-src 'self'",
   "script-src 'self' 'wasm-unsafe-eval'",

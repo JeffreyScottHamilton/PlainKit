@@ -38,6 +38,7 @@ function resolveHttps(uri: string, base: string): Resolved {
     return { ok: false, message: HLS_MESSAGES.badUrl };
   }
   if (u.protocol !== 'https:') return { ok: false, message: HLS_MESSAGES.httpsOnly };
+  if (u.username || u.password) return { ok: false, message: HLS_MESSAGES.badUrl };
   return { ok: true, url: u.href };
 }
 
@@ -96,4 +97,9 @@ export function parseHls(text: string, baseUrl: string): HlsParsed {
   if (segments.length === 0) return { ok: false, message: HLS_MESSAGES.empty };
   const totalSec = segments.reduce((s, x) => s + x.durationSec, 0);
   return { ok: true, kind: 'media', segments, totalSec };
+}
+
+/** Distinct hosts a list of URLs would contact, in first-seen order. Shown to the user before any download. */
+export function hostsOf(urls: readonly string[]): string[] {
+  return [...new Set(urls.map((u) => new URL(u).host))];
 }

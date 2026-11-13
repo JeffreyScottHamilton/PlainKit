@@ -69,8 +69,8 @@ test('Convert: video to another container this browser can write, verified by re
   await format.selectOption(target!);
   await page.getByRole('button', { name: 'Convert', exact: true }).click();
   const art = page.getByRole('article', { name: 'clip.webm' });
-  await expect(art.getByText(/^Verified: \d/)).toBeVisible({ timeout: 90_000 });
-  await expect(art.getByText(/^Verified: .*640×480/)).toBeVisible();
+  await expect(art.getByText(/^Verified \(duration and tracks\): \d/)).toBeVisible({ timeout: 90_000 });
+  await expect(art.getByText(/^Verified \(duration and tracks\): .*640×480/)).toBeVisible();
   expect(options).not.toContain('wav'); // the clip has no sound, so audio formats are not offered
   const out = await download(page, art.getByRole('button', { name: new RegExp(`Download clip-converted\\.${target}`) }));
   expect(out.length).toBeGreaterThan(1000);
@@ -91,7 +91,7 @@ test('Convert: audio to another audio format, verified', async ({ page }) => {
   await format.selectOption(target!);
   await page.getByRole('button', { name: 'Convert', exact: true }).click();
   const art = page.getByRole('article', { name: 'tone.wav' });
-  await expect(art.getByText(/^Verified: 2\.\d s/)).toBeVisible({ timeout: 60_000 });
+  await expect(art.getByText(/^Verified \(duration and tracks\): 2\.\d s/)).toBeVisible({ timeout: 60_000 });
   const out = await download(page, art.getByRole('button', { name: /Download tone-converted/ }));
   if (target === 'ogg') expect(out.subarray(0, 4).toString('ascii')).toBe('OggS');
   if (target === 'flac') expect(out.subarray(0, 4).toString('ascii')).toBe('fLaC');
@@ -109,7 +109,7 @@ test('Compress: video is re-encoded smaller at a lower height, and says so hones
   await side.getByRole('combobox', { name: 'Maximum height' }).selectOption({ label: '480 px' });
   await side.getByRole('button', { name: 'Compress', exact: true }).click();
   const art = page.getByRole('article', { name: 'clip.webm' });
-  await expect(art.getByText(/^Verified: \d/)).toBeVisible({ timeout: 120_000 });
+  await expect(art.getByText(/^Verified \(duration and tracks\): \d/)).toBeVisible({ timeout: 120_000 });
   const line = await art.getByText(/→/).first().innerText();
   console.log('MEDIA compress:', line.replace(/\s+/g, ' '));
   const smaller = /−/.test(line);
@@ -124,7 +124,7 @@ test('Convert 3D: OBJ to binary STL, verified by reading it back', async ({ page
   await main(page).locator('input[type=file]').first().setInputFiles({ name: 'tetra.obj', mimeType: '', buffer: Buffer.from(obj) });
   await page.getByRole('button', { name: 'Convert', exact: true }).click();
   const art = page.getByRole('article', { name: 'tetra.obj' });
-  await expect(art.getByText(/Verified by reading it back: 4 triangles, 4 vertices, bounding box 1 × 2 × 3/)).toBeVisible({ timeout: 30_000 });
+  await expect(art.getByText(/Read back and checked \(triangle count and bounding box\): 4 triangles, 4 vertices, bounding box 1 × 2 × 3/)).toBeVisible({ timeout: 30_000 });
   const stl = await download(page, art.getByRole('button', { name: 'Download tetra-converted.stl' }));
   expect(stl.length).toBe(84 + 4 * 50);
   expect(stl.readUInt32LE(80)).toBe(4);

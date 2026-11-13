@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { HLS_MESSAGES, MAX_SEGMENTS, parseHls } from './hls';
+import { HLS_MESSAGES, MAX_SEGMENTS, hostsOf, parseHls } from './hls';
 
 const BASE = 'https://media.test/show/master.m3u8';
 
@@ -92,5 +92,16 @@ describe('parseHls media playlists', () => {
 
   it('rejects text that is not a playlist', () => {
     expect(parseHls('<html></html>', BASE)).toEqual({ ok: false, message: HLS_MESSAGES.notHls });
+  });
+});
+
+describe('parseHls request targets', () => {
+  const base = 'https://media.example/v/index.m3u8';
+  it('refuses links with credentials', () => {
+    expect(parseHls('#EXTM3U\n#EXT-X-TARGETDURATION:4\n#EXTINF:4,\nhttps://user:pw@media.example/a.ts\n#EXT-X-ENDLIST\n', base).ok).toBe(false);
+  });
+  it('lists every host a playlist would contact, so it can be shown before downloading', () => {
+    const r = parseHls('#EXTM3U\n#EXT-X-TARGETDURATION:4\n#EXTINF:4,\nseg/a.ts\n#EXTINF:4,\nhttps://cdn.other/b.ts\n#EXTINF:4,\nhttps://cdn.other/c.ts\n#EXT-X-ENDLIST\n', base);
+    expect(r.ok && r.kind === 'media' ? hostsOf(r.segments.map((s) => s.url)) : null).toEqual(['media.example', 'cdn.other']);
   });
 });

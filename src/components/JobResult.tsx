@@ -18,7 +18,7 @@ export function JobResult({ job, source, exclude, expectSmaller }: { job: Job | 
         <>
           {source && change !== null && (
             <p className="mono">
-              {formatBytes(source.size)} → {formatBytes(total)} ({change > 0 ? '+' : '−'}
+              {formatBytes(source.size)} → {formatBytes(total)} ({change === 0 ? '' : change > 0 ? '+' : '−'}
               {Math.abs(change)}%)
             </p>
           )}

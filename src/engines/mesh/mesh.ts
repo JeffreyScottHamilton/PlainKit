@@ -33,6 +33,7 @@ function finish(pos: number[], idx: number[], what: string): Mesh {
 export function parseObj(text: string): Mesh {
   const pos: number[] = [];
   const idx: number[] = [];
+  const tooMany = () => new ToolError('mesh-too-large', 'This mesh has more than 5 million triangles.', 'Simplify it in a 3D program first.');
   for (const raw of text.split('\n')) {
     const line = raw.trim();
     if (line.startsWith('v ')) {
@@ -46,6 +47,7 @@ export function parseObj(text: string): Mesh {
         return i < 0 ? n + i : i - 1;
       });
       for (let i = 1; i + 1 < f.length; i++) idx.push(f[0]!, f[i]!, f[i + 1]!);
+      if (idx.length > MAX_TRIANGLES * 3) throw tooMany();
     }
   }
   return finish(pos, idx, 'OBJ');
@@ -63,6 +65,7 @@ export function parseStl(bytes: Uint8Array): Mesh {
   if (isBinaryStl(bytes)) {
     const dv = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
     const count = dv.getUint32(80, true);
+    if (count > MAX_TRIANGLES) throw new ToolError('mesh-too-large', 'This mesh has more than 5 million triangles.', 'Simplify it in a 3D program first.');
     for (let t = 0; t < count; t++) {
       const o = 84 + t * 50 + 12;
       for (let v = 0; v < 3; v++) for (let k = 0; k < 3; k++) pos.push(dv.getFloat32(o + v * 12 + k * 4, true));
@@ -121,6 +124,9 @@ export function parsePly(bytes: Uint8Array): Mesh {
       el.props.push(p[1] === 'list' ? { name: p[4]!, type: 'list', list: { count: p[2]!, item: p[3]! } } : { name: p[2]!, type: p[1]! });
     }
   }
+  // A header can claim any element count. Each element needs at least one byte, so a count beyond the data is a lie.
+  const body = bytes.length - headEnd;
+  for (const el of elements) if (!(el.count >= 0) || el.count > body) throw bad('PLY');
   const pos: number[] = [];
   const idx: number[] = [];
   const addFace = (f: number[]) => {

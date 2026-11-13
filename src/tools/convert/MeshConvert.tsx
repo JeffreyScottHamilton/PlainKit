@@ -40,7 +40,7 @@ export function MeshConvert({ tabs }: { tabs?: ReactNode }) {
           const size = s.max.map((v, i) => +(v - s.min[i]!).toPrecision(6)).join(' × ');
           return {
             outputs: [{ name: outputName(a.name, 'converted', st.to), mime: MESH_MIME[st.to], blob: new Blob([r.bytes as BlobPart], { type: MESH_MIME[st.to] }) }],
-            warnings: [`Verified by reading it back: ${s.triangles.toLocaleString('en')} triangles, ${s.vertices.toLocaleString('en')} vertices, bounding box ${size} (file units).`, `Read as ${r.from.toUpperCase()}. Geometry only: colours, normals, texture coordinates and materials are not carried over.`],
+            warnings: [`Read back and checked (triangle count and bounding box): ${s.triangles.toLocaleString('en')} triangles, ${s.vertices.toLocaleString('en')} vertices, bounding box ${size} (file units).`, `Read as ${r.from.toUpperCase()}. Geometry only: colours, normals, texture coordinates and materials are not carried over.`],
           };
         },
       });

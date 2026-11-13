@@ -64,7 +64,7 @@ export function StemPanel() {
       <dl className="as-facts">
         <dt>Model</dt>
         <dd>
-          {MODEL.name} · <a href={MODEL.licenceUrl}>{MODEL.licence}</a>
+          {MODEL.name} · <a href={MODEL.licenceUrl} target="_blank" rel="noreferrer">{MODEL.licence}</a>
         </dd>
         <dt>Download</dt>
         <dd className="mono">

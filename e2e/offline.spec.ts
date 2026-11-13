@@ -67,3 +67,12 @@ test('production CSP is present and nothing violates it on the home and compress
   await compress(page, 'csp.jpg');
   expect(violations).toEqual([]);
 });
+
+test('real files such as licence texts are served as themselves, not replaced by the app', async ({ page }) => {
+  await page.goto('/');
+  await swReady(page);
+  await page.goto('/models/u2netp/LICENSE');
+  await expect(page.locator('body')).toContainText('Apache License');
+  await page.goto('/tools/pdf');
+  await expect(page.getByRole('heading', { level: 1, name: 'PDF pages' })).toBeVisible();
+});

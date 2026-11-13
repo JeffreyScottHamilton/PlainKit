@@ -74,7 +74,7 @@ export function MediaPanel({ toolId, mode, tabs }: { toolId: 'convert' | 'compre
             { container, force: mode === 'compress', quality: mode === 'compress' ? st.quality : undefined, maxHeight: mode === 'compress' ? st.maxHeight : 0, audioBitrate: mode === 'compress' ? st.audioKbps * 1000 : undefined },
             ctx,
           );
-          const summary = r.verified ? `Verified: ${describe(r.info)}` : `Not verified: the output is ${r.info.durationSec.toFixed(1)} s but the source is ${r.sourceSec.toFixed(1)} s.`;
+          const summary = r.verified ? `Verified (duration and tracks): ${describe(r.info)}` : `Not verified: the output is ${r.info.durationSec.toFixed(1)} s but the source is ${r.sourceSec.toFixed(1)} s.`;
           return { outputs: [{ name: outputName(a.name, mode === 'compress' ? 'compressed' : 'converted', target.ext), mime: target.mime, blob: new Blob([r.bytes], { type: target.mime }) }], warnings: [summary, ...r.warnings] };
         },
       });
@@ -191,7 +191,7 @@ export function MediaPanel({ toolId, mode, tabs }: { toolId: 'convert' | 'compre
                   {out && job?.result && (
                     <>
                       <p className="mono">
-                        {formatBytes(a.size)} → {formatBytes(out.size)} ({change > 0 ? '+' : '−'}
+                        {formatBytes(a.size)} → {formatBytes(out.size)} ({change === 0 ? '' : change > 0 ? '+' : '−'}
                         {Math.abs(change)}%)
                       </p>
                       {mode === 'compress' && out.size >= a.size && <Notice kind="warn">The result is not smaller than the original. Keep the original, or choose Smaller or a lower height.</Notice>}

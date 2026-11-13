@@ -37,3 +37,13 @@ export function mkvFixtureBytes(): Uint8Array {
   return cat(el(0x1a45dfa3, el(0x4282, s('matroska'))), seg);
 }
 
+
+/** Like a live recording: clusters are written without a size, so each runs until the next top-level element. */
+export function mkvLiveFixtureBytes(): Uint8Array {
+  const open = (id: number, ...data: Uint8Array[]) => cat(idBytes(id), Uint8Array.of(0xff), ...data);
+  const tracks = el(0x1654ae6b, track(2, 0x11, 'S_TEXT/UTF8', 'eng'));
+  const c1 = open(0x1f43b675, el(0xe7, u(0)), el(0xa0, el(0xa1, block(2, 100, 'First')), el(0x9b, u(900))));
+  const c2 = open(0x1f43b675, el(0xe7, u(4000)), el(0xa0, el(0xa1, block(2, 0, 'Second')), el(0x9b, u(1000))));
+  const seg = cat(idBytes(0x18538067), Uint8Array.of(0x01, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff), el(0x1549a966, el(0x2ad7b1, u(1000000))), tracks, c1, c2);
+  return cat(el(0x1a45dfa3, el(0x4282, s('webm'))), seg);
+}

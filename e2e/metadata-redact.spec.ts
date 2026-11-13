@@ -101,6 +101,36 @@ test.describe('Redact', () => {
     expect(px(blur, R.x + R.w, cy)).toEqual([255, 255, 255, 255]);
   });
 
+  test('blur on a transparent image does not let the original show through', async ({ page }) => {
+    await page.goto('/tools/redact');
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+    // Opaque 1px red columns on a fully transparent background: the worst case for a blur drawn over the original.
+    const b64 = await page.evaluate(async ({ w, h, r }) => {
+      const c = new OffscreenCanvas(w, h);
+      const ctx = c.getContext('2d')!;
+      ctx.fillStyle = '#ff0000';
+      for (let x = r.x; x < r.x + r.w; x += 2) ctx.fillRect(x, r.y, 1, r.h);
+      const bytes = new Uint8Array(await (await c.convertToBlob({ type: 'image/png' })).arrayBuffer());
+      let s = '';
+      for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+      return btoa(s);
+    }, { w: W, h: H, r: R });
+    await page.locator('input[type=file]').first().setInputFiles({ name: 'alpha.png', mimeType: 'image/png', buffer: Buffer.from(b64, 'base64') });
+    const main = page.getByRole('main');
+    await main.getByRole('button', { name: 'Add region', exact: true }).click();
+    await main.getByRole('spinbutton', { name: 'Width' }).fill(String(R.w));
+    await main.getByRole('spinbutton', { name: 'Height' }).fill(String(R.h));
+    await main.getByRole('spinbutton', { name: 'X' }).fill(String(R.x));
+    await main.getByRole('spinbutton', { name: 'Y' }).fill(String(R.y));
+    await main.getByRole('radio', { name: 'Blur', exact: true }).click();
+    const out = await exportAndRead(page);
+    const cy = R.y + Math.floor(R.h / 2);
+    let maxStep = 0;
+    for (let x = R.x + 20; x < R.x + R.w - 20; x++) maxStep = Math.max(maxStep, Math.abs(px(out, x, cy)[3]! - px(out, x + 1, cy)[3]!));
+    // If the sharp original were still underneath, alpha would jump between about 255 and about 128 on every column.
+    expect(maxStep).toBeLessThan(30);
+  });
+
   test('a region can be moved, resized and removed from the keyboard, and undone', async ({ page }) => {
     await page.goto('/tools/redact');
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();

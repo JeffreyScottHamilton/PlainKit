@@ -100,7 +100,7 @@ export function Transcribe({ hasCues, onApply }: { hasCues: boolean; onApply: (c
               Download on first use: {formatBytes(MODEL_BYTES + ENGINE.bytes)} ({formatBytes(MODEL_BYTES)} model, {formatBytes(ENGINE.bytes)} speech engine). It is held in memory for this tab unless you keep it.
             </li>
             <li>
-              Licence: {WHISPER.licence}. <a href={WHISPER.licenceUrl}>Licence text</a>.
+              Licence: {WHISPER.licence}. <a href={WHISPER.licenceUrl} target="_blank" rel="noreferrer">Licence text</a>.
             </li>
             <li>Language: {WHISPER.languages}. Other languages will come out wrong.</li>
             <li>Length: up to {MAX_SECONDS / 60} minutes of audio. Single-threaded, so it is slower than real time on many devices.</li>

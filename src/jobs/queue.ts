@@ -24,7 +24,14 @@ const patch = (id: string, p: Partial<Job>) => jobs.set((js) => js.map((j) => (j
 
 async function start(id: string, spec: Spec) {
   const ctl = controllers.get(id);
-  if (!ctl || ctl.signal.aborted) return;
+  if (!ctl || ctl.signal.aborted) {
+    // Never started: still release the heavy slot that pump() reserved, or later jobs would wait forever.
+    if (spec.heavy) {
+      heavyRunning--;
+      pump();
+    }
+    return;
+  }
   patch(id, { state: 'running' });
   try {
     const res = await spec.run({ signal: ctl.signal, onProgress: (progress) => patch(id, { progress }) });

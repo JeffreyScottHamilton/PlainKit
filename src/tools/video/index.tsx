@@ -343,11 +343,11 @@ function LinkSection({ set, linkText, variant }: { set: (p: Partial<LinkStore>) 
       {check?.kind === 'hls-error' && <Notice kind="error">{check.message}</Notice>}
       {check?.kind === 'hls-media' && (
         <p className="muted">
-          HLS playlist from {check.host}: {check.segments} segments, {check.totalSec.toFixed(2)} s in total. Segments are requested from the same host. Saved as {check.name}.
+          HLS playlist from {check.host}: {check.segments} segments, {check.totalSec.toFixed(2)} s in total. Segments will be requested from: {check.hosts.join(', ')}. Saved as {check.name}.
         </p>
       )}
       {check?.kind === 'hls-master' && (
-        <Field label="Quality" hint="The playlist lists these qualities. Pick one.">
+        <Field label="Quality" hint={`The playlist lists these qualities, served from: ${check.hosts.join(', ')}. Pick one.`}>
           {(p) => (
             <select {...p} className="pk-select" value={variant} onChange={(e) => set({ variant: Number(e.target.value) })}>
               {check.variants.map((vt, i) => (

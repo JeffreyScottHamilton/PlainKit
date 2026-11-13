@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { assText, readHead, readMkvSubtitles } from './mkv';
-import { mkvFixtureBytes } from './mkv.fixture';
+import { mkvFixtureBytes, mkvLiveFixtureBytes } from './mkv.fixture';
 
 const fixture = () => new Blob([mkvFixtureBytes() as BlobPart]);
 
@@ -31,6 +31,13 @@ describe('mkv subtitles', () => {
     const ctl = new AbortController();
     ctl.abort();
     await expect(readMkvSubtitles(fixture(), { signal: ctl.signal })).rejects.toThrow(/Canceled/);
+  });
+  it('reads every cluster of a live recording, where clusters have no stored size', async () => {
+    const r = await readMkvSubtitles(new Blob([mkvLiveFixtureBytes() as BlobPart]));
+    expect(r.cues.get(2)).toEqual([
+      { start: 100, end: 1000, text: 'First' },
+      { start: 4000, end: 5000, text: 'Second' },
+    ]);
   });
   it('rejects files that are not Matroska', async () => {
     await expect(readMkvSubtitles(new Blob(['\0\0\0 ftypisom']))).rejects.toThrow(/not a Matroska or WebM file/);

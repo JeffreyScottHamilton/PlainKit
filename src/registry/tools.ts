@@ -20,7 +20,7 @@ export const TOOLS: ToolDef[] = [
   {
     id: 'convert', name: 'Convert', title: 'Convert files', description: 'Change a file to another format from a tested list.',
     aliases: ['ConvertIt', 'Recast'], keywords: ['format', 'change', 'jpg to png', 'webp', 'export'],
-    category: 'image', accepts: [...IMG, 'image/gif', 'image/bmp', 'image/avif', 'image/heic', 'image/heif', 'image/svg+xml', 'video/*', 'audio/*', 'application/pdf', 'model/*'], produces: [...IMG, 'video/mp4', 'video/webm', 'audio/mp4', 'audio/wav', 'application/pdf', 'model/stl'], icon: ArrowLeftRight, load: () => import('@/tools/convert'),
+    category: 'image', accepts: [...IMG, 'image/gif', 'image/bmp', 'image/avif', 'image/heic', 'image/heif', 'video/*', 'audio/*', 'application/pdf', 'model/*'], produces: [...IMG, 'video/mp4', 'video/webm', 'audio/mp4', 'audio/wav', 'application/pdf', 'model/stl'], icon: ArrowLeftRight, load: () => import('@/tools/convert'),
     capabilities: ['OffscreenCanvas'], network: 'on-device', assetDownloadBytes: 0, maturity: 'working',
     limitations: ['Only the listed format pairs are supported.', 'Images: animation, layers and metadata are not carried over.', 'Audio and video: only formats this browser can encode. MP3 output is usually unavailable.', 'Documents: images to PDF and PDF pages to pictures only. No Word, Excel or PowerPoint.', '3D: OBJ, STL and PLY geometry only. No glTF, FBX, STEP or CAD.'],
   },

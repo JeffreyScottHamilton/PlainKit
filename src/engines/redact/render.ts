@@ -46,7 +46,7 @@ function pixelate(data: Uint8ClampedArray, imgW: number, r: Region, out: Offscre
  * Gaussian blur of the region using the original pixels around it. The source is padded by stretching its edge
  * pixels, so a region at the image border does not blend in transparency, and the blur is clipped to the region.
  */
-function blur(src: OffscreenCanvas, imgW: number, imgH: number, r: Region, out: OffscreenCanvasRenderingContext2D): void {
+function blur(src: OffscreenCanvas, imgW: number, imgH: number, r: Region, out: OffscreenCanvasRenderingContext2D, background: string | null): void {
   const radius = Math.max(12, Math.round(Math.min(r.w, r.h) / 4));
   const pad = radius * 3;
   const pw = r.w + 2 * pad;
@@ -72,6 +72,13 @@ function blur(src: OffscreenCanvas, imgW: number, imgH: number, r: Region, out: 
   out.beginPath();
   out.rect(r.x, r.y, r.w, r.h);
   out.clip();
+  // Remove the original pixels first. Otherwise, where the image is partly transparent, the sharp original
+  // would show through the blurred layer drawn on top of it.
+  out.clearRect(r.x, r.y, r.w, r.h);
+  if (background) {
+    out.fillStyle = background;
+    out.fillRect(r.x, r.y, r.w, r.h);
+  }
   out.filter = `blur(${radius}px)`;
   out.drawImage(padded, r.x - pad, r.y - pad);
   out.restore();
@@ -125,7 +132,7 @@ export async function renderRedacted(input: Blob, regions: Region[], format: Ren
       data ??= sctx.getImageData(0, 0, W, H).data;
       pixelate(data, W, r, octx);
     } else {
-      blur(src, W, H, r, octx);
+      blur(src, W, H, r, octx, format === 'image/jpeg' ? '#ffffff' : null);
     }
   }
 

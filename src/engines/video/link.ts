@@ -2,7 +2,7 @@
 import { ToolError, isAbort } from '@/lib/errors';
 import { outputName } from '@/lib/format';
 import type { EngineContext } from '@/jobs/types';
-import { parseHls, type HlsParsed } from './hls';
+import { parseHls, type HlsParsed, hostsOf } from './hls';
 
 export const MAX_DOWNLOAD_BYTES = 2 * 1024 ** 3;
 const MAX_PLAYLIST_BYTES = 1024 * 1024;
@@ -91,8 +91,8 @@ export async function fetchPlaylist(url: string, signal: AbortSignal): Promise<H
 
 export type LinkCheck =
   | { kind: 'media'; host: string; mime: string; size?: number; name: string }
-  | { kind: 'hls-master'; host: string; name: string; variants: { label: string; bandwidth: number }[] }
-  | { kind: 'hls-media'; host: string; name: string; segments: number; totalSec: number }
+  | { kind: 'hls-master'; host: string; hosts: string[]; name: string; variants: { label: string; bandwidth: number }[] }
+  | { kind: 'hls-media'; host: string; hosts: string[]; name: string; segments: number; totalSec: number }
   | { kind: 'hls-error'; host: string; message: string };
 
 /** Contacts the link to see what it is. For direct media only the headers are read; the body is dropped. */
@@ -110,8 +110,8 @@ export async function checkLink(url: URL, signal: AbortSignal): Promise<LinkChec
     const name = fileNameFor(url, 'application/vnd.apple.mpegurl').replace(/\.m3u8$/i, '');
     if (!parsed.ok) return { kind: 'hls-error', host, message: parsed.message };
     if (parsed.kind === 'master')
-      return { kind: 'hls-master', host, name, variants: parsed.variants.map((v, i) => ({ label: v.resolution ? `${v.resolution.height}p` : `Variant ${i + 1}`, bandwidth: v.bandwidth })) };
-    return { kind: 'hls-media', host, name, segments: parsed.segments.length, totalSec: parsed.totalSec };
+      return { kind: 'hls-master', host, hosts: hostsOf(parsed.variants.map((v) => v.url)), name, variants: parsed.variants.map((v, i) => ({ label: v.resolution ? `${v.resolution.height}p` : `Variant ${i + 1}`, bandwidth: v.bandwidth })) };
+    return { kind: 'hls-media', host, hosts: hostsOf(parsed.segments.map((s) => s.url)), name, segments: parsed.segments.length, totalSec: parsed.totalSec };
   }
   const len = Number(res.headers.get('content-length'));
   await res.body?.cancel().catch(() => undefined);

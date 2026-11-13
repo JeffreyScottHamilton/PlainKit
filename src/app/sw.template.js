@@ -27,7 +27,9 @@ self.addEventListener('fetch', (e) => {
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
-  if (req.mode === 'navigate') {
+  // Real files (licence texts, models, engines) are never replaced by the app shell.
+  const isFile = /^\/(assets|models|engines)\//.test(url.pathname) || /\.[a-z0-9]{2,5}$/i.test(url.pathname);
+  if (req.mode === 'navigate' && !isFile) {
     // App routes are client-side: serve the cached shell, fall back to the network.
     e.respondWith(caches.match('/', { cacheName: CACHE, ignoreVary: true }).then((hit) => hit || fetch(req)));
     return;
