@@ -1,7 +1,7 @@
 import {
   ALL_FORMATS, AdtsOutputFormat, BlobSource, BufferSource, BufferTarget, Conversion, FlacOutputFormat, Input, MkvOutputFormat, MovOutputFormat,
   Mp3OutputFormat, Mp4OutputFormat, OggOutputFormat, Output, QUALITY_HIGH, QUALITY_LOW, QUALITY_MEDIUM, UnsupportedInputFormatError, WavOutputFormat,
-  WebMOutputFormat, getFirstEncodableAudioCodec, getFirstEncodableVideoCodec, type OutputFormat, type Source,
+  WebMOutputFormat, getFirstEncodableAudioCodec, getFirstEncodableVideoCodec, type AudioCodec, type OutputFormat, type Source,
 } from 'mediabunny';
 import { serve } from '@/workers/rpc';
 import { ToolError } from '@/lib/errors';
@@ -21,6 +21,9 @@ function formatFor(id: ContainerId): OutputFormat {
   }
 }
 const QUALITY = { low: QUALITY_LOW, medium: QUALITY_MEDIUM, high: QUALITY_HIGH };
+// Formats whose name promises a codec only count as writable with that codec. Without this, a browser with no
+// AAC encoder would quietly put Opus into an ".m4a", which many players cannot open.
+const AUDIO_FOR: Partial<Record<ContainerId, AudioCodec[]>> = { m4a: ['aac'], aac: ['aac'], mp3: ['mp3'], flac: ['flac'], ogg: ['opus', 'vorbis'] };
 
 /** Which containers this browser can really write, by asking its encoders. */
 async function probe(): Promise<Writable[]> {
@@ -29,13 +32,21 @@ async function probe(): Promise<Writable[]> {
     try {
       const f = formatFor(c.id);
       const video = c.kind === 'video' ? await getFirstEncodableVideoCodec(f.getSupportedVideoCodecs()) : null;
-      const audio = await getFirstEncodableAudioCodec(f.getSupportedAudioCodecs());
+      const audio = await getFirstEncodableAudioCodec(AUDIO_FOR[c.id] ?? f.getSupportedAudioCodecs());
       if (c.kind === 'video' ? video : audio) out.push({ id: c.id, video, audio });
     } catch {
       // No WebCodecs here: nothing is writable.
     }
   }
   return out;
+}
+
+/** The codec to write, when the format demands one. Keeps the source codec if it already fits (so it can be copied). */
+async function audioCodecFor(id: ContainerId, sourceCodec: string | null): Promise<AudioCodec | undefined> {
+  const allowed = AUDIO_FOR[id];
+  if (!allowed) return undefined;
+  if (sourceCodec && (allowed as string[]).includes(sourceCodec)) return sourceCodec as AudioCodec;
+  return (await getFirstEncodableAudioCodec(allowed)) ?? undefined;
 }
 
 async function inspect(source: Source): Promise<MediaInfo> {
@@ -72,7 +83,7 @@ async function transcode(req: Extract<MediaRequest, { type: 'transcode' }>, onPr
       input,
       output,
       video: c.kind === 'video' ? { height: targetHeight(source.video?.height ?? 0, req.maxHeight), fit: 'contain', bitrate: q, forceTranscode: req.force } : { discard: true },
-      audio: { bitrate: req.audioBitrate ?? q, forceTranscode: req.force },
+      audio: { bitrate: req.audioBitrate ?? q, forceTranscode: req.force, codec: await audioCodecFor(req.container, source.audio?.codec ?? null) },
     });
     for (const d of conv.discardedTracks) {
       if (d.track.type === 'video' && c.kind === 'audio') continue; // dropping the picture is the point of an audio format

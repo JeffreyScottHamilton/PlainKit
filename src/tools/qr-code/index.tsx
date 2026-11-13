@@ -186,6 +186,7 @@ export default function Tool() {
       settings={
         <div className="qr-settings">
           <div className="pk-stack" style={{ gap: 4 }}>
+            <span className="pk-label">Error correction</span>
             <Segmented label="Error correction" value={s.logo ? 'H' : s.ecc} options={ECC_OPTIONS} onChange={(ecc) => setS({ ecc })} />
             <span className="pk-hint">{s.logo ? 'Set to H while a logo is used.' : 'Higher levels survive damage but hold less data.'}</span>
           </div>

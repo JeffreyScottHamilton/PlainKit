@@ -18,7 +18,7 @@ Nothing is "verified" yet: all evidence is automated tests in headless Chromium 
 | Convert | JPEG/PNG/WebP/GIF(first frame)/BMP/AVIF(decode-dependent) → JPEG/PNG/WebP | working | `e2e/image.spec.ts`, `matrix.test.ts`; GIF/BMP/AVIF inputs not yet covered by e2e |
 | Convert | In-memory handoff from Compress (no download) | working | `e2e/image.spec.ts` |
 | Convert | HEIC/HEIF (iPhone photos) → JPEG, PNG, WebP, with a decoded preview | working | 4 unit tests for detection; `e2e/heic.spec.ts` converts a real 1280×854 HEIC to PNG and JPEG and refuses a damaged one. The test needs a HEIC file supplied by hand (`PK_HEIC_SAMPLE`), so it is skipped in the normal run. **One sample file tested; not tested on a rotated iPhone photo, a Live Photo or HDR.** Chrome/Firefox use libheif (LGPL-3.0, 2 MB, loaded on first use); Safari decodes natively and was not tested |
-| Convert | Audio and video between containers this browser can write (Chromium here: MP4, WebM, MKV, MOV, M4A, Ogg, WAV; not MP3 or FLAC) | experimental | e2e: WebM→MP4 and WAV→Ogg, verified by re-opening; formats that do not fit the file are hidden. Synthetic sources only |
+| Convert | Audio and video between containers this browser can write (the test browser, which has no AAC encoder: MP4, WebM, MKV, MOV, Ogg, WAV. M4A/AAC appear only where the browser can really encode AAC; MP3 and FLAC output were unavailable) | experimental | e2e: WebM→MP4 and WAV→Ogg, verified by re-opening; formats that do not fit the file are hidden. Synthetic sources only |
 | Convert | Documents: images → one PDF; PDF pages → PNG/JPEG | working | unit tests + e2e check page count, page sizes and decoded image dimensions |
 | Convert | 3D: OBJ, STL, PLY in any direction, geometry only | working | 7 unit tests (all nine pairs, ASCII and binary, polygons, bad input) + e2e checks the STL bytes |
 | Convert | Word/Excel/PowerPoint, EPUB, glTF/FBX/STEP/CAD, MP3 output | unsupported | stated in the tool |
@@ -46,7 +46,7 @@ Nothing is "verified" yet: all evidence is automated tests in headless Chromium 
 | Video | Save a direct media link (CORS permitting) | working | e2e with routed responses, including the CORS-blocked message |
 | Video | HLS VOD: remux MPEG-TS to MP4, or joined .ts fallback; live, encrypted, byte-range and fMP4 refused | experimental | e2e on one real single-segment H.264 stream; multi-segment remux untested |
 | Video | Platform pages, DRM | unsupported | refused with a message |
-| Keep awake | Screen Wake Lock, timer, stop key, re-acquire on return | experimental | 17 unit tests with a fake wake lock; e2e accepts Active or a clear error, so a real lock has not been observed in headless Chromium |
+| Keep awake | Screen Wake Lock, timer, stop key, re-acquire on return | working | 17 unit tests; e2e with the permission granted reaches Active, keeps the lock across tools, and releases on Stop; a refused request says so. Headless Chromium only: not observed on a real screen |
 
 ## Known gaps on working features
 - Image size cap (100 MP / 16384 px) is enforced after decode, not from the header.

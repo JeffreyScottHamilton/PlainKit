@@ -39,4 +39,7 @@ Automated tests had passed over all of these, because they checked exported file
 | HEIC thumbnails showed a broken-image icon in Chromium. | Thumbnails fall back to a file icon. |
 | In Subtitles, an open file's editor was pushed below two optional sections. | The optional sections moved below the editor. |
 
-Twelve tools were looked at in a loaded state with real or realistic inputs. Not looked at: Dev tools beyond earlier screenshots, Clean links, Clean text, Keep awake, QR code, the 3D, document and media panels, and anything at phone width beyond Compress and home.
+| Compress offered "M4A (AAC)" and wrote Opus audio into the file when the browser had no AAC encoder. | Formats whose name promises a codec are offered only when that codec can be written. |
+| QR code's first setting had no visible label; Keep awake said "released by the system" for a request that was refused; 3D results showed a meaningless size change. | Label added; wording fixed; line removed. |
+
+Twenty tools and panels were looked at on desktop and eight at phone width (no overflow found). Earlier note: twelve tools were looked at in a loaded state with real or realistic inputs. Still not looked at: most of the 40 dev utilities individually, the Documents panel, light theme beyond home, and tablet widths.

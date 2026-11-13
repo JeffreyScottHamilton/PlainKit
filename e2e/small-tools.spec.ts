@@ -67,3 +67,28 @@ test('keep awake: enable shows Active or a clear error, and Stop returns to Rele
   }
   await expect(main(page).locator('.ka-state')).toHaveText('Released');
 });
+
+test('keep awake: with permission it holds a real lock, survives leaving the tool, and Stop releases it', async ({ page, context, baseURL }) => {
+  await context.grantPermissions(['screen-wake-lock' as never], { origin: baseURL });
+  await openTool(page, '/tools/keep-awake', 'Keep awake');
+  await main(page).getByRole('button', { name: 'Keep screen awake' }).click();
+  await expect(main(page).locator('.ka-state')).toHaveText('Active');
+  // The lock belongs to the app, not the page component: going to another tool and back keeps it.
+  await page.getByRole('navigation', { name: 'Tools' }).getByRole('link', { name: 'QR code' }).click();
+  await expect(page.getByRole('heading', { level: 1, name: 'QR code' })).toBeVisible();
+  await page.getByRole('navigation', { name: 'Tools' }).getByRole('link', { name: 'Keep awake' }).click();
+  await expect(main(page).locator('.ka-state')).toHaveText('Active');
+  await main(page).getByRole('button', { name: 'Stop' }).click();
+  await expect(main(page).locator('.ka-state')).toHaveText('Released');
+});
+
+test('keep awake: a refused request says so plainly', async ({ page }) => {
+  await openTool(page, '/tools/keep-awake', 'Keep awake');
+  const start = main(page).getByRole('button', { name: 'Keep screen awake' });
+  test.skip(await start.isDisabled(), 'no Screen Wake Lock in this browser');
+  await start.click();
+  const refused = main(page).getByText('Could not keep the screen awake.');
+  const stop = main(page).getByRole('button', { name: 'Stop' });
+  await expect(refused.or(stop)).toBeVisible();
+  if (await refused.isVisible()) await expect(main(page).getByText('Not active: the request was refused.')).toBeVisible();
+});

@@ -126,7 +126,7 @@ export const TOOLS: ToolDef[] = [
     id: 'keep-awake', name: 'Keep awake', title: 'Keep awake', description: 'Stop this screen from sleeping while the tab is visible.',
     aliases: ['NoDoze', 'Watch', 'caffeine'], keywords: ['wake lock', 'screen', 'sleep', 'timer'],
     category: 'device', accepts: [], produces: [], icon: Monitor, load: () => import('@/tools/keep-awake'),
-    capabilities: ['wakeLock'], network: 'on-device', assetDownloadBytes: 0, maturity: 'experimental',
+    capabilities: ['wakeLock'], network: 'on-device', assetDownloadBytes: 0, maturity: 'working',
     limitations: ['Only works while this tab is visible.', 'Cannot move the mouse, change chat presence, or override system lock policies.'],
   },
 ];

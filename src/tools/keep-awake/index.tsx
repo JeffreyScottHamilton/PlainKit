@@ -53,6 +53,7 @@ export default function Tool() {
   let detail: string;
   if (s.active) detail = remaining === null ? 'Until you stop it.' : `Time left: ${formatRemaining(remaining)}`;
   else if (s.reason === 'tab-hidden' && s.intent) detail = 'Released: tab hidden. It is requested again when this tab is visible.';
+  else if (s.error) detail = 'Not active: the request was refused.';
   else if (s.reason) detail = `Released: ${REASON_TEXT[s.reason]}.`;
   else detail = 'Not active. Choose a timer, then select Keep screen awake.';
 

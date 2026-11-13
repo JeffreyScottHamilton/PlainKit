@@ -89,7 +89,7 @@ export function MeshConvert({ tabs }: { tabs?: ReactNode }) {
                   Remove
                 </Button>
               </div>
-              <JobResult job={jobs.find((j) => j.id === st.jobByInput[a.id])} source={a} exclude="convert" />
+              <JobResult job={jobs.find((j) => j.id === st.jobByInput[a.id])} exclude="convert" />
             </article>
           ))}
           <DropZone toolId="convert" compact accept={ACCEPT} />
