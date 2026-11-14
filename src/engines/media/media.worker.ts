@@ -1,7 +1,7 @@
 import {
   ALL_FORMATS, AdtsOutputFormat, BlobSource, BufferSource, BufferTarget, Conversion, FlacOutputFormat, Input, MkvOutputFormat, MovOutputFormat,
   Mp3OutputFormat, Mp4OutputFormat, OggOutputFormat, Output, QUALITY_HIGH, QUALITY_LOW, QUALITY_MEDIUM, UnsupportedInputFormatError, WavOutputFormat,
-  WebMOutputFormat, getFirstEncodableAudioCodec, getFirstEncodableVideoCodec, type AudioCodec, type OutputFormat, type Source,
+  WebMOutputFormat, canEncodeAudio, getFirstEncodableAudioCodec, getFirstEncodableVideoCodec, type AudioCodec, type OutputFormat, type Source, type VideoCodec,
 } from 'mediabunny';
 import { serve } from '@/workers/rpc';
 import { ToolError } from '@/lib/errors';
@@ -23,7 +23,28 @@ function formatFor(id: ContainerId): OutputFormat {
 const QUALITY = { low: QUALITY_LOW, medium: QUALITY_MEDIUM, high: QUALITY_HIGH };
 // Formats whose name promises a codec only count as writable with that codec. Without this, a browser with no
 // AAC encoder would quietly put Opus into an ".m4a", which many players cannot open.
-const AUDIO_FOR: Partial<Record<ContainerId, AudioCodec[]>> = { m4a: ['aac'], aac: ['aac'], mp3: ['mp3'], flac: ['flac'], ogg: ['opus', 'vorbis'] };
+const AUDIO_FOR: Partial<Record<ContainerId, AudioCodec[]>> = { m4a: ['aac'], aac: ['aac'], mp3: ['mp3'], flac: ['flac'], ogg: ['opus', 'vorbis'], mp4: ['aac'], mov: ['aac'] };
+
+// The same rule for video: people expect an MP4 or MOV to hold H.264 (or HEVC) and a WebM to hold VP9/VP8/AV1.
+// Copying VP8 into an MP4 is technically allowed but many players, including iPhones, will not open it.
+const VIDEO_FOR: Partial<Record<ContainerId, VideoCodec[]>> = { mp4: ['avc', 'hevc'], mov: ['avc', 'hevc'], webm: ['vp9', 'vp8', 'av1'] };
+
+// Browsers rarely encode MP3 or FLAC, and some lack AAC. These encoders (LAME, libFLAC, FFmpeg's AAC, compiled to
+// WebAssembly) fill the gap. Each is its own lazily loaded file, fetched only when that format is written and the
+// browser cannot do it natively.
+const BUNDLED: AudioCodec[] = ['mp3', 'flac', 'aac'];
+const ready = new Set<AudioCodec>();
+async function ensureEncoder(codec: AudioCodec): Promise<boolean> {
+  if (ready.has(codec)) return true;
+  if (!(await canEncodeAudio(codec).catch(() => false))) {
+    if (codec === 'mp3') (await import('@mediabunny/mp3-encoder')).registerMp3Encoder();
+    else if (codec === 'flac') (await import('@mediabunny/flac-encoder')).registerFlacEncoder();
+    else if (codec === 'aac') (await import('@mediabunny/aac-encoder')).registerAacEncoder();
+    else return false;
+  }
+  ready.add(codec);
+  return true;
+}
 
 /** Which containers this browser can really write, by asking its encoders. */
 async function probe(): Promise<Writable[]> {
@@ -31,8 +52,10 @@ async function probe(): Promise<Writable[]> {
   for (const c of CONTAINERS) {
     try {
       const f = formatFor(c.id);
-      const video = c.kind === 'video' ? await getFirstEncodableVideoCodec(f.getSupportedVideoCodecs()) : null;
-      const audio = await getFirstEncodableAudioCodec(AUDIO_FOR[c.id] ?? f.getSupportedAudioCodecs());
+      const video = c.kind === 'video' ? await getFirstEncodableVideoCodec(VIDEO_FOR[c.id] ?? f.getSupportedVideoCodecs()) : null;
+      const wanted = AUDIO_FOR[c.id];
+      // A bundled encoder counts as available without loading it here; it is fetched when a conversion needs it.
+      const audio = (await getFirstEncodableAudioCodec(wanted ?? f.getSupportedAudioCodecs())) ?? wanted?.find((a) => BUNDLED.includes(a)) ?? null;
       if (c.kind === 'video' ? video : audio) out.push({ id: c.id, video, audio });
     } catch {
       // No WebCodecs here: nothing is writable.
@@ -46,7 +69,18 @@ async function audioCodecFor(id: ContainerId, sourceCodec: string | null): Promi
   const allowed = AUDIO_FOR[id];
   if (!allowed) return undefined;
   if (sourceCodec && (allowed as string[]).includes(sourceCodec)) return sourceCodec as AudioCodec;
-  return (await getFirstEncodableAudioCodec(allowed)) ?? undefined;
+  for (const c of allowed) {
+    if (BUNDLED.includes(c) ? await ensureEncoder(c) : await canEncodeAudio(c).catch(() => false)) return c;
+  }
+  return undefined;
+}
+
+/** Keeps the source codec when the format allows it (so it can be copied); otherwise the first one this browser can encode. */
+async function videoCodecFor(id: ContainerId, sourceCodec: string | null): Promise<VideoCodec | undefined> {
+  const allowed = VIDEO_FOR[id];
+  if (!allowed) return undefined;
+  if (sourceCodec && (allowed as string[]).includes(sourceCodec)) return sourceCodec as VideoCodec;
+  return (await getFirstEncodableVideoCodec(allowed)) ?? undefined;
 }
 
 async function inspect(source: Source): Promise<MediaInfo> {
@@ -82,7 +116,7 @@ async function transcode(req: Extract<MediaRequest, { type: 'transcode' }>, onPr
     const conv = await Conversion.init({
       input,
       output,
-      video: c.kind === 'video' ? { height: targetHeight(source.video?.height ?? 0, req.maxHeight), fit: 'contain', bitrate: q, forceTranscode: req.force } : { discard: true },
+      video: c.kind === 'video' ? { height: targetHeight(source.video?.height ?? 0, req.maxHeight), fit: 'contain', bitrate: q, forceTranscode: req.force, codec: await videoCodecFor(req.container, source.video?.codec ?? null) } : { discard: true },
       audio: { bitrate: req.audioBitrate ?? q, forceTranscode: req.force, codec: await audioCodecFor(req.container, source.audio?.codec ?? null) },
     });
     for (const d of conv.discardedTracks) {

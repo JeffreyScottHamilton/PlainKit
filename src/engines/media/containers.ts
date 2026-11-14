@@ -7,12 +7,12 @@ export const CONTAINERS: Container[] = [
   { id: 'webm', label: 'WebM', ext: 'webm', mime: 'video/webm', kind: 'video' },
   { id: 'mkv', label: 'MKV', ext: 'mkv', mime: 'video/x-matroska', kind: 'video' },
   { id: 'mov', label: 'MOV', ext: 'mov', mime: 'video/quicktime', kind: 'video' },
+  { id: 'mp3', label: 'MP3', ext: 'mp3', mime: 'audio/mpeg', kind: 'audio' },
   { id: 'm4a', label: 'M4A (AAC)', ext: 'm4a', mime: 'audio/mp4', kind: 'audio' },
   { id: 'ogg', label: 'Ogg', ext: 'ogg', mime: 'audio/ogg', kind: 'audio' },
   { id: 'wav', label: 'WAV', ext: 'wav', mime: 'audio/wav', kind: 'audio' },
   { id: 'flac', label: 'FLAC', ext: 'flac', mime: 'audio/flac', kind: 'audio' },
   { id: 'aac', label: 'AAC (ADTS)', ext: 'aac', mime: 'audio/aac', kind: 'audio' },
-  { id: 'mp3', label: 'MP3', ext: 'mp3', mime: 'audio/mpeg', kind: 'audio' },
 ];
 export const containerById = (id: ContainerId): Container => CONTAINERS.find((c) => c.id === id)!;
 

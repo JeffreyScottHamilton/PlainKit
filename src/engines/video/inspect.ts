@@ -4,9 +4,7 @@ import {
   BlobSource,
   getFirstEncodableAudioCodec,
   getFirstEncodableVideoCodec,
-  Mp4OutputFormat,
   UnsupportedInputFormatError,
-  WebMOutputFormat,
   Input,
   type AudioCodec,
   type VideoCodec,
@@ -66,16 +64,22 @@ export async function inspectVideo(blob: Blob): Promise<Inspection> {
 }
 
 export type OutputId = 'mp4' | 'webm';
-export type OutputOption = { id: OutputId; label: string; available: boolean; videoCodec: VideoCodec | null; audioCodec: AudioCodec | null };
+export type OutputOption = { id: OutputId; label: string; available: boolean; canCopy: boolean; videoCodec: VideoCodec | null; audioCodec: AudioCodec | null };
 
-/** Which containers this browser can actually write for this frame size. Unavailable ones are shown as such, never offered. */
-export async function outputOptions(width: number, height: number): Promise<OutputOption[]> {
-  const mp4 = new Mp4OutputFormat();
-  const webm = new WebMOutputFormat();
-  const pick = async (id: OutputId, label: string, format: { getSupportedVideoCodecs(): VideoCodec[]; getSupportedAudioCodecs(): AudioCodec[] }): Promise<OutputOption> => {
-    const videoCodec = await getFirstEncodableVideoCodec(format.getSupportedVideoCodecs(), { width, height });
-    const audioCodec = await getFirstEncodableAudioCodec(format.getSupportedAudioCodecs());
-    return { id, label, available: videoCodec !== null, videoCodec, audioCodec };
+/** Video codecs that belong in each container. An MP4 holding VP8 is legal but many players, including iPhones, reject it. */
+export const CONTAINER_VIDEO: Record<OutputId, VideoCodec[]> = { mp4: ['avc', 'hevc'], webm: ['vp9', 'vp8', 'av1'] };
+const CONTAINER_AUDIO: Record<OutputId, AudioCodec[]> = { mp4: ['aac', 'opus'], webm: ['opus', 'vorbis'] };
+
+/**
+ * Which containers this browser can actually write for this video. A container is available when the source's codec
+ * already belongs in it (so it can be copied) or the browser can encode one that does.
+ */
+export async function outputOptions(width: number, height: number, sourceVideoCodec: string | null): Promise<OutputOption[]> {
+  const pick = async (id: OutputId, label: string): Promise<OutputOption> => {
+    const videoCodec = await getFirstEncodableVideoCodec(CONTAINER_VIDEO[id], { width, height });
+    const audioCodec = await getFirstEncodableAudioCodec(CONTAINER_AUDIO[id]);
+    const canCopy = !!sourceVideoCodec && (CONTAINER_VIDEO[id] as string[]).includes(sourceVideoCodec);
+    return { id, label, available: videoCodec !== null || canCopy, canCopy, videoCodec, audioCodec };
   };
-  return [await pick('mp4', 'MP4', mp4), await pick('webm', 'WebM', webm)];
+  return [await pick('mp4', 'MP4'), await pick('webm', 'WebM')];
 }

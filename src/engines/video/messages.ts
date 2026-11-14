@@ -7,6 +7,8 @@ export type TrimRequest = {
   startSec: number;
   endSec: number;
   format: 'mp4' | 'webm';
+  /** Copy without re-encoding only when the source codec belongs in this container. */
+  allowCopy: boolean;
   videoCodec: VideoCodec | null;
   audioCodec: AudioCodec | null;
 };

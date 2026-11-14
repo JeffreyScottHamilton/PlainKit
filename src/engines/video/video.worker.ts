@@ -47,7 +47,7 @@ async function trim(req: TrimRequest, onProgress: (p: JobProgress) => void): Pro
     }
   };
 
-  const copied = await attempt(true);
+  const copied = req.allowCopy ? await attempt(true) : null;
   if (copied) {
     const d = await durationOf(copied.bytes);
     if (Math.abs(d.sec - requested) <= TRIM_TOLERANCE_SEC) {
@@ -55,7 +55,7 @@ async function trim(req: TrimRequest, onProgress: (p: JobProgress) => void): Pro
     }
     warnings.push(`Copying without re-encoding gave ${d.sec.toFixed(2)} s, not ${requested.toFixed(2)} s (cut on a keyframe), so the video was re-encoded.`);
   } else {
-    warnings.push('This trim cannot be copied without re-encoding in this format, so the video was re-encoded.');
+    warnings.push(req.allowCopy ? 'This trim cannot be copied without re-encoding in this format, so the video was re-encoded.' : `The source video is not in a codec that belongs in ${req.format === 'mp4' ? 'an MP4' : 'a WebM'}, so it was re-encoded.`);
   }
 
   if (!req.videoCodec) throw encodeFailed();

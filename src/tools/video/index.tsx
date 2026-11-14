@@ -18,8 +18,8 @@ import { saveHls, hlsDetails } from '@/engines/video/hls-save';
 import { checkLink, downloadMedia, validateLink, type LinkCheck } from '@/engines/video/link';
 import './video.css';
 
-type Stored = { trimFor: string | null; startText: string; endText: string; format: OutputId; linkText: string; variant: number };
-const INITIAL: Stored = { trimFor: null, startText: '', endText: '', format: 'mp4', linkText: '', variant: 0 };
+type Stored = { trimFor: string | null; startText: string; endText: string; format: OutputId | null; linkText: string; variant: number };
+const INITIAL: Stored = { trimFor: null, startText: '', endText: '', format: null, linkText: '', variant: 0 };
 
 const errText = (e: unknown) => (e instanceof ToolError ? { message: e.message, next: e.nextAction } : { message: e instanceof Error ? e.message : 'Something went wrong.', next: 'Try again.' });
 
@@ -38,7 +38,8 @@ export default function Tool() {
   }, [source, insp, st.trimFor, set]);
 
   const trim = insp?.ok && duration > 0 ? resolveTrim(st.startText, st.endText, duration) : null;
-  const chosen = outputs?.find((o) => o.id === st.format && o.available) ?? outputs?.find((o) => o.available) ?? null;
+  // Until the user picks, prefer the format the source can be copied into (fast, no quality loss).
+  const chosen = outputs?.find((o) => o.id === st.format && o.available) ?? outputs?.find((o) => o.available && o.canCopy) ?? outputs?.find((o) => o.available) ?? null;
   const canExport = !!source && !!trim?.ok && !!chosen;
 
   const exportTrim = () => {
@@ -194,13 +195,13 @@ function useInspection(asset: SessionAsset | undefined): Inspection | null {
   return asset && res?.id === asset.id ? res.r : null;
 }
 
-function useOutputs(info: { width: number; height: number } | null): OutputOption[] | null {
+function useOutputs(info: { width: number; height: number; videoCodec?: string | null } | null): OutputOption[] | null {
   const [opts, setOpts] = useState<OutputOption[] | null>(null);
-  const key = info ? `${info.width}x${info.height}` : '';
+  const key = info ? `${info.width}x${info.height}:${info.videoCodec ?? ''}` : '';
   useEffect(() => {
     if (!info) return;
     let live = true;
-    outputOptions(info.width, info.height).then((o) => live && setOpts(o));
+    outputOptions(info.width, info.height, info.videoCodec ?? null).then((o) => live && setOpts(o));
     return () => {
       live = false;
     };

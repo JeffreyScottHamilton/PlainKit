@@ -20,13 +20,14 @@ export async function runTrim(
   opts: { startSec: number; endSec: number; output: OutputOption },
   ctx: EngineContext,
 ): Promise<EngineResult> {
-  if (!opts.output.available || !opts.output.videoCodec) throw new ToolError('output-unavailable', `This browser cannot write ${opts.output.label}.`, 'Choose the other output format.');
+  if (!opts.output.available || (!opts.output.videoCodec && !opts.output.canCopy)) throw new ToolError('output-unavailable', `This browser cannot write ${opts.output.label}.`, 'Choose the other output format.');
   const req: WorkerRequest = {
     type: 'trim',
     input: blob,
     startSec: opts.startSec,
     endSec: opts.endSec,
     format: opts.output.id,
+    allowCopy: opts.output.canCopy,
     videoCodec: opts.output.videoCodec,
     audioCodec: opts.output.audioCodec,
   };
