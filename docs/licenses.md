@@ -42,7 +42,26 @@ Direct dependencies, read from installed package metadata on 2026-11-11. Exact v
 - Model weights: U²-Net-p, Apache-2.0, self-hosted. See `docs/models.md`.
 - Model weights: YuNet face detector (face_detection_yunet_2023mar), MIT via OpenCV Zoo, upstream weights BSD-3-Clause (Shiqi Yu), self-hosted. See `docs/models.md` and `public/models/yunet/`.
 - Third-party Claude skills are listed in `docs/skills-manifest.md`.
-- Transitive dependency licences have not been audited yet.
+
 - Model weights: Spleeter 4 stems (Deezer, MIT) as ONNX fp16 via Best-Practice/spleeter-4stems-onnx (Apache-2.0 conversion derived from sherpa-onnx, Apache-2.0), self-hosted. Upstream weights-licence wording is an open question, see `docs/models.md` and `docs/audits/stems-feasibility.md`. Files in `public/models/spleeter-4stems/`.
 - Model weights: Whisper tiny.en 8-bit ONNX (onnx-community/whisper-tiny.en), Apache-2.0 per the model cards, MIT upstream (OpenAI Whisper), self-hosted unmodified. See `docs/models.md` and `public/models/whisper-tiny-en/`.
 - Runtime: @huggingface/transformers 4.3.2 (Apache-2.0) and its nested onnxruntime-web 1.31.0-dev (MIT), loaded on demand by the Subtitles transcription worker. Audio fixture `e2e/fixtures/jfk.wav`: JFK 1961 inaugural address excerpt, US federal-government work, treated as public domain.
+
+## Transitive dependencies (audited 2026-11-14)
+
+All 111 installed production packages were read from `node_modules` (`npm ls --omit=dev --all`). `npm audit --omit=dev`: 0 findings.
+
+| Licence | Packages |
+|---|---|
+| MIT | 68 |
+| BSD-3-Clause | 12 |
+| Apache-2.0 | 10 |
+| ISC | 10 |
+| 0BSD | 2 (tslib) |
+| MPL-2.0 | 1 (mediabunny), plus dompurify as MPL-2.0 OR Apache-2.0 |
+| OFL-1.1 | 1 (Inter font) |
+| MIT AND Zlib / MIT OR CC0 | pako, type-fest |
+| **LGPL-3.0** | libheif-js: shipped, as a separate file (see decision 11) |
+| **LGPL-3.0-or-later** | `@img/sharp-libvips-*` and `@img/sharp-wasm32`: **not shipped**. They are server-side image libraries pulled in by `@huggingface/transformers` for Node use. The built site contains no reference to them (checked by searching `dist/`). |
+
+The built code contains the text `huggingface.co` (the transcription library's default model host) and `jsdelivr` may appear inside library files. Neither is contacted: the worker disables remote models and points the runtime at same-origin files, and the browser tests record every request and find none off-origin.
