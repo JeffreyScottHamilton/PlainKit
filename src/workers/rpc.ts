@@ -26,9 +26,9 @@ export function callWorker<Req, Res>(
     opts.signal.addEventListener('abort', onAbort);
     w.onmessage = (e: MessageEvent<Out<Res>>) => {
       const m = e.data;
-      if (m.type === 'progress') opts.onProgress?.(m.progress);
-      else if (m.type === 'done') finish(() => resolve(m.result));
-      else finish(() => reject(new ToolError(m.code, m.message, m.nextAction)));
+      if (m?.type === 'progress') opts.onProgress?.(m.progress);
+      else if (m?.type === 'done') finish(() => resolve(m.result));
+      else if (m?.type === 'error') finish(() => reject(new ToolError(m.code, m.message, m.nextAction)));
     };
     w.onerror = (e) => finish(() => reject(new ToolError('worker-crash', e.message || 'The processing worker stopped unexpectedly.', 'Try again with a smaller file.')));
     w.postMessage(req, opts.transfer ?? []);

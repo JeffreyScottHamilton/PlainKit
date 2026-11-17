@@ -3,6 +3,7 @@ import { Segmented } from './ui';
 import { useToolInputs } from '@/session/store';
 import { useToolState } from '@/session/toolState';
 import type { SessionAsset } from '@/session/types';
+import { docKind } from '@/engines/docs/kinds';
 
 export type Kind<K extends string> = { id: K; label: string; match: (a: SessionAsset) => boolean };
 
@@ -11,6 +12,8 @@ export const isImage = (a: SessionAsset) => a.mime.startsWith('image/');
 export const isMedia = (a: SessionAsset) => a.mime.startsWith('video/') || a.mime.startsWith('audio/');
 export const isPdf = (a: SessionAsset) => a.mime === 'application/pdf' || ext(a) === 'pdf';
 export const isMesh = (a: SessionAsset) => a.mime.startsWith('model/') || ['obj', 'stl', 'ply'].includes(ext(a));
+/** Word, text, Markdown and HTML files, and the legacy formats we name as unsupported. PDFs are isPdf. */
+export const isDocument = (a: SessionAsset) => docKind(a.name, a.mime) !== null;
 
 /**
  * A tool with several file kinds shows one panel per kind. The tab follows the most recently added file,

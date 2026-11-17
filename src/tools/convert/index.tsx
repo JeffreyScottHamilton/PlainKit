@@ -1,4 +1,4 @@
-import { useKindTabs, isImage, isMedia, isMesh, isPdf, type Kind } from '@/components/KindTabs';
+import { useKindTabs, isDocument, isImage, isMedia, isMesh, isPdf, type Kind } from '@/components/KindTabs';
 import { MediaPanel } from '@/components/media/MediaPanel';
 import { ImageConvert } from './ImageConvert';
 import { DocConvert } from './DocConvert';
@@ -8,7 +8,7 @@ type K = 'image' | 'media' | 'document' | 'mesh';
 const KINDS: Kind<K>[] = [
   { id: 'image', label: 'Images', match: isImage },
   { id: 'media', label: 'Audio & video', match: isMedia },
-  { id: 'document', label: 'Documents', match: isPdf },
+  { id: 'document', label: 'Documents', match: (a) => isPdf(a) || isDocument(a) },
   { id: 'mesh', label: '3D models', match: isMesh },
 ];
 
