@@ -11,23 +11,27 @@ import { useToolState } from '@/session/toolState';
 import { cancelJob, enqueue, isActive, useJobs } from '@/jobs/queue';
 import type { Job } from '@/jobs/types';
 import { formatBytes, outputName } from '@/lib/format';
-import { encodeImage } from '@/engines/image/client';
+import { encodeExtra, encodeImage, rasterizeSvg } from '@/engines/image/client';
+import { ICO_SIZES, type ExtraMime } from '@/engines/image/extra';
+import { OUTPUT_MIMES } from '@/engines/image/types';
 import { useEncoderSupport, useInspected, useSniffed, type InspectState } from '@/engines/image/hooks';
 import { NAME_OF } from '@/tools/compress/logic';
 import type { ImageMime } from '@/engines/image/sniff';
 import type { EncodeResult, OutputMime } from '@/engines/image/types';
-import { CONVERT_INPUTS, CONVERT_OUTPUTS, isConvertInput, mayHaveAlpha, outputCol, targetsFor } from './matrix';
+import { CONVERT_INPUTS, CONVERT_OUTPUTS, isConvertInput, mayHaveAlpha, outputCol, targetsFor, type ConvertTarget } from './matrix';
 import './convert.css';
 
 type Stored = {
-  format: OutputMime;
+  format: ConvertTarget;
+  icoSize: number;
   /** 1..100, used for JPEG and WebP. */
   quality: number;
   background: string;
   selectedId: string | null;
   jobByInput: Record<string, string>;
 };
-const INITIAL: Stored = { format: 'image/png', quality: 92, background: '#ffffff', selectedId: null, jobByInput: {} };
+const INITIAL: Stored = { format: 'image/png', icoSize: 256, quality: 92, background: '#ffffff', selectedId: null, jobByInput: {} };
+const isCanvasFormat = (m: ConvertTarget): m is OutputMime => (OUTPUT_MIMES as readonly string[]).includes(m);
 
 const details = new WeakMap<Blob, EncodeResult>();
 
@@ -43,7 +47,8 @@ export function ImageConvert({ tabs }: { tabs?: ReactNode }) {
   const support = useEncoderSupport();
   const jobs = useJobs('convert');
   const recognised = useMemo(() => inputs.filter((a) => isConvertInput(sniffed.get(a.id))), [inputs, sniffed]);
-  const inspected = useInspected(recognised);
+  const inspectable = useMemo(() => recognised.filter((a) => sniffed.get(a.id) !== 'image/svg+xml'), [recognised, sniffed]);
+  const inspected = useInspected(inspectable);
   const selected = inputs.find((a) => a.id === st.selectedId) ?? inputs[0];
   const target = outputCol(st.format);
 
@@ -56,9 +61,7 @@ export function ImageConvert({ tabs }: { tabs?: ReactNode }) {
     const m = sniffed.get(a.id);
     if (m === undefined) return undefined;
     if (m === null) {
-      return a.name.toLowerCase().endsWith('.svg')
-        ? 'SVG conversion is not available yet.'
-        : 'This file is not a supported image. Convert takes JPEG, PNG, WebP, GIF, BMP or AVIF.';
+      return 'This file is not a supported image. Convert takes JPEG, PNG, WebP, GIF, BMP, AVIF, HEIC, TIFF and SVG.';
     }
     if (m === 'image/avif' && support && !support.avifDecodable) return 'This browser cannot decode AVIF.';
     if (!targetsFor(m).includes(st.format)) return `${NAME_OF[m]} is already ${target.label}. Choose another format.`;
@@ -70,8 +73,9 @@ export function ImageConvert({ tabs }: { tabs?: ReactNode }) {
     const m = sniffed.get(a.id);
     return !!m && mayHaveAlpha(m);
   });
-  const lossy = st.format !== 'image/png';
-  const backgroundShown = st.format === 'image/jpeg' && anyAlphaInput;
+  const lossy = target.lossy;
+  const backgroundShown = !target.alpha && anyAlphaInput;
+  const canWrite = (m: ConvertTarget) => !support || (isCanvasFormat(m) ? support.encodable[m] : m === 'image/avif' ? support.avifEncodable : true);
 
   const removeFromTool = (a: SessionAsset) => {
     const j = jobFor(a);
@@ -92,16 +96,29 @@ export function ImageConvert({ tabs }: { tabs?: ReactNode }) {
       if (prev && isActive(prev)) cancelJob(prev.id);
       prev?.result?.assets.forEach((x) => removeAsset(x.id));
       const mode = lossy ? { kind: 'quality' as const, quality: st.quality / 100 } : { kind: 'quality' as const };
-      const options = { mime: st.format, mode, background: st.background };
+      const format = st.format;
+      const flatten = !target.alpha;
       next[a.id] = enqueue({
         toolId: 'convert',
         label: `Convert ${a.name}`,
         inputIds: [a.id],
         heavy: true,
         run: async (ctx) => {
-          const res = await encodeImage(a.blob, options, ctx);
-          details.set(res.blob, res);
-          return { outputs: [{ name: outputName(a.name, 'converted', target.ext), mime: res.mime, blob: res.blob }], warnings: res.warnings };
+          // SVG is drawn by the browser on the main thread first; everything else is decoded in the worker.
+          const src = m === 'image/svg+xml' ? await rasterizeSvg(a.blob) : a.blob;
+          const svgNote = m === 'image/svg+xml' ? ['The SVG was drawn at its own size and is now pixels: it will not stay sharp when enlarged.'] : [];
+          if (isCanvasFormat(format)) {
+            const res = await encodeImage(src, { mime: format, mode, background: st.background }, ctx);
+            details.set(res.blob, res);
+            return { outputs: [{ name: outputName(a.name, 'converted', target.ext), mime: res.mime, blob: res.blob }], warnings: [...svgNote, ...res.warnings] };
+          }
+          // Other formats: a lossless PNG first , then the real encoder (which flattens onto the background when the target has no transparency).
+          const base = await encodeImage(src, { mime: 'image/png', mode: { kind: 'quality' } }, ctx);
+          const ex = await encodeExtra(base.blob, format as ExtraMime, { quality: st.quality / 100, icoSize: st.icoSize, background: flatten ? st.background : undefined }, ctx);
+          details.set(ex.blob, { ...base, blob: ex.blob, width: ex.width, height: ex.height, quality: lossy ? st.quality / 100 : null });
+          const warnings = [...svgNote, ...base.warnings.filter((w) => !/quality/i.test(w)), ...ex.warnings];
+          if (flatten && base.hadAlpha) warnings.push(`Transparent areas were filled with ${st.background}, because ${target.label} has no transparency here.`);
+          return { outputs: [{ name: outputName(a.name, 'converted', target.ext), mime: format, blob: ex.blob }], warnings };
         },
       });
     }
@@ -119,8 +136,8 @@ export function ImageConvert({ tabs }: { tabs?: ReactNode }) {
           <h2>Conversion</h2>
           <Field label="Output format" hint={support ? 'Only formats this browser can write are listed.' : 'Checking which formats this browser can write.'}>
             {(p) => (
-              <select {...p} className="pk-select" value={st.format} onChange={(e) => set({ format: e.target.value as OutputMime })}>
-                {CONVERT_OUTPUTS.filter((o) => !support || support.encodable[o.mime]).map((o) => (
+              <select {...p} className="pk-select" value={st.format} onChange={(e) => set({ format: e.target.value as ConvertTarget })}>
+                {CONVERT_OUTPUTS.filter((o) => canWrite(o.mime)).map((o) => (
                   <option key={o.mime} value={o.mime}>
                     {o.label}
                   </option>
@@ -128,6 +145,19 @@ export function ImageConvert({ tabs }: { tabs?: ReactNode }) {
               </select>
             )}
           </Field>
+          {st.format === 'image/x-icon' && (
+            <Field label="Icon size" hint="Icons are square. The picture is centred, never stretched or enlarged.">
+              {(p) => (
+                <select {...p} className="pk-select" value={st.icoSize} onChange={(e) => set({ icoSize: Number(e.target.value) })}>
+                  {ICO_SIZES.map((s) => (
+                    <option key={s} value={s}>
+                      {s} × {s}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </Field>
+          )}
           {lossy && (
             <Field label="Quality" hint="Higher keeps more detail and makes a larger file.">
               {(p) => (
@@ -308,12 +338,12 @@ function Preview({ asset }: { asset: SessionAsset }) {
 }
 
 /** Warnings shown BEFORE converting, so the user can choose a background or accept the loss. */
-function PreConvertNotes({ asset, sniffed, state, target }: { asset: SessionAsset; sniffed: ImageMime | null | undefined; state: InspectState | undefined; target: OutputMime }) {
+function PreConvertNotes({ asset, sniffed, state, target }: { asset: SessionAsset; sniffed: ImageMime | null | undefined; state: InspectState | undefined; target: ConvertTarget }) {
   if (!sniffed) return null;
   const notes: string[] = [];
   if (sniffed !== asset.mime && asset.mime !== 'application/octet-stream') notes.push(`Named like ${asset.mime.replace('image/', '').toUpperCase()}, but the content is ${NAME_OF[sniffed]}. Using ${NAME_OF[sniffed]}.`);
   if (state?.ok) {
-    if (state.info.hadAlpha && target === 'image/jpeg') notes.push('Transparent areas will be filled with the background color, because JPEG has no transparency.');
+    if (state.info.hadAlpha && !outputCol(target).alpha) notes.push(`Transparent areas will be filled with the background color, because ${outputCol(target).label} has no transparency.`);
     if (sniffed === 'image/gif') notes.push('Only the first frame of a GIF is converted. Animation is not kept.');
     else if (state.info.animated) notes.push('This image is animated. Only the first frame is converted.');
   }

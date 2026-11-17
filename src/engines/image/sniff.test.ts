@@ -27,7 +27,8 @@ describe('sniffImageMime', () => {
   });
 
   it('ignores the file name: unknown bytes are null', () => {
-    expect(sniffImageMime(pad(ascii('<svg xmlns'))) ).toBeNull();
+    expect(sniffImageMime(pad(ascii('<svg xmlns')))).toBe('image/svg+xml');
+    expect(sniffImageMime(pad(ascii('<html><body>')))).toBeNull();
     expect(sniffImageMime(pad(ascii('%PDF-1.7')))).toBeNull();
     expect(sniffImageMime(pad(ascii('ftypheic'), [0, 0, 0, 0x18]))).toBeNull();
   });

@@ -1,11 +1,11 @@
 /** Image formats recognised by content (magic bytes), never by file name. */
-export type ImageMime = 'image/jpeg' | 'image/png' | 'image/webp' | 'image/gif' | 'image/bmp' | 'image/avif' | 'image/heic';
+export type ImageMime = 'image/jpeg' | 'image/png' | 'image/webp' | 'image/gif' | 'image/bmp' | 'image/avif' | 'image/heic' | 'image/tiff' | 'image/svg+xml';
 
 /** BMP DIB header sizes that exist in practice (OS/2 12, then Windows 16/40/52/56/64/108/124). */
 const BMP_DIB_SIZES = new Set([12, 16, 40, 52, 56, 64, 108, 124]);
 
 /** Bytes needed by sniffImageMime. */
-export const SNIFF_BYTES = 64;
+export const SNIFF_BYTES = 1024;
 
 function ascii(b: Uint8Array, at: number, text: string): boolean {
   if (at < 0 || at + text.length > b.length) return false;
@@ -46,6 +46,12 @@ export function sniffImageMime(bytes: Uint8Array): ImageMime | null {
     BMP_DIB_SIZES.has(u32le(bytes, 14))
   )
     return 'image/bmp';
+  if (bytes.length >= 4 && ((bytes[0] === 0x49 && bytes[1] === 0x49 && bytes[2] === 42 && bytes[3] === 0) || (bytes[0] === 0x4d && bytes[1] === 0x4d && bytes[2] === 0 && bytes[3] === 42))) return 'image/tiff';
+  // SVG is text: an <svg root, possibly after a BOM, an XML declaration, a doctype or comments.
+  if (bytes.length >= 4 && (bytes[0] === 0x3c || bytes[0] === 0xef || bytes[0] === 0x20 || bytes[0] === 0x0a || bytes[0] === 0x0d || bytes[0] === 0x09)) {
+    const text = new TextDecoder('utf-8', { fatal: false }).decode(bytes.subarray(0, 1024)).replace(/^\uFEFF/, '');
+    if (/^\s*(<\?xml[^>]*>\s*)?(<!--[\s\S]*?-->\s*)*(<!DOCTYPE\s+svg[^>]*>\s*)?(<!--[\s\S]*?-->\s*)*<svg[\s>]/i.test(text)) return 'image/svg+xml';
+  }
   return null;
 }
 

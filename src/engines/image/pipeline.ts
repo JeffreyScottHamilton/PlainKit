@@ -2,6 +2,7 @@ import { ToolError } from '@/lib/errors';
 import type { JobProgress } from '@/jobs/types';
 import { isAnimated, sniffImageMime, type ImageMime } from './sniff';
 import { decodeHeic } from './heic';
+import { decodeTiff } from './extra';
 import { searchQualityForTarget } from './search';
 import { assertDecodable, fitWithin, parseHexColor } from './dimensions';
 import type { EncodeOptions, EncodeResult, InspectResult, OutputMime } from './types';
@@ -14,7 +15,7 @@ const DEFAULT_LOSSY_QUALITY = 0.92;
 const DEFAULT_BACKGROUND = '#ffffff';
 /** Target mode: the original size, then at most 4 steps of 0.8x. */
 const SCALE_STEPS = [1, 0.8, 0.64, 0.512, 0.4096] as const;
-const MAY_HAVE_ALPHA: ReadonlySet<ImageMime> = new Set<ImageMime>(['image/png', 'image/webp', 'image/gif', 'image/avif', 'image/heic']);
+const MAY_HAVE_ALPHA: ReadonlySet<ImageMime> = new Set<ImageMime>(['image/png', 'image/webp', 'image/gif', 'image/avif', 'image/heic', 'image/tiff', 'image/svg+xml']);
 
 export const OUTPUT_LABEL: Record<OutputMime, string> = { 'image/jpeg': 'JPEG', 'image/png': 'PNG', 'image/webp': 'WebP' };
 const INPUT_LABEL: Record<ImageMime, string> = {
@@ -25,6 +26,8 @@ const INPUT_LABEL: Record<ImageMime, string> = {
   'image/bmp': 'BMP',
   'image/avif': 'AVIF',
   'image/heic': 'HEIC',
+  'image/tiff': 'TIFF',
+  'image/svg+xml': 'SVG',
 };
 
 export function unsupportedEncoder(mime: OutputMime): ToolError {
@@ -45,15 +48,25 @@ async function decodeBlob(blob: Blob): Promise<Decoded> {
   const head = new Uint8Array(await blob.slice(0, HEAD_BYTES).arrayBuffer());
   const mime = sniffImageMime(head);
   if (!mime) {
-    throw new ToolError('unsupported-input', 'This file is not a JPEG, PNG, WebP, GIF, BMP, AVIF or HEIC image.', 'Choose an image in one of those formats.');
+    throw new ToolError('unsupported-input', 'This file is not a JPEG, PNG, WebP, GIF, BMP, AVIF, HEIC, TIFF or SVG image.', 'Choose an image in one of those formats.');
   }
   let bitmap: ImageBitmap;
   try {
     bitmap = await createImageBitmap(blob, { imageOrientation: 'from-image' });
   } catch {
-    if (mime !== 'image/heic') throw new ToolError('decode-failed', `This ${INPUT_LABEL[mime]} could not be decoded. It may be damaged, or this browser cannot read it.`, 'Try another file.');
-    // This browser has no HEIC decoder of its own: use libheif. It applies the file's rotation itself.
-    bitmap = await createImageBitmap((await decodeHeic(blob)).data);
+    const failed = () => new ToolError('decode-failed', `This ${INPUT_LABEL[mime]} could not be decoded. It may be damaged, or this browser cannot read it.`, 'Try another file.');
+    if (mime === 'image/heic') {
+      // This browser has no HEIC decoder of its own: use libheif. It applies the file's rotation itself.
+      bitmap = await createImageBitmap((await decodeHeic(blob)).data);
+    } else if (mime === 'image/tiff') {
+      // Only Safari reads TIFF natively.
+      try {
+        const t = decodeTiff(await blob.arrayBuffer());
+        bitmap = await createImageBitmap(new ImageData(new Uint8ClampedArray(t.data), t.width, t.height));
+      } catch {
+        throw failed();
+      }
+    } else throw failed();
   }
   try {
     assertDecodable(bitmap.width, bitmap.height);

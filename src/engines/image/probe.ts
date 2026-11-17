@@ -6,6 +6,8 @@ export type EncoderSupport = {
   readonly encodable: Readonly<Record<OutputMime, boolean>>;
   /** True when this browser can encode AVIF and decode what it produced. */
   readonly avifDecodable: boolean;
+  /** True when the canvas can write AVIF at all. */
+  readonly avifEncodable: boolean;
 };
 
 async function tinyBlob(mime: string, quality?: number): Promise<Blob | null> {
@@ -47,7 +49,8 @@ async function avifRoundTrips(): Promise<boolean> {
 async function runProbe(): Promise<EncoderSupport> {
   const results = await Promise.all(OUTPUT_MIMES.map((m) => canEncode(m)));
   const encodable = Object.fromEntries(OUTPUT_MIMES.map((m, i) => [m, results[i]])) as Record<OutputMime, boolean>;
-  return { encodable, avifDecodable: await avifRoundTrips() };
+  const avif = await tinyBlob('image/avif', 0.8);
+  return { encodable, avifDecodable: await avifRoundTrips(), avifEncodable: !!avif && avif.type === 'image/avif' };
 }
 
 let cached: Promise<EncoderSupport> | undefined;
