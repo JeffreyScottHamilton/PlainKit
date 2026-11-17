@@ -2,10 +2,10 @@ import { describe, expect, it } from 'vitest';
 import { TOOLS, searchTools, toolsFor, HOME_DIRECTORY, getTool } from './index';
 
 describe('registry', () => {
-  it('has exactly the 17 tools in the agreed order', () => {
-    expect(TOOLS.map((t) => t.name)).toEqual(['Compress', 'Convert', 'Cutout', 'Dev tools', 'Metadata', 'Clean links', 'Send files', 'Redact', 'PDF',
-      'Audio stems', 'Subtitles', 'QR code', 'CSV', 'ID photo', 'Clean text', 'Video', 'Keep awake']);
-    expect(new Set(TOOLS.map((t) => t.id)).size).toBe(17);
+  it('has the tools in the agreed order', () => {
+    expect(TOOLS.map((t) => t.name)).toEqual(['Compress', 'Convert', 'Cutout', 'Color palette', 'Dev tools', 'Metadata', 'Clean links', 'Send files', 'Redact', 'PDF',
+      'Audio stems', 'Subtitles', 'QR code', 'CSV', 'ID photo', 'Clean text', 'Video', 'GIF maker', 'Keep awake']);
+    expect(new Set(TOOLS.map((t) => t.id)).size).toBe(19);
   });
   it('never includes gift cards', () => {
     expect(searchTools('gift')).toEqual([]);

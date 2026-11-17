@@ -1,3 +1,4 @@
+import { TOOLS } from '../src/registry/tools';
 import { expect, test, type Page, type TestInfo } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync, writeFileSync } from 'node:fs';
@@ -12,8 +13,8 @@ const OUT = process.env.PK_AUDIT_OUT ?? '.audit/a11y';
 
 const TOOL_IDS = ['compress', 'convert', 'cutout', 'dev-tools', 'metadata', 'clean-links', 'send-files', 'redact', 'pdf',
   'audio-stems', 'subtitles', 'qr-code', 'csv', 'id-photo', 'clean-text', 'video', 'keep-awake'];
-const NAMES = ['Compress', 'Convert', 'Cutout', 'Dev tools', 'Metadata', 'Clean links', 'Send files', 'Redact', 'PDF',
-  'Audio stems', 'Subtitles', 'QR code', 'CSV', 'ID photo', 'Clean text', 'Video', 'Keep awake'];
+const NAMES = ['Compress', 'Convert', 'Cutout', 'Color palette', 'Dev tools', 'Metadata', 'Clean links', 'Send files', 'Redact', 'PDF',
+  'Audio stems', 'Subtitles', 'QR code', 'CSV', 'ID photo', 'Clean text', 'Video', 'GIF maker', 'Keep awake'];
 const ROUTES = ['/', '/settings', ...TOOL_IDS.map((id) => `/tools/${id}`)];
 const THEMES = ['dark', 'light'] as const;
 type Theme = (typeof THEMES)[number];
@@ -147,13 +148,13 @@ test('keyboard: first Tab on / reaches Skip to content, and it moves focus to ma
   expect(await page.evaluate(() => document.activeElement?.id)).toBe('main');
 });
 
-test('keyboard: all 17 sidebar links reachable by Tab at 1280px, in registry order', async ({ page }, testInfo) => {
+test('keyboard: all sidebar links reachable by Tab at 1280px, in registry order', async ({ page }, testInfo) => {
   await setTheme(page, 'dark');
   await page.setViewportSize({ width: 1280, height: 800 });
   await page.goto('/');
   await settle(page);
   const seen: string[] = [];
-  for (let i = 0; i < 150 && seen.length < 17; i++) {
+  for (let i = 0; i < 150 && seen.length < TOOLS.length; i++) {
     await page.keyboard.press('Tab');
     const name = await page.evaluate(() => {
       const a = document.activeElement;

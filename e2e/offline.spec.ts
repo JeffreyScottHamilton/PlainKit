@@ -1,3 +1,4 @@
+import { TOOLS } from '../src/registry/tools';
 import { expect, test, type Page } from '@playwright/test';
 import { makeJpeg } from './fixtures';
 
@@ -24,7 +25,7 @@ test('shell reloads offline after the first visit', async ({ page, context }) =>
   await context.setOffline(true);
   await page.reload();
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
-  await expect(page.getByRole('navigation', { name: 'Tools' }).getByRole('link')).toHaveCount(17);
+  await expect(page.getByRole('navigation', { name: 'Tools' }).getByRole('link')).toHaveCount(TOOLS.length);
 });
 
 test('a tool used once works offline after a reload, including its worker', async ({ page, context }) => {

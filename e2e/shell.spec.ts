@@ -1,8 +1,9 @@
+import { TOOLS } from '../src/registry/tools';
 import { expect, test, type Page } from '@playwright/test';
 import { PNG } from 'pngjs';
 
-const NAMES = ['Compress', 'Convert', 'Cutout', 'Dev tools', 'Metadata', 'Clean links', 'Send files', 'Redact', 'PDF',
-  'Audio stems', 'Subtitles', 'QR code', 'CSV', 'ID photo', 'Clean text', 'Video', 'Keep awake'];
+const NAMES = ['Compress', 'Convert', 'Cutout', 'Color palette', 'Dev tools', 'Metadata', 'Clean links', 'Send files', 'Redact', 'PDF',
+  'Audio stems', 'Subtitles', 'QR code', 'CSV', 'ID photo', 'Clean text', 'Video', 'GIF maker', 'Keep awake'];
 
 const tinyPng = () => PNG.sync.write(new PNG({ width: 4, height: 4 }));
 
@@ -10,9 +11,9 @@ function sidebarLinks(page: Page) {
   return page.getByRole('navigation', { name: 'Tools' }).getByRole('link');
 }
 
-test('sidebar lists all 17 tools in registry order', async ({ page }) => {
+test('sidebar lists all tools in registry order', async ({ page }) => {
   await page.goto('/');
-  await expect(sidebarLinks(page)).toHaveCount(17);
+  await expect(sidebarLinks(page)).toHaveCount(TOOLS.length);
   await expect(sidebarLinks(page)).toHaveText(NAMES);
 });
 
@@ -55,14 +56,14 @@ test('theme switch sets data-theme and survives reload', async ({ page }) => {
   await expect(page.getByLabel('Theme')).toHaveValue('light');
 });
 
-test('mobile drawer: 17 links, Escape closes, focus returns to the button', async ({ page }) => {
+test('mobile drawer: every tool link, Escape closes, focus returns to the button', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 800 });
   await page.goto('/');
   const opener = page.getByRole('button', { name: 'Open tools menu' });
   await opener.click();
   const drawer = page.getByRole('dialog', { name: 'Tools menu' });
   await expect(drawer).toBeVisible();
-  await expect(drawer.getByRole('navigation', { name: 'Tools' }).getByRole('link')).toHaveCount(17);
+  await expect(drawer.getByRole('navigation', { name: 'Tools' }).getByRole('link')).toHaveCount(TOOLS.length);
   await page.keyboard.press('Escape');
   await expect(drawer).toBeHidden();
   await expect(opener).toBeFocused();

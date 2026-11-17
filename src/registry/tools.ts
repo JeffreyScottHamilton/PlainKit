@@ -1,6 +1,6 @@
 import {
   Layers, ArrowLeftRight, Crop, Code2, Info, Link2, Send, ScanFace, FileText, AudioLines, Captions, QrCode,
-  Table, CircleUserRound, Type, SquarePlay, Monitor,
+  Table, CircleUserRound, Type, SquarePlay, Monitor, Palette, Film,
 } from 'lucide-react';
 import type { ToolDef } from './types';
 
@@ -20,9 +20,9 @@ export const TOOLS: ToolDef[] = [
   {
     id: 'convert', name: 'Convert', title: 'Convert files', description: 'Change a file to another format from a tested list.',
     aliases: ['ConvertIt', 'Recast'], keywords: ['format', 'change', 'jpg to png', 'webp', 'export'],
-    category: 'image', accepts: [...IMG, 'image/gif', 'image/bmp', 'image/avif', 'image/heic', 'image/heif', 'video/*', 'audio/*', 'application/pdf', 'model/*'], produces: [...IMG, 'video/mp4', 'video/webm', 'audio/mp4', 'audio/wav', 'application/pdf', 'model/stl'], icon: ArrowLeftRight, load: () => import('@/tools/convert'),
+    category: 'image', accepts: [...IMG, 'image/gif', 'image/bmp', 'image/avif', 'image/heic', 'image/heif', 'image/tiff', 'image/svg+xml', 'video/*', 'audio/*', 'application/pdf', 'model/*', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain', 'text/markdown', 'text/html', 'application/msword', 'application/rtf', 'text/rtf', 'application/vnd.oasis.opendocument.text'], produces: [...IMG, 'video/mp4', 'video/webm', 'audio/mp4', 'audio/wav', 'application/pdf', 'model/stl', 'text/plain', 'text/markdown', 'text/html'], icon: ArrowLeftRight, load: () => import('@/tools/convert'),
     capabilities: ['OffscreenCanvas'], network: 'on-device', assetDownloadBytes: 0, maturity: 'working',
-    limitations: ['Only the listed format pairs are supported.', 'Images: animation, layers and metadata are not carried over.', 'Audio and video: only formats this browser can encode. MP3 output is usually unavailable.', 'Documents: images to PDF and PDF pages to pictures only. No Word, Excel or PowerPoint.', '3D: OBJ, STL and PLY geometry only. No glTF, FBX, STEP or CAD.'],
+    limitations: ['Only the listed format pairs are supported.', 'Images: animation, layers and metadata are not carried over.', 'Audio and video: only formats this browser can encode. MP3 output is usually unavailable.', 'Documents: DOCX, TXT, Markdown and HTML to PDF, text, Markdown or HTML (not Word to Word). PDF to text needs a text layer: scans are not read. Pictures are placed in PDF only as PNG or JPEG. Images to PDF and PDF pages to pictures also work.', 'Legacy .doc, .odt, .rtf, Pages, Excel and PowerPoint files are not supported: save them as .docx or PDF first.', '3D: OBJ, STL and PLY geometry only. No glTF, FBX, STEP or CAD.'],
   },
   {
     id: 'cutout', name: 'Cutout', title: 'Cut out background', description: 'Remove an image background on this device.',
@@ -30,6 +30,13 @@ export const TOOLS: ToolDef[] = [
     category: 'image', accepts: IMG, produces: ['image/png'], icon: Crop, load: () => import('@/tools/cutout'),
     capabilities: ['WebAssembly'], network: 'on-device', assetDownloadBytes: 19_423_713, maturity: 'experimental',
     limitations: ['Needs a one-time model download before first use.', 'Hair, glass and fine edges are often imperfect.'],
+  },
+  {
+    id: 'color-palette', name: 'Color palette', title: 'Color palette', description: 'Pull the main colors out of an image, or pick any pixel.',
+    aliases: ['palette extractor', 'color picker', 'eyedropper', 'dominant colors'], keywords: ['colour', 'hex', 'rgb', 'hsl', 'swatch', 'css variables', 'theme'],
+    category: 'image', accepts: [...IMG, 'image/gif', 'image/bmp', 'image/avif'], produces: ['image/png', 'text/css', 'text/plain'], icon: Palette, load: () => import('@/tools/color-palette'),
+    capabilities: ['OffscreenCanvas'], network: 'on-device', assetDownloadBytes: 0, maturity: 'working',
+    limitations: ['Dominant colors are an estimate from a reduced copy of the image; very small accents can be missed.'],
   },
   {
     id: 'dev-tools', name: 'Dev tools', title: 'Dev tools', description: '40 small utilities for text, data and encoding.',
@@ -121,6 +128,13 @@ export const TOOLS: ToolDef[] = [
     category: 'media', accepts: ['video/*'], produces: ['video/mp4', 'video/webm'], icon: SquarePlay, load: () => import('@/tools/video'),
     capabilities: ['WebCodecs'], network: 'on-device', networkNote: 'links contact their site', assetDownloadBytes: 0, maturity: 'working',
     limitations: ['Downloading from a link contacts that site and only works if the site allows it (CORS).', 'DRM-protected and platform-page videos are not supported.'],
+  },
+  {
+    id: 'gif', name: 'GIF maker', title: 'GIF maker', description: 'Make GIFs from video or images, or edit an existing GIF.',
+    aliases: ['gif creator', 'gif editor', 'video to gif', 'animated gif'], keywords: ['gif', 'animation', 'frames', 'loop', 'fps', 'reverse', 'meme'],
+    category: 'media', accepts: ['image/gif', 'image/jpeg', 'image/png', 'image/webp', 'video/mp4', 'video/webm', 'video/*'], produces: ['image/gif'], icon: Film, load: () => import('@/tools/gif'),
+    capabilities: ['OffscreenCanvas'], network: 'on-device', assetDownloadBytes: 0, maturity: 'working',
+    limitations: ['GIF holds at most 256 colors per frame, so photos and gradients band.', 'Transparent areas become white, because the GIF is written without transparency.', 'Up to 600 frames, and frames larger than 1920×1080 are scaled down. Long or large videos are limited to keep the tab responsive.'],
   },
   {
     id: 'keep-awake', name: 'Keep awake', title: 'Keep awake', description: 'Stop this screen from sleeping while the tab is visible.',
