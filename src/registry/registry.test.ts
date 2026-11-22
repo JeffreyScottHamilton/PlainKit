@@ -1,11 +1,16 @@
 import { describe, expect, it } from 'vitest';
-import { TOOLS, searchTools, toolsFor, HOME_DIRECTORY, getTool } from './index';
+import { TOOLS, TOOL_GROUPS, searchTools, toolsFor, HOME_DIRECTORY, getTool } from './index';
 
 describe('registry', () => {
   it('has the tools in the agreed order', () => {
-    expect(TOOLS.map((t) => t.name)).toEqual(['Compress', 'Convert', 'Cutout', 'Color palette', 'Dev tools', 'Metadata', 'Clean links', 'Send files', 'Redact', 'PDF',
-      'Audio stems', 'Subtitles', 'QR code', 'CSV', 'ID photo', 'Clean text', 'Video', 'GIF maker', 'Keep awake']);
+    expect(TOOLS.map((t) => t.name)).toEqual(['Compress', 'Convert', 'Cutout', 'Color palette', 'Metadata', 'Redact', 'ID photo',
+      'Video', 'GIF maker', 'Audio stems', 'Subtitles', 'PDF', 'CSV', 'Clean text', 'Clean links', 'Dev tools', 'QR code',
+      'Send files', 'Keep awake']);
     expect(new Set(TOOLS.map((t) => t.id)).size).toBe(19);
+  });
+  it('puts every tool in exactly one sidebar group, in TOOLS order', () => {
+    expect(TOOL_GROUPS.flatMap((g) => g.ids)).toEqual(TOOLS.map((t) => t.id));
+    expect(TOOL_GROUPS.map((g) => g.label)).toEqual(['Images', 'Video & audio', 'Documents & data', 'Text & code', 'Share & device']);
   });
   it('never includes gift cards', () => {
     expect(searchTools('gift')).toEqual([]);

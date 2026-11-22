@@ -13,8 +13,9 @@ const OUT = process.env.PK_AUDIT_OUT ?? '.audit/a11y';
 
 const TOOL_IDS = ['compress', 'convert', 'cutout', 'dev-tools', 'metadata', 'clean-links', 'send-files', 'redact', 'pdf',
   'audio-stems', 'subtitles', 'qr-code', 'csv', 'id-photo', 'clean-text', 'video', 'keep-awake'];
-const NAMES = ['Compress', 'Convert', 'Cutout', 'Color palette', 'Dev tools', 'Metadata', 'Clean links', 'Send files', 'Redact', 'PDF',
-  'Audio stems', 'Subtitles', 'QR code', 'CSV', 'ID photo', 'Clean text', 'Video', 'GIF maker', 'Keep awake'];
+const NAMES = ['Compress', 'Convert', 'Cutout', 'Color palette', 'Metadata', 'Redact', 'ID photo',
+  'Video', 'GIF maker', 'Audio stems', 'Subtitles', 'PDF', 'CSV', 'Clean text', 'Clean links', 'Dev tools', 'QR code',
+  'Send files', 'Keep awake'];
 const ROUTES = ['/', '/settings', ...TOOL_IDS.map((id) => `/tools/${id}`)];
 const THEMES = ['dark', 'light'] as const;
 type Theme = (typeof THEMES)[number];

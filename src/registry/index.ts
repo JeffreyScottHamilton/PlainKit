@@ -1,7 +1,7 @@
 import { TOOLS } from './tools';
 import type { NetworkMode, ToolDef } from './types';
 
-export { TOOLS, HOME_DIRECTORY } from './tools';
+export { TOOLS, TOOL_GROUPS, HOME_DIRECTORY } from './tools';
 export type { ToolDef, NetworkMode, Maturity } from './types';
 
 const byId = new Map(TOOLS.map((t) => [t.id, t]));

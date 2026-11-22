@@ -36,6 +36,8 @@
 .star[aria-pressed='true'] { color: var(--text); opacity: 1; }
 .side__row:hover .star, .side__row:focus-within .star { opacity: 1; }
 @media (hover: none) { .star { opacity: 0.7; } }
+.side__group + .side__group { margin-top: var(--s3); }
+.side__label { margin: 0; padding: var(--s1) var(--s3); color: var(--text-2); font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
 .side__empty { padding: var(--s2) var(--s3); color: var(--text-2); font-size: 13px; }
 .side__foot { display: flex; flex-direction: column; gap: var(--s2); padding-top: var(--s3); border-top: 1px solid var(--divider); }
 .side__free { padding: 0 var(--s3); color: var(--text-2); font-size: 13px; }

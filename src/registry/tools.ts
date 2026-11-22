@@ -9,7 +9,7 @@ const IMG = ['image/jpeg', 'image/png', 'image/webp'];
 // Source of truth for sidebar, search, routes, handoff compatibility and privacy labels.
 // Order is fixed by the brief. Exactly 17 entries. Gift Cards/CardTally is permanently excluded.
 // maturity starts at "planned"; raise it only with evidence recorded in docs/feature-matrix.md.
-export const TOOLS: ToolDef[] = [
+const ALL: ToolDef[] = [
   {
     id: 'compress', name: 'Compress', title: 'Compress files', description: 'Make images, video, audio and PDFs smaller.',
     aliases: ['ShrinkRay', 'Press'], keywords: ['shrink', 'reduce', 'smaller', 'optimize', 'resize', 'jpeg', 'png', 'webp'],
@@ -144,5 +144,24 @@ export const TOOLS: ToolDef[] = [
     limitations: ['Only works while this tab is visible.', 'Cannot move the mouse, change chat presence, or override system lock policies.'],
   },
 ];
+
+/** Sidebar sections, in order. Labels are always visible; sections never collapse. */
+export const TOOL_GROUPS: { label: string; ids: string[] }[] = [
+  { label: 'Images', ids: ['compress', 'convert', 'cutout', 'color-palette', 'metadata', 'redact', 'id-photo'] },
+  { label: 'Video & audio', ids: ['video', 'gif', 'audio-stems', 'subtitles'] },
+  { label: 'Documents & data', ids: ['pdf', 'csv'] },
+  { label: 'Text & code', ids: ['clean-text', 'clean-links', 'dev-tools', 'qr-code'] },
+  { label: 'Share & device', ids: ['send-files', 'keep-awake'] },
+];
+
+/** Every tool, in sidebar order (group by group). */
+export const TOOLS: ToolDef[] = TOOL_GROUPS.flatMap((g) =>
+  g.ids.map((id) => {
+    const t = ALL.find((x) => x.id === id);
+    if (!t) throw new Error(`TOOL_GROUPS names unknown tool: ${id}`);
+    return t;
+  }),
+);
+if (new Set(TOOLS).size !== ALL.length || TOOLS.length !== ALL.length) throw new Error('Every tool must belong to exactly one sidebar group');
 
 export const HOME_DIRECTORY: [string[], string[]] = [['compress', 'convert', 'pdf'], ['redact', 'cutout', 'csv']];
