@@ -1,0 +1,43 @@
+.pl-section {
+  display: grid;
+  gap: 12px;
+}
+.pl-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.pl-pick {
+  border: 1px solid var(--divider);
+  border-radius: 8px;
+  padding: 8px 12px;
+  display: grid;
+  gap: 4px;
+}
+.pl-radio,
+.pl-check {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  min-width: 0;
+}
+.pl-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+  flex: 1;
+}
+.pl-perms {
+  border: 1px solid var(--divider);
+  border-radius: 8px;
+  padding: 8px 12px;
+  display: grid;
+  gap: 6px;
+}
+.pl-radio:focus-within,
+.pl-check:focus-within {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}

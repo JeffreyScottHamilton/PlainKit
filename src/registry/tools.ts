@@ -197,7 +197,7 @@ const ALL: ToolDef[] = [
     aliases: ['unlock pdf', 'protect pdf', 'encrypt pdf', 'remove pdf password', 'decrypt pdf'], keywords: ['password', 'lock', 'unlock', 'encrypt', 'decrypt', 'protect', 'secure', 'remove password'],
     category: 'document', accepts: ['application/pdf'], produces: ['application/pdf'], icon: FileLock, load: () => import('@/tools/pdf-lock'),
     capabilities: ['SubtleCrypto'], network: 'on-device', assetDownloadBytes: 0, maturity: 'working',
-    limitations: ['Unlocking needs the password: this tool does not crack or guess passwords.', 'Editing permissions are honoured only by PDF readers that respect them.'],
+    limitations: ['Unlocking needs the password: this tool does not crack or guess passwords.', 'Editing permissions are honoured only by PDF readers that respect them.', 'New locks use AES-256; unlocking also reads older RC4 and AES-128 files.', 'Removing a password invalidates any digital signature in the PDF.'],
   },
   {
     id: 'scan', name: 'Scan document', title: 'Scan a document', description: 'Turn photos of paper into a clean, straight PDF.',
