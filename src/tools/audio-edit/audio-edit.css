@@ -1,0 +1,49 @@
+.ae-section { display: flex; flex-direction: column; gap: var(--s3); min-width: 0; }
+.ae-settings fieldset { border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--s2); min-width: 0; }
+.ae-settings legend { font-weight: 600; color: var(--text-2); padding: 0; margin-bottom: var(--s1); }
+.ae-fieldset { min-width: 0; }
+.ae-option { display: flex; flex-direction: column; gap: 2px; }
+.ae-check { display: flex; align-items: center; gap: var(--s2); color: var(--text); cursor: pointer; }
+.ae-check input { accent-color: var(--accent); }
+.ae-check input:disabled { cursor: not-allowed; }
+.ae-why { margin: 0; font-size: 0.85em; color: var(--text-2); }
+.ae-result { display: flex; flex-direction: column; gap: var(--s2); }
+
+.ae-wave {
+  position: relative;
+  width: 100%;
+  height: 240px;
+  background: var(--input);
+  border: 1px solid var(--divider);
+  border-radius: var(--r2);
+  overflow: hidden;
+  user-select: none;
+  touch-action: none;
+}
+.ae-canvas { position: absolute; inset: 0; width: 100%; height: 100%; color: var(--text-2); }
+.ae-dim { position: absolute; top: 0; bottom: 0; background: var(--canvas); opacity: 0.7; pointer-events: none; }
+.ae-sel { position: absolute; top: 0; bottom: 0; background: var(--accent-soft); border-left: 1px solid var(--accent); border-right: 1px solid var(--accent); pointer-events: none; }
+.ae-playhead { position: absolute; top: 0; bottom: 0; width: 2px; margin-left: -1px; background: var(--text); pointer-events: none; }
+.ae-playhead[hidden] { display: none; }
+
+.ae-handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 24px;
+  margin-left: -12px;
+  cursor: ew-resize;
+  touch-action: none;
+  display: flex;
+  justify-content: center;
+}
+.ae-handle::before {
+  content: '';
+  width: 3px;
+  height: 100%;
+  background: var(--accent);
+}
+.ae-handle:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+
+.ae-times { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: var(--s3); }
+.ae-times .pk-input { max-width: 100%; }
