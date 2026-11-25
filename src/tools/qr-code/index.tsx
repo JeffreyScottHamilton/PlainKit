@@ -7,11 +7,11 @@ import { outputName } from '@/lib/format';
 import { addGenerated } from '@/session/store';
 import { useToolState } from '@/session/toolState';
 import { colorWarnings, parseHex, readBack } from '@/engines/qr/check';
-import { payloadFor, type Content } from '@/engines/qr/payload';
+import { contentProblem, payloadFor, type Content } from '@/engines/qr/payload';
 import { logoLayout, makeMatrix, renderPixels, svgFor, type Ecc, type QrMatrix, type Rgb } from '@/engines/qr/render';
 import './qr-code.css';
 
-type Kind = 'text' | 'wifi' | 'vcard';
+type Kind = 'text' | 'wifi' | 'vcard' | 'email' | 'phone' | 'sms';
 type Security = 'WPA' | 'WEP' | 'nopass';
 type State = {
   kind: Kind;
@@ -32,16 +32,25 @@ type State = {
   light: string;
   logo: Blob | null;
   logoName: string;
+  emailTo: string;
+  subject: string;
+  body: string;
+  number: string;
+  smsBody: string;
 };
 const INITIAL: State = {
   kind: 'text', text: '', ssid: '', password: '', security: 'WPA', hidden: false, name: '', phone: '', email: '', org: '', site: '',
   ecc: 'M', size: '512', margin: '4', dark: '#000000', light: '#ffffff', logo: null, logoName: '',
+  emailTo: '', subject: '', body: '', number: '', smsBody: '',
 };
 
 const KIND_OPTIONS: { value: Kind; label: string }[] = [
   { value: 'text', label: 'Text or URL' },
   { value: 'wifi', label: 'Wi-Fi' },
   { value: 'vcard', label: 'Contact' },
+  { value: 'email', label: 'Email' },
+  { value: 'phone', label: 'Phone' },
+  { value: 'sms', label: 'SMS' },
 ];
 const ECC_OPTIONS: { value: Ecc; label: string }[] = [
   { value: 'L', label: 'L' },
@@ -54,7 +63,14 @@ const SECURITY_OPTIONS: { value: Security; label: string }[] = [
   { value: 'WEP', label: 'WEP' },
   { value: 'nopass', label: 'Open (no password)' },
 ];
-const BASE_NAME: Record<Kind, string> = { text: 'qr-code', wifi: 'wifi-qr-code', vcard: 'contact-qr-code' };
+const BASE_NAME: Record<Kind, string> = {
+  text: 'qr-code',
+  wifi: 'wifi-qr-code',
+  vcard: 'contact-qr-code',
+  email: 'email-qr-code',
+  phone: 'phone-qr-code',
+  sms: 'sms-qr-code',
+};
 const LOGO_MAX_COVERAGE = 0.2;
 
 function contentOf(s: State): Content {
@@ -65,6 +81,12 @@ function contentOf(s: State): Content {
       return { kind: 'wifi', ssid: s.ssid, password: s.password, security: s.security, hidden: s.hidden };
     case 'vcard':
       return { kind: 'vcard', name: s.name, phone: s.phone, email: s.email, org: s.org, url: s.site };
+    case 'email':
+      return { kind: 'email', to: s.emailTo, subject: s.subject, body: s.body };
+    case 'phone':
+      return { kind: 'phone', number: s.number };
+    case 'sms':
+      return { kind: 'sms', number: s.number, message: s.smsBody };
   }
 }
 
@@ -74,8 +96,10 @@ type Model =
 
 /** Everything the preview and exports need, or the reason they cannot be made. Pure. */
 function buildModel(s: State): Model {
+  const problem = contentProblem(contentOf(s));
+  if (problem !== null) return { ok: false, message: problem };
   const payload = payloadFor(contentOf(s));
-  if (payload === null) return { ok: false, message: s.kind === 'text' ? 'Enter text or a URL to make a code.' : s.kind === 'wifi' ? 'Enter a network name to make a Wi-Fi code.' : 'Enter a name to make a contact code.' };
+  if (payload === null) return { ok: false, message: 'Nothing to encode yet.' };
   const px = Number(s.size);
   if (!Number.isInteger(px) || px < 128 || px > 2048) return { ok: false, message: 'Size must be a whole number of pixels from 128 to 2048.' };
   const margin = Number(s.margin);
@@ -261,6 +285,34 @@ export default function Tool() {
             </label>
           </div>
         )}
+        {s.kind === 'email' && (
+          <div className="qr-fields">
+            <Field label="Email address" hint="Opens a new message to this address when scanned.">
+              {(a) => <input {...a} className="pk-input" type="email" value={s.emailTo} onChange={(e) => setS({ emailTo: e.target.value })} />}
+            </Field>
+            <Field label="Subject (optional)">{(a) => <input {...a} className="pk-input" type="text" value={s.subject} onChange={(e) => setS({ subject: e.target.value })} />}</Field>
+            <Field label="Body (optional)">
+              {(a) => <textarea {...a} className="pk-textarea" rows={3} value={s.body} onChange={(e) => setS({ body: e.target.value })} />}
+            </Field>
+          </div>
+        )}
+        {s.kind === 'phone' && (
+          <div className="qr-fields">
+            <Field label="Phone number" hint="Spaces and dashes are removed. A leading + is kept.">
+              {(a) => <input {...a} className="pk-input" type="tel" value={s.number} onChange={(e) => setS({ number: e.target.value })} />}
+            </Field>
+          </div>
+        )}
+        {s.kind === 'sms' && (
+          <div className="qr-fields">
+            <Field label="Phone number" hint="Spaces and dashes are removed. A leading + is kept.">
+              {(a) => <input {...a} className="pk-input" type="tel" value={s.number} onChange={(e) => setS({ number: e.target.value })} />}
+            </Field>
+            <Field label="Message (optional)">
+              {(a) => <textarea {...a} className="pk-textarea" rows={3} value={s.smsBody} onChange={(e) => setS({ smsBody: e.target.value })} />}
+            </Field>
+          </div>
+        )}
         {s.kind === 'vcard' && (
           <div className="qr-fields">
             <Field label="Name">{(a) => <input {...a} className="pk-input" type="text" value={s.name} onChange={(e) => setS({ name: e.target.value })} />}</Field>
@@ -274,7 +326,7 @@ export default function Tool() {
 
       <section className="qr-section" aria-labelledby="qr-prev-h">
         <h2 id="qr-prev-h">Preview</h2>
-        {!model.ok && <Notice kind={s.text || s.ssid || s.name ? 'error' : 'info'}>{model.message}</Notice>}
+        {!model.ok && <Notice kind={s.text || s.ssid || s.name || s.emailTo || s.number ? 'error' : 'info'}>{model.message}</Notice>}
         <canvas ref={canvasRef} className="qr-canvas" role="img" aria-label="QR code preview" hidden={!model.ok} />
         {model.ok && check === 'ok' && <Notice kind="success">Checked: decodes to the same content.</Notice>}
         {model.ok && check === 'fail' && (

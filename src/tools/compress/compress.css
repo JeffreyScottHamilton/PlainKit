@@ -20,3 +20,10 @@
 .cmp-warnings { margin: 0; padding-left: var(--s5); font-size: 13px; color: var(--text-2); }
 .cmp-results h2, section > h2 { font-size: 16px; font-weight: 600; margin-bottom: var(--s2); }
 @media (max-width: 900px) { .cmp__stage { height: min(40vh, 300px); min-height: 200px; } }
+
+.cmp-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { cleanLine, cleanText } from './clean';
+import { cleanLine, cleanText, extractUrls } from './clean';
 
 describe('cleanLine tracker removal', () => {
   it('removes utm params and keeps other params, fragment and order', () => {
@@ -113,5 +113,69 @@ describe('invalid input and schemes', () => {
   it('keeps the trailing "?" of a url that had one', () => {
     const r = cleanLine('https://ex.com/?', 1);
     expect(r.ok && r.cleaned).toBe('https://ex.com/?');
+  });
+});
+
+describe('redirect wrappers', () => {
+  it('takes the real google.com/url destination and cleans it', () => {
+    const r = cleanLine('https://www.google.com/url?sa=D&q=https%3A%2F%2Fex.com%2Fpost%3Futm_source%3Dx%26id%3D7&ust=1', 1);
+    expect(r.ok && r.cleaned).toBe('https://ex.com/post?id=7');
+    expect(r.ok && r.unwrappedFrom).toBe('www.google.com');
+  });
+
+  it('unwraps facebook l.php (u=), reddit out (url=) and youtube redirect (q=)', () => {
+    const fb = cleanLine('https://l.facebook.com/l.php?u=https%3A%2F%2Fex.com%2Fa&h=AT0x', 1);
+    const rd = cleanLine('https://out.reddit.com/t3_abc?url=https%3A%2F%2Fex.com%2Fb%3Ffbclid%3D1&token_v2=z', 1);
+    const yt = cleanLine('https://www.youtube.com/redirect?q=https%3A%2F%2Fex.com%2Fc&v=1', 1);
+    expect(fb.ok && fb.cleaned).toBe('https://ex.com/a');
+    expect(rd.ok && rd.cleaned).toBe('https://ex.com/b');
+    expect(yt.ok && yt.cleaned).toBe('https://ex.com/c');
+  });
+
+  it('keeps the wrapper when the target is not an http(s) URL', () => {
+    const r = cleanLine('https://www.google.com/url?q=javascript%3Aalert(1)&utm_source=x', 1);
+    expect(r.ok && r.unwrappedFrom).toBeNull();
+    expect(r.ok && r.cleaned).toBe('https://www.google.com/url?q=javascript%3Aalert(1)');
+  });
+
+  it('does not treat other paths on google.com as redirects', () => {
+    const r = cleanLine('https://www.google.com/search?q=https%3A%2F%2Fex.com', 1);
+    expect(r.ok && r.unwrappedFrom).toBeNull();
+    expect(r.ok && r.cleaned).toBe('https://www.google.com/search?q=https%3A%2F%2Fex.com');
+  });
+
+  it('applies restore choices to the destination parameters', () => {
+    const raw = 'https://www.google.com/url?q=https%3A%2F%2Fex.com%2F%3Futm_medium%3Dy';
+    const first = cleanLine(raw, 1);
+    if (!first.ok) throw new Error('expected ok');
+    expect(first.candidates.map((c) => c.key)).toEqual(['utm_medium']);
+    const r = cleanLine(raw, 1, { restored: new Set([first.candidates[0]!.index]) });
+    expect(r.ok && r.cleaned).toBe('https://ex.com/?utm_medium=y');
+  });
+});
+
+describe('links inside text', () => {
+  it('finds every link in a sentence, without the trailing punctuation', () => {
+    const results = cleanText('Read https://ex.com/a?utm_source=x, then (see https://ex.org/b?fbclid=1).');
+    expect(results.map((r) => (r.ok ? r.cleaned : r.input))).toEqual(['https://ex.com/a', 'https://ex.org/b']);
+  });
+
+  it('gives a bare www. link the https scheme', () => {
+    expect(extractUrls('Visit www.example.com/x?gclid=1 today')).toEqual(['https://www.example.com/x?gclid=1']);
+  });
+
+  it('keeps a closing paren that belongs to the URL', () => {
+    expect(extractUrls('see https://en.wikipedia.org/wiki/Foo_(bar)')).toEqual(['https://en.wikipedia.org/wiki/Foo_(bar)']);
+  });
+
+  it('still reports a line with no link as invalid', () => {
+    const results = cleanText('just words here');
+    expect(results).toHaveLength(1);
+    expect(results[0]?.ok).toBe(false);
+  });
+
+  it('returns no tokens for text without links and never loops on empty input', () => {
+    expect(extractUrls('no links')).toEqual([]);
+    expect(extractUrls('https://')).toEqual([]);
   });
 });

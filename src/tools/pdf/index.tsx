@@ -4,12 +4,13 @@ import { ToolPage } from '@/components/ToolPage';
 import { DropZone } from '@/components/DropZone';
 import { AssetRow } from '@/components/AssetList';
 import { JobStatus } from '@/components/JobStatus';
-import { Button, Field, Notice } from '@/components/ui';
+import { Button, Field, Notice, Segmented } from '@/components/ui';
 import { getAsset, session, useAssets, useToolInputs } from '@/session/store';
 import { useToolState } from '@/session/toolState';
 import { enqueue, isActive, useJobs } from '@/jobs/queue';
 import { inspectPdf } from '@/engines/pdf/load';
-import { exportPages } from '@/engines/pdf/client';
+import { exportParts } from '@/engines/pdf/client';
+import { NUMBER_STYLES, type NumberStyle } from '@/engines/pdf/numbering';
 import * as M from '@/engines/pdf/model';
 import { toToolError } from '@/lib/errors';
 import { outputName, uid } from '@/lib/format';
@@ -23,9 +24,11 @@ type Stored = {
   history: M.History;
   selected: string[];
   rangeText: string;
+  splitText: string;
+  numbering: NumberStyle;
   outputBase: string;
 };
-const INITIAL: Stored = { sources: {}, history: M.createHistory(), selected: [], rangeText: '', outputBase: '' };
+const INITIAL: Stored = { sources: {}, history: M.createHistory(), selected: [], rangeText: '', splitText: '', numbering: 'none', outputBase: '' };
 
 /** Page count of each export, keyed by its blob, so the result can show "Verified: N pages". */
 const verified = new WeakMap<Blob, number>();
@@ -124,6 +127,9 @@ export default function Tool() {
 
   const rangeParsed = st.rangeText.trim() ? M.parseRanges(st.rangeText, total) : null;
   const rangeError = rangeParsed && !rangeParsed.ok ? rangeParsed.error : undefined;
+  const splitParsed = st.splitText.trim() ? M.parseRangeGroups(st.splitText, total) : null;
+  const splitError = splitParsed && !splitParsed.ok ? splitParsed.error : undefined;
+  const eachPageTooMany = total > M.MAX_SPLIT_PARTS;
 
   const edit = (f: (ps: M.PageRef[]) => M.PageRef[]) => set((s) => ({ ...s, history: M.commit(s.history, f(s.history.present)) }));
   function undoAction() {
@@ -158,30 +164,45 @@ export default function Tool() {
     set({ rangeText: text, ...(parsed?.ok ? { selected: parsed.indices.map((i) => pages[i]!.key) } : {}) });
   };
 
-  const runExport = (ps: M.PageRef[], label: string, suffix: string, firstSrc: string) => {
-    const ids = [...new Set(ps.map((p) => p.srcId))];
+  /** One job, one output per part. Each part is a separate PDF with the same page-number setting. */
+  const runExports = (parts: M.PageRef[][], label: string, suffixOf: (i: number) => string, firstSrc: string) => {
+    const flat = parts.flat();
+    const ids = [...new Set(flat.map((p) => p.srcId))];
     const sources = ids.flatMap((id) => {
       const blob = blobs.get(id);
       return blob ? [{ id, blob }] : [];
     });
-    const name = outputName(st.outputBase.trim() || firstSrc, suffix, 'pdf');
+    const base = st.outputBase.trim() || firstSrc;
+    const numbering = st.numbering;
     enqueue({
       toolId: 'pdf',
       label,
       inputIds: ids,
       heavy: true,
       run: async (ctx) => {
-        const res = await exportPages(ps, sources, ctx);
-        const blob = new Blob([res.bytes as BlobPart], { type: 'application/pdf' });
-        verified.set(blob, res.pageCount);
-        return { outputs: [{ name, mime: 'application/pdf', blob }] };
+        const results = await exportParts(parts, sources, numbering, ctx);
+        const outputs = results.map((res, i) => {
+          const blob = new Blob([res.bytes as BlobPart], { type: 'application/pdf' });
+          verified.set(blob, res.pageCount);
+          return { name: outputName(base, suffixOf(i), 'pdf'), mime: 'application/pdf', blob };
+        });
+        return { outputs };
       },
     });
   };
-  const exportAll = () => runExport(pages, 'Export PDF', sourceCount > 1 ? 'merged' : 'edited', sourceName(pages[0]!.srcId));
+  const exportAll = () => runExports([pages], 'Export PDF', () => (sourceCount > 1 ? 'merged' : 'edited'), sourceName(pages[0]!.srcId));
   const extractSelected = () => {
     const picked = pages.filter((p) => selSet.has(p.key));
-    runExport(picked, 'Extract selected', 'extracted', sourceName(picked[0]!.srcId));
+    runExports([picked], 'Extract selected', () => 'extracted', sourceName(picked[0]!.srcId));
+  };
+  const splitGroups = (groups: number[][], label: string) => {
+    const parts = groups.map((g) => g.map((i) => pages[i]!));
+    const width = String(parts.length).length;
+    runExports(parts, label, (i) => `part-${String(i + 1).padStart(width, '0')}`, sourceName(pages[0]!.srcId));
+  };
+  const splitEachPage = () => splitGroups(Array.from({ length: total }, (_, i) => [i]), 'Split into pages');
+  const splitByRanges = () => {
+    if (splitParsed?.ok) splitGroups(splitParsed.groups, 'Split by ranges');
   };
 
   const jobList = jobs.filter((j) => isActive(j) || j.state === 'failed' || j.state === 'canceled');
@@ -200,6 +221,18 @@ export default function Tool() {
           <Button block disabled={!selected.length} onClick={extractSelected}>
             Extract selected
           </Button>
+          <Field label="Split ranges" hint="Each range becomes its own PDF, such as 1-3, 5, 7-9." error={splitError}>
+            {(p) => <input {...p} type="text" className="pk-input" value={st.splitText} onChange={(e) => set({ splitText: e.target.value })} />}
+          </Field>
+          <Button block disabled={!splitParsed?.ok} onClick={splitByRanges}>
+            Split by ranges
+          </Button>
+          <Button block disabled={!total || eachPageTooMany} onClick={splitEachPage}>
+            Split into one PDF per page
+          </Button>
+          {eachPageTooMany && <p className="muted pdf-note">Splitting every page is limited to {M.MAX_SPLIT_PARTS} files. Use split ranges instead.</p>}
+          <Segmented label="Page numbers" value={st.numbering} options={NUMBER_STYLES} onChange={(numbering: NumberStyle) => set({ numbering })} />
+          <p className="muted pdf-note">Page numbers are drawn at the bottom centre of each output page, on the page as it is shown.</p>
           <p className="muted pdf-note">Pages are copied, not re-rendered: text stays selectable.</p>
           <p className="muted pdf-note">Editing a PDF invalidates any digital signatures.</p>
         </div>
@@ -289,7 +322,7 @@ export default function Tool() {
           <ul className="pk-assets">
             {results.map((a) => {
               const n = verified.get(a.blob);
-              return <AssetRow key={a.id} asset={a} exclude="pdf" detail={n === undefined ? undefined : `Verified: ${n} pages`} />;
+              return <AssetRow key={a.id} asset={a} exclude="pdf" detail={n === undefined ? undefined : `Verified: ${n} ${n === 1 ? 'page' : 'pages'}`} />;
             })}
           </ul>
         </section>

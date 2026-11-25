@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { commit, createHistory, mapAll, MAX_HISTORY, move, moveMany, parseRanges, redo, remove, rotate, undo, type PageRef } from './model';
+import { commit, createHistory, mapAll, MAX_HISTORY, move, moveMany, parseRangeGroups, parseRanges, redo, remove, rotate, undo, type PageRef } from './model';
 import { refsFor } from './fixtures';
 
 const keys = (ps: PageRef[]) => ps.map((p) => p.key);
@@ -110,5 +110,27 @@ describe('undo / redo history', () => {
     expect(h.past[0]!.at(-1)!.key).toBe('b:0');
     h = mapAll(h, (ps) => ps.filter((p) => p.srcId !== 'a'));
     expect(keys(h.present)).toEqual(['b:0']);
+  });
+});
+
+describe('parseRangeGroups', () => {
+  it('makes one group per comma-separated range', () => {
+    expect(parseRangeGroups('1-3, 5, 7-9', 10)).toEqual({ ok: true, groups: [[0, 1, 2], [4], [6, 7, 8]] });
+  });
+
+  it('accepts an open end and a single page', () => {
+    expect(parseRangeGroups('2-', 4)).toEqual({ ok: true, groups: [[1, 2, 3]] });
+  });
+
+  it('rejects empty parts, out-of-range pages and reversed ranges with a message', () => {
+    expect(parseRangeGroups('', 3)).toMatchObject({ ok: false });
+    expect(parseRangeGroups('1,,2', 3)).toMatchObject({ ok: false });
+    expect(parseRangeGroups('1-4', 3)).toEqual({ ok: false, error: 'Pages go from 1 to 3.' });
+    expect(parseRangeGroups('3-1', 3)).toMatchObject({ ok: false });
+  });
+
+  it('caps the number of files in one split', () => {
+    const text = Array.from({ length: 201 }, (_, i) => String(i + 1)).join(',');
+    expect(parseRangeGroups(text, 300)).toEqual({ ok: false, error: 'Split into at most 200 files at a time.' });
   });
 });

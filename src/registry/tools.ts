@@ -53,11 +53,11 @@ const ALL: ToolDef[] = [
     limitations: ['Cannot remove identifying details visible in the picture itself.', 'Not every possible hidden field is covered.'],
   },
   {
-    id: 'clean-links', name: 'Clean links', title: 'Clean links', description: 'Remove tracking parameters from URLs.',
+    id: 'clean-links', name: 'Clean links', title: 'Clean links', description: 'Remove tracking and redirect wrappers from links.',
     aliases: ['LinkClean', 'Untrail'], keywords: ['utm', 'tracking', 'url', 'fbclid', 'gclid', 'share'],
     category: 'text', accepts: [], produces: [], icon: Link2, load: () => import('@/tools/clean-links'),
     capabilities: [], network: 'on-device', assetDownloadBytes: 0, maturity: 'working',
-    limitations: ['Links are never opened or fetched.', 'Signed links can stop working if parameters are removed.'],
+    limitations: ['Links are never opened or fetched. Redirect wrappers (Google, Facebook, Reddit, YouTube) are unwrapped only from the text of the link itself.', 'Signed links can stop working if parameters are removed.'],
   },
   {
     id: 'send-files', name: 'Send files', title: 'Send files', description: 'Send files straight to another device.',
@@ -74,11 +74,11 @@ const ALL: ToolDef[] = [
     limitations: ['Blur and pixelation can sometimes be reversed. Use solid boxes for sensitive text.', 'Face detection, when available, can miss faces.'],
   },
   {
-    id: 'pdf', name: 'PDF', title: 'PDF pages', description: 'Merge, reorder, rotate, remove and extract PDF pages.',
+    id: 'pdf', name: 'PDF', title: 'PDF pages', description: 'Merge, split, reorder, rotate and number PDF pages.',
     aliases: ['MergePDF', 'Bind', 'combine pdf', 'split pdf'], keywords: ['merge', 'split', 'extract', 'rotate', 'pages', 'reorder'],
     category: 'document', accepts: ['application/pdf'], produces: ['application/pdf'], icon: FileText, load: () => import('@/tools/pdf'),
     capabilities: [], network: 'on-device', assetDownloadBytes: 0, maturity: 'working',
-    limitations: ['Password-protected PDFs are not supported.', 'Editing pages can invalidate digital signatures.', 'No OCR, text editing or PDF compression.'],
+    limitations: ['Password-protected PDFs are not supported.', 'Editing pages can invalidate digital signatures.', 'No OCR, text editing or PDF compression (Compress handles that).', 'Page numbers use a standard font: digits and plain Latin text only.'],
   },
   {
     id: 'audio-stems', name: 'Audio stems', title: 'Audio and stems', description: 'Pull the audio out of a video, or split a song into stems.',
@@ -95,7 +95,7 @@ const ALL: ToolDef[] = [
     limitations: ['Burned-in subtitles cannot be read as text.', 'Stored subtitle tracks can be read from MKV and WebM only, and only text formats (not PGS or VobSub).', 'Transcription is English only, needs a 55 MB download the first time, and makes mistakes.'],
   },
   {
-    id: 'qr-code', name: 'QR code', title: 'QR code', description: 'Make a static QR code as PNG or SVG.',
+    id: 'qr-code', name: 'QR code', title: 'QR code', description: 'Make a QR code for a link, Wi-Fi, contact, email or phone.',
     aliases: ['QRForge', 'Imprint'], keywords: ['qr', 'barcode', 'wifi', 'link', 'svg'],
     category: 'text', accepts: [], produces: ['image/png', 'image/svg+xml'], icon: QrCode, load: () => import('@/tools/qr-code'),
     capabilities: [], network: 'on-device', assetDownloadBytes: 0, maturity: 'working',

@@ -44,6 +44,13 @@ export function inputIssue(m: ImageMime | null | undefined): string | undefined 
   return `This is ${m === 'image/gif' ? 'GIF' : m === 'image/bmp' ? 'BMP' : 'AVIF'} content. Compress handles JPEG, PNG and WebP. Use Convert for this file.`;
 }
 
+/** One-click target sizes shown under the target field. */
+export const TARGET_PRESETS: readonly { label: string; value: string; unit: TargetUnit }[] = [
+  { label: '500 KB', value: '500', unit: 'KB' },
+  { label: '1 MB', value: '1', unit: 'MB' },
+  { label: '2 MB', value: '2', unit: 'MB' },
+];
+
 export function targetBytesFrom(value: string, unit: TargetUnit): number | null {
   const n = Number(value.trim());
   if (value.trim() === '' || !Number.isFinite(n) || n <= 0) return null;

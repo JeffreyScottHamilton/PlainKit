@@ -2,14 +2,20 @@ import { degrees, PDFDocument, type PDFPage } from 'pdf-lib';
 import { ToolError } from '@/lib/errors';
 import { loadDocument } from './load';
 import type { PageRef } from './model';
+import { stampNumbers, type NumberStyle } from './numbering';
 
 export type ExportResult = { bytes: Uint8Array; pageCount: number };
 
 /**
  * Copies pages (vector content and fonts are kept, nothing is rasterized) in the given order.
- * Each page keeps its own size; rotation = own /Rotate + delta. The output is reloaded and its page count checked.
+ * Each page keeps its own size; rotation = own /Rotate + delta. `numbering` stamps page numbers at the bottom centre.
+ * The output is reloaded and its page count checked.
  */
-export async function buildPdf(pages: readonly PageRef[], sources: ReadonlyMap<string, Uint8Array>): Promise<ExportResult> {
+export async function buildPdf(
+  pages: readonly PageRef[],
+  sources: ReadonlyMap<string, Uint8Array>,
+  numbering: NumberStyle = 'none',
+): Promise<ExportResult> {
   if (pages.length === 0) throw new ToolError('empty', 'There are no pages to export.', 'Add a PDF, or select pages to extract.');
 
   // Group by source so each source is copied in one call (shared fonts and images are copied once).
@@ -35,6 +41,7 @@ export async function buildPdf(pages: readonly PageRef[], sources: ReadonlyMap<s
   }
 
   const cursor = new Map<string, number>();
+  const placed: PDFPage[] = [];
   for (const p of pages) {
     const k = cursor.get(p.srcId) ?? 0;
     cursor.set(p.srcId, k + 1);
@@ -42,7 +49,9 @@ export async function buildPdf(pages: readonly PageRef[], sources: ReadonlyMap<s
     const own = bySource.get(p.srcId)![k]!.own;
     page.setRotation(degrees((own + p.rotation) % 360));
     out.addPage(page);
+    placed.push(page);
   }
+  await stampNumbers(out, placed, numbering);
 
   const bytes = await out.save();
   const check = await PDFDocument.load(bytes, { updateMetadata: false });

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { ToolError } from '@/lib/errors';
-import { escapeVcard, escapeWifi, payloadFor, vcardPayload, wifiPayload } from './payload';
+import { contentProblem, escapeVcard, escapeWifi, payloadFor, vcardPayload, wifiPayload } from './payload';
 import { logoLayout, makeMatrix, renderPixels, type Ecc } from './render';
 import { colorWarnings, contrastRatio, parseHex, readBack } from './check';
 
@@ -98,5 +98,36 @@ describe('overflow and logo layout', () => {
     expect(l.w).toBe(300);
     expect(l.h).toBe(75);
     expect(l.coverage).toBeLessThan(0.2);
+  });
+});
+
+describe('email, phone and SMS content', () => {
+  it('builds mailto with percent-encoded subject and body', () => {
+    expect(payloadFor({ kind: 'email', to: ' ada@example.com ', subject: 'Hi & bye', body: 'Line 1\nLine 2 #1' })).toBe(
+      'mailto:ada@example.com?subject=Hi%20%26%20bye&body=Line%201%0ALine%202%20%231',
+    );
+  });
+
+  it('omits empty subject and body', () => {
+    expect(payloadFor({ kind: 'email', to: 'a@b.co', subject: '', body: '' })).toBe('mailto:a@b.co');
+  });
+
+  it('builds tel: with dialing digits only', () => {
+    expect(payloadFor({ kind: 'phone', number: '+1 (555) 010-0199' })).toBe('tel:+15550100199');
+  });
+
+  it('builds SMSTO with the number and message', () => {
+    expect(payloadFor({ kind: 'sms', number: '+1 555 0100', message: 'On my way: 5 min' })).toBe('SMSTO:+15550100:On my way: 5 min');
+  });
+
+  it('explains invalid addresses and numbers instead of encoding them', () => {
+    expect(contentProblem({ kind: 'email', to: 'not-an-email', subject: '', body: '' })).toMatch(/email/);
+    expect(contentProblem({ kind: 'phone', number: 'call me' })).toMatch(/phone number/);
+    expect(payloadFor({ kind: 'phone', number: 'call me' })).toBeNull();
+  });
+
+  it('round-trips a mailto and a tel code through the independent decoder', () => {
+    expect(roundTrip('mailto:ada@example.com?subject=Hi%20there')).toBe('mailto:ada@example.com?subject=Hi%20there');
+    expect(roundTrip('tel:+15550100')).toBe('tel:+15550100');
   });
 });

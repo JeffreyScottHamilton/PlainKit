@@ -63,6 +63,27 @@ export function parseRanges(text: string, pageCount: number): RangeResult {
   return { ok: true, indices: [...out].sort((x, y) => x - y) };
 }
 
+/** Most files one split can make. Each part is a separate output in the same job. */
+export const MAX_SPLIT_PARTS = 200;
+
+export type RangeGroupsResult = { ok: true; groups: number[][] } | { ok: false; error: string };
+
+/**
+ * Split ranges such as "1-3, 5, 7-9": each comma-separated range becomes its own group of page indexes (0-based).
+ * Every group uses the same page-number rules as parseRanges.
+ */
+export function parseRangeGroups(text: string, pageCount: number): RangeGroupsResult {
+  if (!text.trim()) return { ok: false, error: 'Enter ranges such as 1-3, 5, 7-9.' };
+  const groups: number[][] = [];
+  for (const part of text.split(',')) {
+    const r = parseRanges(part, pageCount);
+    if (!r.ok) return r;
+    groups.push(r.indices);
+  }
+  if (groups.length > MAX_SPLIT_PARTS) return { ok: false, error: `Split into at most ${MAX_SPLIT_PARTS} files at a time.` };
+  return { ok: true, groups };
+}
+
 /** Undo/redo over whole arrangements. Snapshots share PageRef objects, so history costs one array per step. */
 export type History = { past: PageRef[][]; present: PageRef[]; future: PageRef[][] };
 

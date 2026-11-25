@@ -25,6 +25,7 @@ import {
   OUTPUT_LABEL,
   outputFor,
   parseMaxDimension,
+  TARGET_PRESETS,
   targetBytesFrom,
   type CompressSettings,
   type FormatChoice,
@@ -145,6 +146,7 @@ export function ImageCompress({ tabs }: { tabs?: ReactNode }) {
               )}
             </Field>
           ) : (
+            <>
             <Field label="Target size" error={targetErr} hint={pngOnly || st.format === 'image/png' ? 'PNG is lossless: target size can only reduce dimensions.' : undefined}>
               {(p) => (
                 <div className="cmp-row">
@@ -156,6 +158,17 @@ export function ImageCompress({ tabs }: { tabs?: ReactNode }) {
                 </div>
               )}
             </Field>
+              <div className="cmp-presets" role="group" aria-label="Target size presets">
+                {TARGET_PRESETS.map((pr) => {
+                  const active = st.targetValue === pr.value && st.targetUnit === pr.unit;
+                  return (
+                    <Button key={pr.label} size="sm" aria-pressed={active} onClick={() => set({ targetValue: pr.value, targetUnit: pr.unit })}>
+                      {pr.label}
+                    </Button>
+                  );
+                })}
+              </div>
+            </>
           )}
 
           <Field label="Output format" hint={support ? 'Only formats this browser can write are listed.' : 'Checking which formats this browser can write.'}>
