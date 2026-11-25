@@ -10,6 +10,8 @@
 
 - 2026-11-13 — Independent review and two visual sweeps with real inputs; fixes recorded in `docs/audits/review.md`.
 
+- 2026-11-25 — New tools: Resize (crop/rotate/flip/batch), Recorder (screen/camera/voice), Sign PDF, Zip. Improved PDF (split, page numbers), QR (email/phone/SMS), Clean links (redirect unwrapping), Compress (size presets). 23 tools; 704 unit and 206 browser tests pass.
+
 ## Open (needs the owner or real hardware)
 - First Vercel deploy (site is ~160 MB; limits unchecked).
 - Real phone, Safari and Firefox.
