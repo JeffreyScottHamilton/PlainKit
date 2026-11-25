@@ -27,6 +27,9 @@ Direct dependencies, read from installed package metadata on 2026-11-11. Exact v
 | react | 19.3.1 | MIT | runtime |
 | react-dom | 19.3.1 | MIT | runtime |
 | react-router-dom | 7.18.5 | MIT | runtime |
+| tesseract.js | 7.0.0 | Apache-2.0 | runtime, Image to text only (worker, loaded on demand). Served from `public/ocr/` with its LICENSE.txt |
+| tesseract.js-core | 7.0.0 | Apache-2.0 | runtime, Image to text only. SIMD WebAssembly core, copied to `public/ocr/` |
+| @tesseract.js-data/eng | 1.0.0 | MIT (package metadata) | runtime, Image to text only. Provides the English model file, copied to `public/ocr/lang/` |
 | @axe-core/playwright | 4.14.0 | MPL-2.0 | dev only |
 | @playwright/test | 1.63.0 | Apache-2.0 | dev only |
 | @types/node | 26.6.6 | MIT | dev only |
@@ -48,6 +51,8 @@ Direct dependencies, read from installed package metadata on 2026-11-11. Exact v
 - Model weights: U²-Net-p, Apache-2.0, self-hosted. See `docs/models.md`.
 - Model weights: YuNet face detector (face_detection_yunet_2023mar), MIT via OpenCV Zoo, upstream weights BSD-3-Clause (Shiqi Yu), self-hosted. See `docs/models.md` and `public/models/yunet/`.
 - Third-party Claude skills are listed in `docs/skills-manifest.md`.
+- Model data: English recognition model `eng.traineddata.gz` (tessdata_best, `4.0.0_best_int`), used by Image to text. Upstream tessdata_best is Apache-2.0; the npm package above declares MIT. Treat the model file as Apache-2.0 unless the upstream licence says otherwise. Self-hosted in `public/ocr/lang/`, about 2.9 MB, downloaded on first use. Not yet reviewed for redistribution against upstream terms: confirm before release.
+- Image to text, first-use download about 9.8 MB (worker 111,307 + core loader 3,899,472 + core binary 2,857,601 + model 2,952,873 bytes). `public/ocr/NOTICE.txt` lists the notices. Files come from `scripts/copy-ocr.mjs` and are not committed.
 
 - Model weights: Spleeter 4 stems (Deezer, MIT) as ONNX fp16 via Best-Practice/spleeter-4stems-onnx (Apache-2.0 conversion derived from sherpa-onnx, Apache-2.0), self-hosted. Upstream weights-licence wording is an open question, see `docs/models.md` and `docs/audits/stems-feasibility.md`. Files in `public/models/spleeter-4stems/`.
 - Model weights: Whisper tiny.en 8-bit ONNX (onnx-community/whisper-tiny.en), Apache-2.0 per the model cards, MIT upstream (OpenAI Whisper), self-hosted unmodified. See `docs/models.md` and `public/models/whisper-tiny-en/`.

@@ -189,7 +189,7 @@ const ALL: ToolDef[] = [
     id: 'ocr', name: 'Image to text', title: 'Image to text', description: 'Copy the text out of a screenshot, photo or scanned page.',
     aliases: ['ocr', 'text recognition', 'extract text'], keywords: ['ocr', 'scan', 'screenshot', 'copy text', 'read text', 'recognize', 'receipt', 'document'],
     category: 'text', accepts: [...IMG, 'image/gif', 'image/bmp', 'application/pdf'], produces: ['text/plain'], icon: ScanText, load: () => import('@/tools/ocr'),
-    capabilities: ['WebAssembly'], network: 'on-device', assetDownloadBytes: 0, maturity: 'experimental',
+    capabilities: ['WebAssembly'], network: 'on-device', assetDownloadBytes: 9_821_253, maturity: 'experimental',
     limitations: ['Needs a one-time download of the text recognition engine before first use.', 'Handwriting, low-contrast and curved text are often misread.'],
   },
 ];

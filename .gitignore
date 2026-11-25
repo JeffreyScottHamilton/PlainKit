@@ -9,3 +9,5 @@ public/engines/ort/
 public/engines/transformers/
 .e2e-all.log
 public/engines/libheif/
+
+public/ocr/

@@ -1,0 +1,12 @@
+.wm-grid { display: grid; grid-template-columns: repeat(3, 40px); gap: 4px; }
+.wm-grid button { width: 40px; height: 40px; padding: 0; }
+.wm-row { display: flex; gap: var(--s3); flex-wrap: wrap; }
+.wm-row > * { flex: 1 1 120px; }
+.wm-check { display: flex; align-items: center; gap: var(--s2); min-height: 24px; }
+.wm-preview { display: grid; gap: var(--s3); }
+.wm-preview canvas { display: block; width: 100%; max-width: 720px; height: auto; border: 1px solid var(--divider); border-radius: var(--r2); }
+.wm-hint { color: var(--text-2); font-size: 13px; margin: 0; }
+.wm-results { display: grid; gap: var(--s4, 24px); }
+.wm-name { margin: 0; font-size: 15px; overflow-wrap: anywhere; }
+.wm-range { display: flex; align-items: center; gap: var(--s3); }
+.wm-range .pk-range { flex: 1; }
