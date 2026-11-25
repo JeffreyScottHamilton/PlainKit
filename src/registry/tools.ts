@@ -1,13 +1,13 @@
 import {
   Layers, ArrowLeftRight, Crop, Code2, Info, Link2, Send, ScanFace, FileText, AudioLines, Captions, QrCode,
-  Table, CircleUserRound, Type, SquarePlay, Monitor, Palette, Film,
+  Table, CircleUserRound, Type, SquarePlay, Monitor, Palette, Film, Scaling, Signature, FileArchive, ScreenShare,
 } from 'lucide-react';
 import type { ToolDef } from './types';
 
 const IMG = ['image/jpeg', 'image/png', 'image/webp'];
 
 // Source of truth for sidebar, search, routes, handoff compatibility and privacy labels.
-// Order is fixed by the brief. Exactly 17 entries. Gift Cards/CardTally is permanently excluded.
+// Order is fixed by the brief. Exactly 23 entries. Gift Cards/CardTally is permanently excluded.
 // maturity starts at "planned"; raise it only with evidence recorded in docs/feature-matrix.md.
 const ALL: ToolDef[] = [
   {
@@ -143,15 +143,42 @@ const ALL: ToolDef[] = [
     capabilities: ['wakeLock'], network: 'on-device', assetDownloadBytes: 0, maturity: 'working',
     limitations: ['Only works while this tab is visible.', 'Cannot move the mouse, change chat presence, or override system lock policies.'],
   },
+  {
+    id: 'resize', name: 'Resize', title: 'Resize and crop', description: 'Resize, crop, rotate and flip images, one or many at once.',
+    aliases: ['image resizer', 'crop image', 'rotate image'], keywords: ['resize', 'crop', 'rotate', 'flip', 'dimensions', 'pixels', 'aspect ratio', 'thumbnail', 'instagram', 'scale'],
+    category: 'image', accepts: [...IMG, 'image/gif', 'image/bmp', 'image/avif'], produces: IMG, icon: Scaling, load: () => import('@/tools/resize'),
+    capabilities: ['OffscreenCanvas'], network: 'on-device', assetDownloadBytes: 0, maturity: 'working',
+    limitations: ['Animated images keep only the first frame.', 'Re-encoding removes metadata.'],
+  },
+  {
+    id: 'recorder', name: 'Recorder', title: 'Screen and voice recorder', description: 'Record your screen, camera or microphone to a file.',
+    aliases: ['screen recorder', 'voice recorder', 'webcam recorder'], keywords: ['record', 'screen', 'capture', 'microphone', 'voice memo', 'webcam', 'camera', 'screencast'],
+    category: 'media', accepts: [], produces: ['video/webm', 'video/mp4', 'audio/webm', 'audio/mp4'], icon: ScreenShare, load: () => import('@/tools/recorder'),
+    capabilities: ['MediaRecorder'], network: 'on-device', assetDownloadBytes: 0, maturity: 'working',
+    limitations: ['Screen recording needs a desktop browser; phones usually cannot share the screen.', 'The file format depends on what this browser can record (usually WebM, MP4 in Safari).', 'System audio can only be captured when the browser offers it (Chrome tab or screen sharing).'],
+  },
+  {
+    id: 'sign-pdf', name: 'Sign PDF', title: 'Sign and fill PDF', description: 'Add a signature, text, date or checkmark to a PDF.',
+    aliases: ['esign', 'fill pdf', 'pdf signature'], keywords: ['sign', 'signature', 'initials', 'fill', 'form', 'date', 'annotate', 'text', 'checkmark'],
+    category: 'document', accepts: ['application/pdf'], produces: ['application/pdf'], icon: Signature, load: () => import('@/tools/sign-pdf'),
+    capabilities: [], network: 'on-device', assetDownloadBytes: 0, maturity: 'working',
+    limitations: ['This is a picture of a signature, not a certified digital signature.', 'Encrypted PDFs cannot be edited.'],
+  },
+  {
+    id: 'zip', name: 'Zip', title: 'Zip and unzip', description: 'Pack files into a ZIP, or open a ZIP and take files out.',
+    aliases: ['unzip', 'archive', 'extract zip', 'compress folder'], keywords: ['zip', 'unzip', 'archive', 'extract', 'bundle', 'folder'],
+    category: 'data', accepts: ['*/*'], produces: ['application/zip'], icon: FileArchive, load: () => import('@/tools/zip'),
+    capabilities: [], network: 'on-device', assetDownloadBytes: 0, maturity: 'working',
+    limitations: ['Password-protected (encrypted) ZIPs cannot be opened.', 'Only ZIP: RAR, 7z and tar are not supported.'],
+  },
 ];
 
-/** Sidebar sections, in order. Labels are always visible; sections never collapse. */
 export const TOOL_GROUPS: { label: string; ids: string[] }[] = [
-  { label: 'Images', ids: ['compress', 'convert', 'cutout', 'color-palette', 'metadata', 'redact', 'id-photo'] },
-  { label: 'Video & audio', ids: ['video', 'gif', 'audio-stems', 'subtitles'] },
-  { label: 'Documents & data', ids: ['pdf', 'csv'] },
+  { label: 'Images', ids: ['compress', 'resize', 'convert', 'cutout', 'color-palette', 'metadata', 'redact', 'id-photo'] },
+  { label: 'Video & audio', ids: ['video', 'recorder', 'gif', 'audio-stems', 'subtitles'] },
+  { label: 'Documents & data', ids: ['pdf', 'sign-pdf', 'csv'] },
   { label: 'Text & code', ids: ['clean-text', 'clean-links', 'dev-tools', 'qr-code'] },
-  { label: 'Share & device', ids: ['send-files', 'keep-awake'] },
+  { label: 'Share & device', ids: ['send-files', 'zip', 'keep-awake'] },
 ];
 
 /** Every tool, in sidebar order (group by group). */

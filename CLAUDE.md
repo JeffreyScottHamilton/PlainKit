@@ -1,12 +1,12 @@
 # Plainkit
 
-Free, local-first browser utility workbench. One static React + TypeScript + Vite app, 19 tools, NIGHTSHIFT dark design. Full brief: `docs/reference/master-prompt.md`. Visual reference: `docs/reference/nightshift-desktop.png`.
+Free, local-first browser utility workbench. One static React + TypeScript + Vite app, 23 tools, NIGHTSHIFT dark design. Full brief: `docs/reference/master-prompt.md`. Visual reference: `docs/reference/nightshift-desktop.png`.
 
 ## Commands
 `npm run dev` · `npm run build` (typecheck + build) · `npm run typecheck` · `npm test` (Vitest) · `npm run e2e` (Playwright against `npm run preview`; set `PK_BASE_URL` to use another server). Chromium is preinstalled: never run `playwright install`.
 
 ## Durable decisions
-- Registry (`src/registry/tools.ts`) is the source of truth: 19 tools, fixed order under always-visible group labels (`TOOL_GROUPS`; owner chose this 2026-11-22), no Gift Cards, no collapsing accordions.
+- Registry (`src/registry/tools.ts`) is the source of truth: 23 tools, fixed order under always-visible group labels (`TOOL_GROUPS`; owner chose this 2026-11-22), no Gift Cards, no collapsing accordions.
 - No accounts, analytics, remote fonts, CDNs, iframes. Local tools never send user content anywhere.
 - Session is tab-scoped and memory-only. Originals are never mutated; outputs get suffixed names via `outputName()`.
 - One worker per job (`callWorker`); cancel = terminate. Heavy jobs run one at a time.

@@ -13,6 +13,7 @@ Direct dependencies, read from installed package metadata on 2026-11-11. Exact v
 | jsqr | 1.4.0 | Apache-2.0 | runtime |
 | gifenc | 1.0.3 | MIT | runtime (GIF writer, GIF tool) |
 | gifuct-js | 2.1.2 | MIT | runtime (GIF decoding fallback when the browser cannot decode GIF frames, GIF tool) |
+| fflate | 0.8.2 | MIT | runtime (ZIP create and extract, Zip tool) |
 | libheif-js | 1.23.5 | **LGPL-3.0** | runtime, HEIC decoding only. Served as a separate unmodified file (`/engines/libheif/`), loaded on demand, with its licence and a notice beside it |
 | lucide-react | 1.72.0 | ISC | runtime |
 | mammoth | 1.13.0 | BSD-2-Clause | runtime, Convert documents only (reads .docx) |

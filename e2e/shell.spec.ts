@@ -2,9 +2,9 @@ import { TOOLS } from '../src/registry/tools';
 import { expect, test, type Page } from '@playwright/test';
 import { PNG } from 'pngjs';
 
-const NAMES = ['Compress', 'Convert', 'Cutout', 'Color palette', 'Metadata', 'Redact', 'ID photo',
-  'Video', 'GIF maker', 'Audio stems', 'Subtitles', 'PDF', 'CSV', 'Clean text', 'Clean links', 'Dev tools', 'QR code',
-  'Send files', 'Keep awake'];
+const NAMES = ['Compress', 'Resize', 'Convert', 'Cutout', 'Color palette', 'Metadata', 'Redact', 'ID photo',
+  'Video', 'Recorder', 'GIF maker', 'Audio stems', 'Subtitles', 'PDF', 'Sign PDF', 'CSV', 'Clean text', 'Clean links', 'Dev tools', 'QR code',
+  'Send files', 'Zip', 'Keep awake'];
 
 const tinyPng = () => PNG.sync.write(new PNG({ width: 4, height: 4 }));
 

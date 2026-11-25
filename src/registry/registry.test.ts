@@ -3,10 +3,10 @@ import { TOOLS, TOOL_GROUPS, searchTools, toolsFor, HOME_DIRECTORY, getTool } fr
 
 describe('registry', () => {
   it('has the tools in the agreed order', () => {
-    expect(TOOLS.map((t) => t.name)).toEqual(['Compress', 'Convert', 'Cutout', 'Color palette', 'Metadata', 'Redact', 'ID photo',
-      'Video', 'GIF maker', 'Audio stems', 'Subtitles', 'PDF', 'CSV', 'Clean text', 'Clean links', 'Dev tools', 'QR code',
-      'Send files', 'Keep awake']);
-    expect(new Set(TOOLS.map((t) => t.id)).size).toBe(19);
+    expect(TOOLS.map((t) => t.name)).toEqual(['Compress', 'Resize', 'Convert', 'Cutout', 'Color palette', 'Metadata', 'Redact', 'ID photo',
+      'Video', 'Recorder', 'GIF maker', 'Audio stems', 'Subtitles', 'PDF', 'Sign PDF', 'CSV', 'Clean text', 'Clean links', 'Dev tools', 'QR code',
+      'Send files', 'Zip', 'Keep awake']);
+    expect(new Set(TOOLS.map((t) => t.id)).size).toBe(23);
   });
   it('puts every tool in exactly one sidebar group, in TOOLS order', () => {
     expect(TOOL_GROUPS.flatMap((g) => g.ids)).toEqual(TOOLS.map((t) => t.id));
