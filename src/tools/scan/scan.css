@@ -1,0 +1,30 @@
+/* Scan tool: page list, corner stage and result preview. Colours come from the shared tokens. */
+.scan-pages { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--s2); }
+.scan-page { display: flex; align-items: center; gap: var(--s2); padding: var(--s1) var(--s2); background: var(--input); border: 1px solid var(--divider); border-radius: var(--r2); min-width: 0; }
+.scan-page[data-selected='true'] { border-color: var(--accent-text); }
+.scan-page__pick { flex: 1 1 auto; display: flex; align-items: center; gap: var(--s2); min-width: 0; min-height: 44px; padding: 0; background: none; border: 0; color: var(--text); text-align: left; cursor: pointer; font: inherit; }
+.scan-page__name { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.scan-page__index { font-family: var(--mono); font-size: 13px; color: var(--text-2); flex: none; }
+.scan-page__actions { display: flex; gap: var(--s1); flex: none; }
+.scan-thumb { width: 36px; height: 46px; object-fit: cover; flex: none; border-radius: var(--r1); background: var(--checker-a); }
+
+.scan-stage-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); align-items: start; }
+@media (min-width: 720px) { .scan-stage-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+
+.scan-stage { position: relative; min-width: 0; background: var(--input); border: 1px solid var(--divider); border-radius: var(--r3); padding: var(--s2); }
+.scan-stage__frame { position: relative; width: 100%; line-height: 0; }
+.scan-stage__img { display: block; width: 100%; height: auto; border-radius: var(--r2); user-select: none; }
+.scan-outline { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+.scan-outline polygon { fill: var(--accent-soft); stroke: var(--accent-text); stroke-width: 2; vector-effect: non-scaling-stroke; }
+.scan-handle { position: absolute; width: 44px; height: 44px; padding: 0; transform: translate(-50%, -50%); background: transparent; border: 0; border-radius: 50%; cursor: grab; touch-action: none; }
+.scan-handle::after { content: ''; position: absolute; left: 50%; top: 50%; width: 18px; height: 18px; transform: translate(-50%, -50%); border-radius: 50%; background: var(--accent); border: 2px solid var(--on-accent); box-sizing: border-box; }
+.scan-handle:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.scan-handle:active { cursor: grabbing; }
+
+.scan-result { margin: 0; min-width: 0; display: flex; flex-direction: column; gap: var(--s2); }
+.scan-result__frame { min-height: 160px; display: flex; align-items: center; justify-content: center; background: var(--input); border: 1px solid var(--divider); border-radius: var(--r3); padding: var(--s2); }
+.scan-result__frame img { display: block; max-width: 100%; height: auto; border-radius: var(--r2); background: #fff; }
+.scan-result figcaption { font-size: 13px; color: var(--text-2); }
+
+.scan-actions { display: flex; flex-wrap: wrap; gap: var(--s2); }
+.scan-rotate { display: flex; gap: var(--s2); flex-wrap: wrap; }

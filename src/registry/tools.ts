@@ -204,7 +204,7 @@ const ALL: ToolDef[] = [
     aliases: ['document scanner', 'photo to pdf', 'scan to pdf', 'camscanner'], keywords: ['scan', 'scanner', 'paper', 'receipt', 'form', 'photo', 'straighten', 'perspective', 'black and white', 'pdf'],
     category: 'document', accepts: [...IMG, 'image/heic', 'image/heif'], produces: ['application/pdf', 'image/jpeg', 'image/png'], icon: FileScan, load: () => import('@/tools/scan'),
     capabilities: ['OffscreenCanvas'], network: 'on-device', assetDownloadBytes: 0, maturity: 'working',
-    limitations: ['Page corners are suggested automatically but may need adjusting by hand.', 'Shadows and folds can remain visible after cleanup.'],
+    limitations: ['Page corners are found automatically only when the background is darker than the paper; otherwise the full photo is used and you set the corners by hand.', 'Shadows and folds can remain visible after cleanup.'],
   },
 ];
 
