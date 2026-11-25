@@ -1,0 +1,31 @@
+.rc-settings { gap: var(--s3); }
+.rc-settings h2, .rc-stage h2, .rc-result h2 { font-size: 16px; margin: 0; font-weight: 600; }
+.rc-check { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 14px; }
+.rc-check-hint { flex-basis: 100%; padding-left: 24px; color: var(--text-2); font-size: 13px; }
+.rc-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.rc-actions > * { flex: 1 1 auto; }
+
+.rc-stage, .rc-result {
+  display: flex; flex-direction: column; gap: var(--s3); padding: var(--s4);
+  border: 1px solid var(--divider); border-radius: var(--r2); background: var(--panel);
+}
+.rc-video { width: 100%; max-height: 420px; background: var(--input); border-radius: var(--r1, 4px); }
+.rc-placeholder { margin: 0; color: var(--text-2); }
+.rc-count { margin: 0; font-size: 64px; font-weight: 600; text-align: center; font-variant-numeric: tabular-nums; }
+
+.rc-readout { display: flex; flex-wrap: wrap; gap: var(--s4); margin: 0; }
+.rc-readout > div { display: flex; flex-direction: column; min-width: 120px; }
+.rc-readout dt { color: var(--text-2); font-size: 13px; }
+.rc-readout dd { margin: 0; font-size: 18px; }
+.rc-live::before {
+  content: ''; display: inline-block; width: 8px; height: 8px; margin-right: 6px;
+  border-radius: 50%; background: var(--error);
+}
+
+.rc-mic { display: flex; align-items: center; gap: var(--s3); color: var(--text-2); font-size: 13px; }
+.rc-meter { flex: 1; height: 10px; background: var(--input); border: 1px solid var(--divider); border-radius: 4px; overflow: hidden; }
+.rc-meter-fill { display: block; height: 100%; width: calc(var(--level, 0) * 100%); background: var(--accent); }
+
+.rc-hint { margin: 0; min-height: 1.5em; color: var(--text-2); font-size: 13px; }
+.rc-limits { color: var(--text-2); font-size: 13px; margin: 0; }
+.rc-result audio { width: 100%; }
