@@ -1,0 +1,85 @@
+.zp-section {
+  display: grid;
+  gap: 12px;
+}
+.zp-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.zp-files {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+.zp-files li,
+.zp-radio {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  min-width: 0;
+}
+.zp-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.zp-settings {
+  display: grid;
+  gap: 12px;
+  max-width: 420px;
+}
+.zp-pick {
+  border: 1px solid var(--divider);
+  border-radius: 6px;
+  padding: 8px 12px;
+  display: grid;
+  gap: 6px;
+}
+.zp-tools {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+.zp-filter {
+  display: grid;
+  gap: 4px;
+  flex: 1 1 220px;
+  font-size: 14px;
+}
+.zp-tablewrap {
+  overflow-x: auto;
+  max-height: 60vh;
+  border: 1px solid var(--divider);
+  border-radius: 6px;
+}
+.zp-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.zp-table th,
+.zp-table td {
+  text-align: left;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--divider);
+  vertical-align: top;
+}
+.zp-path {
+  word-break: break-all;
+  min-width: 160px;
+}
+.zp-reason {
+  color: var(--text-2);
+  font-style: italic;
+}
+.zp-summary {
+  display: grid;
+  gap: 8px;
+}
