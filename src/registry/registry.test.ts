@@ -4,9 +4,9 @@ import { TOOLS, TOOL_GROUPS, searchTools, toolsFor, HOME_DIRECTORY, getTool } fr
 describe('registry', () => {
   it('has the tools in the agreed order', () => {
     expect(TOOLS.map((t) => t.name)).toEqual(['Compress', 'Resize', 'Convert', 'Cutout', 'Watermark', 'Color palette', 'Metadata', 'Redact', 'ID photo',
-      'Video', 'Recorder', 'GIF maker', 'Audio trim', 'Audio stems', 'Subtitles', 'PDF', 'Sign PDF', 'CSV', 'Image to text', 'Clean text', 'Clean links', 'Dev tools', 'QR code',
+      'Video', 'Recorder', 'GIF maker', 'Audio trim', 'Audio stems', 'Subtitles', 'PDF', 'Sign PDF', 'PDF password', 'Scan document', 'CSV', 'Image to text', 'Clean text', 'Clean links', 'Dev tools', 'QR code',
       'Send files', 'Zip', 'Keep awake']);
-    expect(new Set(TOOLS.map((t) => t.id)).size).toBe(26);
+    expect(new Set(TOOLS.map((t) => t.id)).size).toBe(28);
   });
   it('puts every tool in exactly one sidebar group, in TOOLS order', () => {
     expect(TOOL_GROUPS.flatMap((g) => g.ids)).toEqual(TOOLS.map((t) => t.id));
@@ -25,8 +25,8 @@ describe('registry', () => {
     const img = toolsFor('image/png').map((t) => t.id);
     expect(img).toEqual(expect.arrayContaining(['compress', 'convert', 'redact', 'cutout']));
     expect(img).not.toContain('pdf');
-    expect(toolsFor('application/pdf').map((t) => t.id)).toEqual(['compress', 'convert', 'pdf', 'sign-pdf', 'ocr', 'send-files', 'zip']);
-    expect(toolsFor('image/heic').map((t) => t.id)).toEqual(['convert', 'send-files', 'zip']);
+    expect(toolsFor('application/pdf').map((t) => t.id)).toEqual(['compress', 'convert', 'pdf', 'sign-pdf', 'pdf-lock', 'ocr', 'send-files', 'zip']);
+    expect(toolsFor('image/heic').map((t) => t.id)).toEqual(['convert', 'scan', 'send-files', 'zip']);
   });
   it('home directory points at real tools', () => {
     HOME_DIRECTORY.flat().forEach((id) => expect(getTool(id)).toBeDefined());

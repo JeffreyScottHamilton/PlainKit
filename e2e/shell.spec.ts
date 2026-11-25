@@ -3,7 +3,7 @@ import { expect, test, type Page } from '@playwright/test';
 import { PNG } from 'pngjs';
 
 const NAMES = ['Compress', 'Resize', 'Convert', 'Cutout', 'Watermark', 'Color palette', 'Metadata', 'Redact', 'ID photo',
-  'Video', 'Recorder', 'GIF maker', 'Audio trim', 'Audio stems', 'Subtitles', 'PDF', 'Sign PDF', 'CSV', 'Image to text', 'Clean text', 'Clean links', 'Dev tools', 'QR code',
+  'Video', 'Recorder', 'GIF maker', 'Audio trim', 'Audio stems', 'Subtitles', 'PDF', 'Sign PDF', 'PDF password', 'Scan document', 'CSV', 'Image to text', 'Clean text', 'Clean links', 'Dev tools', 'QR code',
   'Send files', 'Zip', 'Keep awake'];
 
 const tinyPng = () => PNG.sync.write(new PNG({ width: 4, height: 4 }));

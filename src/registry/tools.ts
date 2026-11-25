@@ -1,13 +1,13 @@
 import {
   Layers, ArrowLeftRight, Crop, Code2, Info, Link2, Send, ScanFace, FileText, AudioLines, Captions, QrCode,
-  Table, CircleUserRound, Type, SquarePlay, Monitor, Palette, Film, Scaling, Signature, FileArchive, ScreenShare, Stamp, AudioWaveform, ScanText,
+  Table, CircleUserRound, Type, SquarePlay, Monitor, Palette, Film, Scaling, Signature, FileArchive, ScreenShare, Stamp, AudioWaveform, ScanText, FileLock, FileScan,
 } from 'lucide-react';
 import type { ToolDef } from './types';
 
 const IMG = ['image/jpeg', 'image/png', 'image/webp'];
 
 // Source of truth for sidebar, search, routes, handoff compatibility and privacy labels.
-// Order is fixed by the brief. Exactly 26 entries. Gift Cards/CardTally is permanently excluded.
+// Order is fixed by the brief. Exactly 28 entries. Gift Cards/CardTally is permanently excluded.
 // maturity starts at "planned"; raise it only with evidence recorded in docs/feature-matrix.md.
 const ALL: ToolDef[] = [
   {
@@ -192,12 +192,26 @@ const ALL: ToolDef[] = [
     capabilities: ['WebAssembly'], network: 'on-device', assetDownloadBytes: 9_821_253, maturity: 'experimental',
     limitations: ['Needs a one-time download of the text recognition engine before first use.', 'Handwriting, low-contrast and curved text are often misread.'],
   },
+  {
+    id: 'pdf-lock', name: 'PDF password', title: 'Lock or unlock a PDF', description: 'Add a password to a PDF, or remove one you know.',
+    aliases: ['unlock pdf', 'protect pdf', 'encrypt pdf', 'remove pdf password', 'decrypt pdf'], keywords: ['password', 'lock', 'unlock', 'encrypt', 'decrypt', 'protect', 'secure', 'remove password'],
+    category: 'document', accepts: ['application/pdf'], produces: ['application/pdf'], icon: FileLock, load: () => import('@/tools/pdf-lock'),
+    capabilities: ['SubtleCrypto'], network: 'on-device', assetDownloadBytes: 0, maturity: 'working',
+    limitations: ['Unlocking needs the password: this tool does not crack or guess passwords.', 'Editing permissions are honoured only by PDF readers that respect them.'],
+  },
+  {
+    id: 'scan', name: 'Scan document', title: 'Scan a document', description: 'Turn photos of paper into a clean, straight PDF.',
+    aliases: ['document scanner', 'photo to pdf', 'scan to pdf', 'camscanner'], keywords: ['scan', 'scanner', 'paper', 'receipt', 'form', 'photo', 'straighten', 'perspective', 'black and white', 'pdf'],
+    category: 'document', accepts: [...IMG, 'image/heic', 'image/heif'], produces: ['application/pdf', 'image/jpeg', 'image/png'], icon: FileScan, load: () => import('@/tools/scan'),
+    capabilities: ['OffscreenCanvas'], network: 'on-device', assetDownloadBytes: 0, maturity: 'working',
+    limitations: ['Page corners are suggested automatically but may need adjusting by hand.', 'Shadows and folds can remain visible after cleanup.'],
+  },
 ];
 
 export const TOOL_GROUPS: { label: string; ids: string[] }[] = [
   { label: 'Images', ids: ['compress', 'resize', 'convert', 'cutout', 'watermark', 'color-palette', 'metadata', 'redact', 'id-photo'] },
   { label: 'Video & audio', ids: ['video', 'recorder', 'gif', 'audio-edit', 'audio-stems', 'subtitles'] },
-  { label: 'Documents & data', ids: ['pdf', 'sign-pdf', 'csv'] },
+  { label: 'Documents & data', ids: ['pdf', 'sign-pdf', 'pdf-lock', 'scan', 'csv'] },
   { label: 'Text & code', ids: ['ocr', 'clean-text', 'clean-links', 'dev-tools', 'qr-code'] },
   { label: 'Share & device', ids: ['send-files', 'zip', 'keep-awake'] },
 ];
