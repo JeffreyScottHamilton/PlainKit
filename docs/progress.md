@@ -12,6 +12,7 @@
 
 - 2026-11-25 — New tools: Resize (crop/rotate/flip/batch), Recorder (screen/camera/voice), Sign PDF, Zip. Improved PDF (split, page numbers), QR (email/phone/SMS), Clean links (redirect unwrapping), Compress (size presets). 23 tools; 704 unit and 206 browser tests pass.
 - 2026-11-25 (round 2) — New tools: Watermark (text/logo, tiled or corner), Audio trim (cut, fade, normalize, WAV/M4A/WebM), Image to text (self-hosted Tesseract OCR, images and PDFs). Improved Video (remove audio, save frame), Metadata (removal summary, location badge), CSV (sort, JSON import). 26 tools; 774 unit and 216 browser tests pass.
+- 2026-11-25 (round 3) — New tools: PDF password (lock with AES-256, unlock with a known password; reads RC4/AES-128/AES-256), Scan document (photo to straightened, cleaned PDF). Improved QR (scan from image, paste or camera with safe link preview), Video (rotate). 28 tools; 861 unit and 221 browser tests pass.
 
 ## Open (needs the owner or real hardware)
 - First Vercel deploy (site is ~160 MB; limits unchecked).
