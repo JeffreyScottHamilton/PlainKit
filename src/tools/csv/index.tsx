@@ -9,13 +9,14 @@ import { formatBytes, outputName, uid } from '@/lib/format';
 import { toToolError } from '@/lib/errors';
 import { ENCODINGS, ENCODING_LABEL, MAX_BYTES, WARN_BYTES, decodeBytes, type EncodingChoice } from '@/engines/csv/decode';
 import { displayHeaders, parseCsv, type Parsed, type Table } from '@/engines/csv/table';
-import { dedupe, deleteColumn, findReplace, moveColumn, removeEmptyRows, renameColumn, splitColumn, trimCells, type Effect, type Scope } from '@/engines/csv/ops';
+import { dedupe, deleteColumn, findReplace, moveColumn, removeEmptyRows, renameColumn, sortRows, splitColumn, trimCells, type Effect, type Scope } from '@/engines/csv/ops';
+import { parseJsonTable } from '@/engines/csv/json';
 import { exportTable, formulaCellCount, type ExportFormat } from '@/engines/csv/export';
 import { canRedo, canUndo, current, pushHistory, redo, startHistory, undo, type History } from '@/engines/csv/history';
 import './csv.css';
 
 type Delim = ',' | ';' | '\t' | '|';
-type OpKind = 'trim' | 'empty' | 'dedupe' | 'rename' | 'reorder' | 'delete' | 'split' | 'replace';
+type OpKind = 'trim' | 'empty' | 'dedupe' | 'rename' | 'reorder' | 'delete' | 'split' | 'replace' | 'sort';
 type Setter = (patch: Partial<State>) => void;
 
 const MAX_UNDO = 30;
@@ -29,6 +30,7 @@ const OPS: { value: OpKind; label: string }[] = [
   { value: 'delete', label: 'Delete a column' },
   { value: 'split', label: 'Split a column' },
   { value: 'replace', label: 'Find and replace' },
+  { value: 'sort', label: 'Sort by a column' },
 ];
 const DELIMS: { value: 'auto' | Delim; label: string }[] = [
   { value: 'auto', label: 'Auto-detect' },
@@ -60,6 +62,7 @@ type State = {
   parts: number;
   find: string;
   replaceWith: string;
+  sortDesc: boolean;
   regex: boolean;
   matchCase: boolean;
   expFormat: ExportFormat;
@@ -92,6 +95,7 @@ const INITIAL: State = {
   parts: 2,
   find: '',
   replaceWith: '',
+  sortDesc: false,
   regex: false,
   matchCase: false,
   expFormat: 'csv',
@@ -105,7 +109,7 @@ const INITIAL: State = {
 };
 
 type Bytes = { id: string; data: Uint8Array | null; error?: string };
-type Loaded = { ok: true; parsed: Parsed; encoding: string; bom: boolean } | { ok: false; message: string; next: string };
+type Loaded = { ok: true; parsed: Parsed; encoding: string; bom: boolean; json: boolean } | { ok: false; message: string; next: string };
 type Plan = { ok: true; effect: Effect; text: string; can: boolean } | { ok: false; message: string };
 
 export default function Tool() {
@@ -155,7 +159,12 @@ export default function Tool() {
       encoding = 'Pasted text (not decoded)';
     } else return null;
     try {
-      return { ok: true, parsed: parseCsv(text, { delimiter: st.delim, quote: st.quote, header: st.header }), encoding, bom };
+      // A .json file is read as an array of objects; the delimiter and header settings do not apply to it.
+      if (file && /\.json$/i.test(file.name)) {
+        const table = parseJsonTable(text);
+        return { ok: true, parsed: { table, delimiter: ',', delimiterAuto: false, raggedRows: 0, parseErrors: [] }, encoding, bom, json: true };
+      }
+      return { ok: true, parsed: parseCsv(text, { delimiter: st.delim, quote: st.quote, header: st.header }), encoding, bom, json: false };
     } catch (e) {
       const err = toToolError(e);
       return { ok: false, message: err.message, next: err.nextAction ?? 'Change the import settings.' };
@@ -254,7 +263,7 @@ export default function Tool() {
     >
       <section className="csv-section" aria-labelledby="csv-src-h">
         <h2 id="csv-src-h">Input</h2>
-        <DropZone toolId="csv" multiple={false} accept=".csv,.tsv,.txt" hint="Files are read in this browser and never uploaded. The whole file is loaded into memory." />
+        <DropZone toolId="csv" multiple={false} accept=".csv,.tsv,.txt,.json" hint="CSV, TSV or JSON (an array of objects). Read in this browser and never uploaded. The whole file is loaded into memory." />
         <details>
           <summary>Or paste CSV or TSV text</summary>
           <div className="csv-paste">
@@ -306,8 +315,8 @@ export default function Tool() {
             </span>
             <span>{table.headers.length} columns</span>
             <span>Encoding: {loaded.encoding}</span>
-            <span>Delimiter: {delimName(loaded.parsed.delimiter)}{st.delim === 'auto' ? ' (auto)' : ''}</span>
-            <span>Header: {st.header ? 'first row' : 'none'}</span>
+            {!loaded.json && <span>Delimiter: {delimName(loaded.parsed.delimiter)}{st.delim === 'auto' ? ' (auto)' : ''}</span>}
+            {loaded.json ? <span>Format: JSON, array of objects</span> : <span>Header: {st.header ? 'first row' : 'none'}</span>}
             {loaded.bom && <span>Byte order mark removed</span>}
             {file && <span>{formatBytes(file.size)}</span>}
           </p>
@@ -549,6 +558,11 @@ function plan(t: Table, s: State): Plan {
         const e = findReplace(t, { find: s.find, replace: s.replaceWith, regex: s.regex, matchCase: s.matchCase, scope });
         return ok(e, `Would change ${cells(e.summary.changedCells)}.`, e.summary.changedCells > 0);
       }
+      case 'sort': {
+        if (col >= width) throw new Error('Choose a column.');
+        const e = sortRows(t, col, s.sortDesc);
+        return ok(e, `Would sort ${rows(t.rows.length)} by "${colName}", ${s.sortDesc ? 'descending' : 'ascending'}. Empty cells stay last.`, t.rows.length > 1);
+      }
     }
   } catch (e) {
     return { ok: false, message: toToolError(e).message + (toToolError(e).nextAction ? ` ${toToolError(e).nextAction}` : '') };
@@ -596,7 +610,23 @@ function OperationPanel({ table, names, st, setSt, commit }: { table: Table; nam
         </div>
       )}
 
-      {(st.op === 'rename' || st.op === 'reorder' || st.op === 'delete' || st.op === 'split') && (
+      {st.op === 'sort' && (
+        <div className="pk-field">
+          <span className="pk-label">Order</span>
+          <Segmented<'asc' | 'desc'>
+            label="Sort order"
+            value={st.sortDesc ? 'desc' : 'asc'}
+            options={[
+              { value: 'asc', label: 'Ascending' },
+              { value: 'desc', label: 'Descending' },
+            ]}
+            onChange={(v) => setSt({ sortDesc: v === 'desc' })}
+          />
+          <span className="pk-hint">Numbers sort by value, text sorts naturally (file2 before file10). Ignores case.</span>
+        </div>
+      )}
+
+      {(st.op === 'rename' || st.op === 'reorder' || st.op === 'delete' || st.op === 'split' || st.op === 'sort') && (
         <ColumnSelect names={names} value={st.col} label="Column" onChange={(i) => setSt({ col: i, dest: i })} />
       )}
 

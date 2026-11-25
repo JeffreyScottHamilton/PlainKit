@@ -112,3 +112,36 @@ export function findReplace(t: Table, o: ReplaceOptions): Effect {
   const repl = o.regex ? o.replace : o.replace.replace(/\$/g, '$$$$');
   return mapCells(t, o.scope, (v) => v.replace(re, repl));
 }
+
+const numberOf = (v: string): number | null => {
+  const t = v.trim();
+  if (t === '') return null;
+  const n = Number(t);
+  return Number.isFinite(n) ? n : null;
+};
+
+/**
+ * Sort rows by one column. Numbers compare as numbers (2 before 10), text naturally (file2 before file10).
+ * Empty cells always go last, in either direction. Equal keys keep their original order.
+ */
+export function sortRows(t: Table, col: number, descending: boolean): Effect {
+  if (col < 0 || col >= t.headers.length) throw new ToolError('range', 'Choose a column to sort by.', 'Pick a column from the list.');
+  const compare = (a: string, b: string): number => {
+    const x = numberOf(a);
+    const y = numberOf(b);
+    if (x !== null && y !== null) return x - y;
+    if (x !== null) return -1;
+    if (y !== null) return 1;
+    return a.trim().localeCompare(b.trim(), undefined, { numeric: true, sensitivity: 'base' });
+  };
+  const rows = [...t.rows].sort((r1, r2) => {
+    const a = r1[col] ?? '';
+    const b = r2[col] ?? '';
+    const ea = a.trim() === '';
+    const eb = b.trim() === '';
+    if (ea || eb) return ea === eb ? 0 : ea ? 1 : -1;
+    const c = compare(a, b);
+    return descending ? -c : c;
+  });
+  return { table: { headers: t.headers, rows }, summary: { changedCells: 0, removedRows: 0, note: `${rows.length} rows sorted` } };
+}

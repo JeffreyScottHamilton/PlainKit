@@ -104,7 +104,7 @@ const ALL: ToolDef[] = [
   {
     id: 'csv', name: 'CSV', title: 'CSV cleanup', description: 'Clean, dedupe and export CSV and TSV tables.',
     aliases: ['Cleansheet', 'Sift', 'spreadsheet'], keywords: ['tsv', 'table', 'dedupe', 'columns', 'json', 'excel'],
-    category: 'data', accepts: ['text/csv', 'text/tab-separated-values', 'text/plain'], produces: ['text/csv', 'text/tab-separated-values', 'application/json'], icon: Table, load: () => import('@/tools/csv'),
+    category: 'data', accepts: ['text/csv', 'text/tab-separated-values', 'text/plain', 'application/json'], produces: ['text/csv', 'text/tab-separated-values', 'application/json'], icon: Table, load: () => import('@/tools/csv'),
     capabilities: [], network: 'on-device', assetDownloadBytes: 0, maturity: 'working',
     limitations: ['The whole file is loaded into memory; very large files may not fit.'],
   },
@@ -123,7 +123,7 @@ const ALL: ToolDef[] = [
     limitations: ['Cannot detect AI-written text or remove every kind of watermark.'],
   },
   {
-    id: 'video', name: 'Video', title: 'Video', description: 'Trim a local video, or save a direct media link.',
+    id: 'video', name: 'Video', title: 'Video', description: 'Trim or mute a video, save a frame, or save a direct media link.',
     aliases: ['VidGrab', 'Reel', 'video downloader'], keywords: ['trim', 'cut', 'download', 'hls', 'm3u8', 'mp4'],
     category: 'media', accepts: ['video/*'], produces: ['video/mp4', 'video/webm'], icon: SquarePlay, load: () => import('@/tools/video'),
     capabilities: ['WebCodecs'], network: 'on-device', networkNote: 'links contact their site', assetDownloadBytes: 0, maturity: 'working',

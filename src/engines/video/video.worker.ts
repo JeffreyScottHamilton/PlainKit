@@ -34,10 +34,11 @@ async function trim(req: TrimRequest, onProgress: (p: JobProgress) => void): Pro
         output,
         trim: { start: req.startSec, end: req.endSec },
         copy: copy ? { mode: 'forced', boundaryPolicy: 'expand' } : false,
-        ...(copy ? {} : { video: { codec: req.videoCodec ?? undefined, quality: QUALITY_HIGH }, audio: req.audioCodec ? { codec: req.audioCodec, quality: QUALITY_HIGH } : { discard: true } }),
+        ...(copy ? (req.muted ? { audio: { discard: true } } : {}) : { video: { codec: req.videoCodec ?? undefined, quality: QUALITY_HIGH }, audio: req.audioCodec && !req.muted ? { codec: req.audioCodec, quality: QUALITY_HIGH } : { discard: true } }),
       });
       if (!conv.isValid) return null;
-      if (copy && conv.discardedTracks.length > 0) return null;
+      // Audio the user chose to drop is expected; any other discarded track means the copy cannot be used.
+      if (copy && conv.discardedTracks.some((d) => d.reason !== 'discarded_by_user')) return null;
       conv.onProgress = (p) => onProgress({ stage: 'processing', fraction: p, message: copy ? 'Copying without re-encoding' : 'Re-encoding' });
       await conv.execute();
       const buf = output.target.buffer;
@@ -59,7 +60,7 @@ async function trim(req: TrimRequest, onProgress: (p: JobProgress) => void): Pro
   }
 
   if (!req.videoCodec) throw encodeFailed();
-  if (!req.audioCodec) warnings.push('This browser cannot write audio in this format, so the output has no audio.');
+  if (!req.audioCodec && !req.muted) warnings.push('This browser cannot write audio in this format, so the output has no audio.');
   const re = await attempt(false);
   if (!re) throw encodeFailed();
   const d = await durationOf(re.bytes);

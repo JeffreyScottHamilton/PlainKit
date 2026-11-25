@@ -12,6 +12,7 @@ import type { Job } from '@/jobs/types';
 import { formatBytes, outputName } from '@/lib/format';
 import { readMetadata, type MetadataReport } from '@/engines/metadata/read';
 import { cleanFile, verdictOf } from '@/engines/metadata/clean';
+import { removalSummary, removalText } from '@/engines/metadata/summary';
 import './metadata.css';
 
 type Stored = { keepIcc: boolean; keepOrientation: boolean; jobByInput: Record<string, string> };
@@ -62,6 +63,7 @@ function FileCard({ asset, report, job, st }: { asset: SessionAsset; report: Met
             <h2 id={headId} className="meta-name" title={asset.name}>
               {asset.name}
             </h2>
+            {report?.hasLocation && <span className="meta-badge">Has location data</span>}
             <p className="mono muted" style={{ margin: 0, fontSize: 13 }}>
               {report?.format ?? asset.mime} · {formatBytes(asset.size)}
             </p>
@@ -111,6 +113,7 @@ function FileCard({ asset, report, job, st }: { asset: SessionAsset; report: Met
             ) : (
               <Notice kind="warn">Not fully removed. Still present: {verdict?.remaining.join(', ') ?? 'unknown'}.</Notice>
             )}
+            {report?.format && <p className="meta-summary">{removalText(removalSummary(report))}</p>}
             <ul className="pk-assets" style={{ margin: 0 }}>
               <AssetRow asset={out} exclude="metadata" />
             </ul>

@@ -4,7 +4,7 @@ import { DropZone } from '@/components/DropZone';
 import { AssetRow } from '@/components/AssetList';
 import { JobStatus } from '@/components/JobStatus';
 import { Button, Field, Notice, Segmented } from '@/components/ui';
-import { assetUrl, removeInput, setInputs, useToolInputs } from '@/session/store';
+import { addGenerated, assetUrl, removeInput, setInputs, useToolInputs } from '@/session/store';
 import type { SessionAsset } from '@/session/types';
 import { useToolState } from '@/session/toolState';
 import { enqueue, isActive, useJobs } from '@/jobs/queue';
@@ -16,10 +16,11 @@ import { inspectVideo, outputOptions, type Inspection, type OutputId, type Outpu
 import { runTrim, SIZE_WARN_BYTES, SIZE_WARN_TEXT, trimDetails } from '@/engines/video/trim';
 import { saveHls, hlsDetails } from '@/engines/video/hls-save';
 import { checkLink, downloadMedia, validateLink, type LinkCheck } from '@/engines/video/link';
+import { captureFrame, frameFileName } from '@/engines/video/frame';
 import './video.css';
 
-type Stored = { trimFor: string | null; startText: string; endText: string; format: OutputId | null; linkText: string; variant: number };
-const INITIAL: Stored = { trimFor: null, startText: '', endText: '', format: null, linkText: '', variant: 0 };
+type Stored = { trimFor: string | null; startText: string; endText: string; format: OutputId | null; muted: boolean; linkText: string; variant: number };
+const INITIAL: Stored = { trimFor: null, startText: '', endText: '', format: null, muted: false, linkText: '', variant: 0 };
 
 const errText = (e: unknown) => (e instanceof ToolError ? { message: e.message, next: e.nextAction } : { message: e instanceof Error ? e.message : 'Something went wrong.', next: 'Try again.' });
 
@@ -30,6 +31,7 @@ export default function Tool() {
   const insp = useInspection(source);
   const outputs = useOutputs(insp?.ok ? insp.info : null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [frameMsg, setFrameMsg] = useState<{ kind: 'ok' | 'error'; text: string } | null>(null);
   const duration = insp?.ok ? insp.info.durationSec : 0;
 
   // Start with the whole clip when a new source is inspected.
@@ -50,8 +52,21 @@ export default function Tool() {
       label: `Trim ${source.name}`,
       inputIds: [source.id],
       heavy: true,
-      run: (ctx) => runTrim(source.blob, source.name, { startSec: start, endSec: end, output: chosen }, ctx),
+      run: (ctx) => runTrim(source.blob, source.name, { startSec: start, endSec: end, output: chosen, muted: st.muted }, ctx),
     });
+  };
+
+  const saveFrame = async () => {
+    const v = videoRef.current;
+    if (!source || !v) return;
+    try {
+      const blob = await captureFrame(v);
+      const asset = addGenerated({ name: frameFileName(source.name, v.currentTime), mime: 'image/png', blob, parentIds: [source.id] });
+      setFrameMsg({ kind: 'ok', text: `Saved ${asset.name} to this session. It is in the session tray.` });
+    } catch (e) {
+      const err = errText(e);
+      setFrameMsg({ kind: 'error', text: `${err.message} ${err.next}` });
+    }
   };
 
   const settings = source && insp?.ok ? (
@@ -80,8 +95,11 @@ export default function Tool() {
           )}
         </>
       )}
+      <label className="pk-check">
+        <input type="checkbox" checked={st.muted} onChange={(e) => set({ muted: e.target.checked })} /> Remove audio
+      </label>
       <Button variant="primary" block disabled={!canExport} onClick={exportTrim}>
-        Trim and save
+        {st.muted ? 'Trim, remove audio and save' : 'Trim and save'}
       </Button>
     </div>
   ) : undefined;
@@ -97,6 +115,12 @@ export default function Tool() {
           <video ref={videoRef} controls preload="metadata" src={assetUrl(source)} className="vd-video" aria-label={`Preview of ${source.name}`}>
             Your browser cannot play this file. Trimming can still be tried.
           </video>
+          <div className="vd-row">
+            <Button size="sm" onClick={saveFrame}>
+              Save this frame as image
+            </Button>
+          </div>
+          {frameMsg && <Notice kind={frameMsg.kind === 'ok' ? 'success' : 'error'}>{frameMsg.text}</Notice>}
           {source.size > SIZE_WARN_BYTES && <Notice kind="warn">{SIZE_WARN_TEXT}</Notice>}
           {!insp && <p className="muted">Inspecting the file…</p>}
           {insp && !insp.ok && (

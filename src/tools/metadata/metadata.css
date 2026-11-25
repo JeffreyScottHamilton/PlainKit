@@ -12,3 +12,5 @@
 .meta-check { display: flex; align-items: center; gap: var(--s2); min-height: 24px; }
 .meta-check input { width: 18px; height: 18px; accent-color: var(--accent); }
 .meta-verified { font-size: 14px; }
+.meta-badge { flex: none; margin-left: auto; padding: 2px 8px; border-radius: var(--r1, 4px); background: var(--warning-soft); color: var(--warning); font-size: 12.5px; font-weight: 600; white-space: nowrap; }
+.meta-summary { margin: 0; font-size: 13.5px; color: var(--text-2); overflow-wrap: anywhere; }

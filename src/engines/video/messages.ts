@@ -11,6 +11,8 @@ export type TrimRequest = {
   allowCopy: boolean;
   videoCodec: VideoCodec | null;
   audioCodec: AudioCodec | null;
+  /** Drop every audio track. Works with copy too: the audio packets are simply not written. */
+  muted: boolean;
 };
 export type RemuxRequest = { type: 'remux'; segments: ArrayBuffer[]; expectedSec: number };
 export type WorkerRequest = TrimRequest | RemuxRequest;
