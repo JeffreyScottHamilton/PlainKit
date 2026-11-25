@@ -25,8 +25,8 @@ describe('registry', () => {
     const img = toolsFor('image/png').map((t) => t.id);
     expect(img).toEqual(expect.arrayContaining(['compress', 'convert', 'redact', 'cutout']));
     expect(img).not.toContain('pdf');
-    expect(toolsFor('application/pdf').map((t) => t.id)).toEqual(['compress', 'convert', 'pdf', 'send-files']);
-    expect(toolsFor('image/heic').map((t) => t.id)).toEqual(['convert', 'send-files']);
+    expect(toolsFor('application/pdf').map((t) => t.id)).toEqual(['compress', 'convert', 'pdf', 'sign-pdf', 'send-files', 'zip']);
+    expect(toolsFor('image/heic').map((t) => t.id)).toEqual(['convert', 'send-files', 'zip']);
   });
   it('home directory points at real tools', () => {
     HOME_DIRECTORY.flat().forEach((id) => expect(getTool(id)).toBeDefined());
