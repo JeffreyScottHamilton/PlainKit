@@ -1,13 +1,13 @@
 import {
   Layers, ArrowLeftRight, Crop, Code2, Info, Link2, Send, ScanFace, FileText, AudioLines, Captions, QrCode,
-  Table, CircleUserRound, Type, SquarePlay, Monitor, Palette, Film, Scaling, Signature, FileArchive, ScreenShare,
+  Table, CircleUserRound, Type, SquarePlay, Monitor, Palette, Film, Scaling, Signature, FileArchive, ScreenShare, Stamp, AudioWaveform, ScanText,
 } from 'lucide-react';
 import type { ToolDef } from './types';
 
 const IMG = ['image/jpeg', 'image/png', 'image/webp'];
 
 // Source of truth for sidebar, search, routes, handoff compatibility and privacy labels.
-// Order is fixed by the brief. Exactly 23 entries. Gift Cards/CardTally is permanently excluded.
+// Order is fixed by the brief. Exactly 26 entries. Gift Cards/CardTally is permanently excluded.
 // maturity starts at "planned"; raise it only with evidence recorded in docs/feature-matrix.md.
 const ALL: ToolDef[] = [
   {
@@ -171,13 +171,34 @@ const ALL: ToolDef[] = [
     capabilities: [], network: 'on-device', assetDownloadBytes: 0, maturity: 'working',
     limitations: ['Password-protected (encrypted) ZIPs cannot be opened.', 'Only ZIP: RAR, 7z and tar are not supported.'],
   },
+  {
+    id: 'watermark', name: 'Watermark', title: 'Watermark images', description: 'Add a text or logo watermark to one or many images.',
+    aliases: ['add logo', 'copyright stamp'], keywords: ['watermark', 'logo', 'copyright', 'stamp', 'brand', 'overlay', 'protect', 'tile'],
+    category: 'image', accepts: [...IMG, 'image/gif', 'image/bmp', 'image/avif'], produces: IMG, icon: Stamp, load: () => import('@/tools/watermark'),
+    capabilities: ['OffscreenCanvas'], network: 'on-device', assetDownloadBytes: 0, maturity: 'working',
+    limitations: ['A watermark discourages reuse but can be cropped or edited out.', 'Re-encoding removes metadata.'],
+  },
+  {
+    id: 'audio-edit', name: 'Audio trim', title: 'Trim and adjust audio', description: 'Cut, fade, change volume and convert audio clips.',
+    aliases: ['audio cutter', 'ringtone maker', 'mp3 cutter'], keywords: ['trim', 'cut', 'fade', 'volume', 'normalize', 'ringtone', 'clip', 'waveform', 'wav', 'mp3', 'm4a'],
+    category: 'media', accepts: ['audio/*', 'video/*'], produces: ['audio/wav', 'audio/mp4', 'audio/webm'], icon: AudioWaveform, load: () => import('@/tools/audio-edit'),
+    capabilities: ['AudioContext'], network: 'on-device', assetDownloadBytes: 0, maturity: 'working',
+    limitations: ['Output formats depend on the encoders this browser has; WAV always works.', 'Very long files use a lot of memory because audio is decoded in full.'],
+  },
+  {
+    id: 'ocr', name: 'Image to text', title: 'Image to text', description: 'Copy the text out of a screenshot, photo or scanned page.',
+    aliases: ['ocr', 'text recognition', 'extract text'], keywords: ['ocr', 'scan', 'screenshot', 'copy text', 'read text', 'recognize', 'receipt', 'document'],
+    category: 'text', accepts: [...IMG, 'image/gif', 'image/bmp', 'application/pdf'], produces: ['text/plain'], icon: ScanText, load: () => import('@/tools/ocr'),
+    capabilities: ['WebAssembly'], network: 'on-device', assetDownloadBytes: 0, maturity: 'experimental',
+    limitations: ['Needs a one-time download of the text recognition engine before first use.', 'Handwriting, low-contrast and curved text are often misread.'],
+  },
 ];
 
 export const TOOL_GROUPS: { label: string; ids: string[] }[] = [
-  { label: 'Images', ids: ['compress', 'resize', 'convert', 'cutout', 'color-palette', 'metadata', 'redact', 'id-photo'] },
-  { label: 'Video & audio', ids: ['video', 'recorder', 'gif', 'audio-stems', 'subtitles'] },
+  { label: 'Images', ids: ['compress', 'resize', 'convert', 'cutout', 'watermark', 'color-palette', 'metadata', 'redact', 'id-photo'] },
+  { label: 'Video & audio', ids: ['video', 'recorder', 'gif', 'audio-edit', 'audio-stems', 'subtitles'] },
   { label: 'Documents & data', ids: ['pdf', 'sign-pdf', 'csv'] },
-  { label: 'Text & code', ids: ['clean-text', 'clean-links', 'dev-tools', 'qr-code'] },
+  { label: 'Text & code', ids: ['ocr', 'clean-text', 'clean-links', 'dev-tools', 'qr-code'] },
   { label: 'Share & device', ids: ['send-files', 'zip', 'keep-awake'] },
 ];
 
