@@ -9,11 +9,14 @@ import { useToolState } from '@/session/toolState';
 import { colorWarnings, parseHex, readBack } from '@/engines/qr/check';
 import { contentProblem, payloadFor, type Content } from '@/engines/qr/payload';
 import { logoLayout, makeMatrix, renderPixels, svgFor, type Ecc, type QrMatrix, type Rgb } from '@/engines/qr/render';
+import { ScanMode } from './ScanMode';
 import './qr-code.css';
 
+type Mode = 'make' | 'scan';
 type Kind = 'text' | 'wifi' | 'vcard' | 'email' | 'phone' | 'sms';
 type Security = 'WPA' | 'WEP' | 'nopass';
 type State = {
+  mode: Mode;
   kind: Kind;
   text: string;
   ssid: string;
@@ -38,8 +41,12 @@ type State = {
   number: string;
   smsBody: string;
 };
+const MODE_OPTIONS: { value: Mode; label: string }[] = [
+  { value: 'make', label: 'Make' },
+  { value: 'scan', label: 'Scan' },
+];
 const INITIAL: State = {
-  kind: 'text', text: '', ssid: '', password: '', security: 'WPA', hidden: false, name: '', phone: '', email: '', org: '', site: '',
+  mode: 'make', kind: 'text', text: '', ssid: '', password: '', security: 'WPA', hidden: false, name: '', phone: '', email: '', org: '', site: '',
   ecc: 'M', size: '512', margin: '4', dark: '#000000', light: '#ffffff', logo: null, logoName: '',
   emailTo: '', subject: '', body: '', number: '', smsBody: '',
 };
@@ -207,7 +214,7 @@ export default function Tool() {
   return (
     <ToolPage
       toolId="qr-code"
-      settings={
+      settings={s.mode !== 'scan' ? (
         <div className="qr-settings">
           <div className="pk-stack" style={{ gap: 4 }}>
             <span className="pk-label">Error correction</span>
@@ -250,8 +257,16 @@ export default function Tool() {
           )}
           {logoError && <Notice kind="error">{logoError}</Notice>}
         </div>
-      }
+      ) : undefined}
     >
+      <section className="qr-section" aria-labelledby="qr-mode-h">
+        <h2 id="qr-mode-h">Mode</h2>
+        <Segmented label="Mode" value={s.mode} options={MODE_OPTIONS} onChange={(mode) => setS({ mode })} />
+      </section>
+      {s.mode === 'scan' ? (
+        <ScanMode />
+      ) : (
+        <>
       <section className="qr-section" aria-labelledby="qr-content-h">
         <h2 id="qr-content-h">Content</h2>
         <Segmented label="Content type" value={s.kind} options={KIND_OPTIONS} onChange={(kind) => setS({ kind })} />
@@ -356,6 +371,8 @@ export default function Tool() {
         {s.logo && <p className="qr-note">SVG files do not include the logo. Only the PNG has it.</p>}
         <p className="qr-note">Downloads are also added to this session, so other tools can use them.</p>
       </section>
+        </>
+      )}
     </ToolPage>
   );
 }

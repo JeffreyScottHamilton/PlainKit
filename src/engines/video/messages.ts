@@ -1,4 +1,5 @@
 import type { AudioCodec, VideoCodec } from 'mediabunny';
+import type { Turn } from './rotate';
 
 // Typed worker protocol. One discriminated union per direction.
 export type TrimRequest = {
@@ -13,6 +14,8 @@ export type TrimRequest = {
   audioCodec: AudioCodec | null;
   /** Drop every audio track. Works with copy too: the audio packets are simply not written. */
   muted: boolean;
+  /** Clockwise turn on top of the source's own rotation. 0 means no rotation. */
+  rotate: Turn;
 };
 export type RemuxRequest = { type: 'remux'; segments: ArrayBuffer[]; expectedSec: number };
 export type WorkerRequest = TrimRequest | RemuxRequest;
@@ -26,6 +29,10 @@ export type TrimResult = {
   verified: boolean;
   width: number;
   height: number;
+  /** The turn that was requested. */
+  rotate: Turn;
+  /** Rotation the output file reports, in degrees clockwise. */
+  rotation: number;
   warnings: string[];
 };
 export type RemuxResult =

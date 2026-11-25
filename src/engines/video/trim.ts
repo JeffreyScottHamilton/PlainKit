@@ -5,6 +5,7 @@ import { outputName } from '@/lib/format';
 import type { EngineContext, EngineResult } from '@/jobs/types';
 import type { OutputOption } from './inspect';
 import type { TrimResult, WorkerRequest, WorkerResponse } from './messages';
+import { rotatedSuffix, type Turn } from './rotate';
 
 export const SIZE_WARN_BYTES = 500 * 1024 * 1024;
 export const SIZE_WARN_TEXT = 'Outputs are built in memory. Sources over 500 MB may fail on this device. Shorter clips or smaller files are safer.';
@@ -17,7 +18,7 @@ export const trimDetails = new WeakMap<Blob, TrimResult>();
 export async function runTrim(
   blob: Blob,
   name: string,
-  opts: { startSec: number; endSec: number; output: OutputOption; muted: boolean },
+  opts: { startSec: number; endSec: number; output: OutputOption; muted: boolean; rotate: Turn },
   ctx: EngineContext,
 ): Promise<EngineResult> {
   if (!opts.output.available || (!opts.output.videoCodec && !opts.output.canCopy)) throw new ToolError('output-unavailable', `This browser cannot write ${opts.output.label}.`, 'Choose the other output format.');
@@ -31,6 +32,7 @@ export async function runTrim(
     videoCodec: opts.output.videoCodec,
     audioCodec: opts.output.audioCodec,
     muted: opts.muted,
+    rotate: opts.rotate,
   };
   ctx.onProgress({ stage: 'processing', message: 'Starting' });
   const res = await callWorker<WorkerRequest, WorkerResponse>(createVideoWorker, req, { signal: ctx.signal, onProgress: ctx.onProgress });
@@ -38,7 +40,7 @@ export async function runTrim(
   const out = new Blob([res.bytes], { type: `video/${opts.output.id}` });
   trimDetails.set(out, res);
   return {
-    outputs: [{ name: outputName(name, opts.muted ? 'muted' : 'trimmed', opts.output.id === 'mp4' ? 'mp4' : 'webm'), mime: `video/${opts.output.id}`, blob: out }],
+    outputs: [{ name: outputName(name, rotatedSuffix(opts.muted ? 'muted' : 'trimmed', opts.rotate), opts.output.id === 'mp4' ? 'mp4' : 'webm'), mime: `video/${opts.output.id}`, blob: out }],
     warnings: res.warnings,
   };
 }

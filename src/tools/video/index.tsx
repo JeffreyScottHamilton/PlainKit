@@ -14,13 +14,14 @@ import { formatBytes } from '@/lib/format';
 import { formatTimecode, resolveTrim } from '@/engines/video/timecode';
 import { inspectVideo, outputOptions, type Inspection, type OutputId, type OutputOption } from '@/engines/video/inspect';
 import { runTrim, SIZE_WARN_BYTES, SIZE_WARN_TEXT, trimDetails } from '@/engines/video/trim';
+import { TURN_OPTIONS, turnOf, type TurnChoice } from '@/engines/video/rotate';
 import { saveHls, hlsDetails } from '@/engines/video/hls-save';
 import { checkLink, downloadMedia, validateLink, type LinkCheck } from '@/engines/video/link';
 import { captureFrame, frameFileName } from '@/engines/video/frame';
 import './video.css';
 
-type Stored = { trimFor: string | null; startText: string; endText: string; format: OutputId | null; muted: boolean; linkText: string; variant: number };
-const INITIAL: Stored = { trimFor: null, startText: '', endText: '', format: null, muted: false, linkText: '', variant: 0 };
+type Stored = { trimFor: string | null; startText: string; endText: string; format: OutputId | null; muted: boolean; rotate: TurnChoice; linkText: string; variant: number };
+const INITIAL: Stored = { trimFor: null, startText: '', endText: '', format: null, muted: false, rotate: '0', linkText: '', variant: 0 };
 
 const errText = (e: unknown) => (e instanceof ToolError ? { message: e.message, next: e.nextAction } : { message: e instanceof Error ? e.message : 'Something went wrong.', next: 'Try again.' });
 
@@ -52,7 +53,7 @@ export default function Tool() {
       label: `Trim ${source.name}`,
       inputIds: [source.id],
       heavy: true,
-      run: (ctx) => runTrim(source.blob, source.name, { startSec: start, endSec: end, output: chosen, muted: st.muted }, ctx),
+      run: (ctx) => runTrim(source.blob, source.name, { startSec: start, endSec: end, output: chosen, muted: st.muted, rotate: turnOf(st.rotate) }, ctx),
     });
   };
 
@@ -95,6 +96,9 @@ export default function Tool() {
           )}
         </>
       )}
+      <Field label="Rotate" hint="MP4 stores the turn as metadata when it can, with no quality loss. Other cases re-render the frames.">
+        {() => <Segmented<TurnChoice> label="Rotate" value={st.rotate} options={TURN_OPTIONS} onChange={(rotate) => set({ rotate })} />}
+      </Field>
       <label className="pk-check">
         <input type="checkbox" checked={st.muted} onChange={(e) => set({ muted: e.target.checked })} /> Remove audio
       </label>
@@ -255,6 +259,13 @@ function TrimResults({ sourceId }: { sourceId: string }) {
                   {d && (
                     <>
                       <p className="vd-link-note">{d.mode === 'copied' ? 'Copied without re-encoding; cuts land on the nearest keyframe.' : 'Re-encoded.'}</p>
+                      {d.rotate !== 0 && (
+                        <p className="vd-link-note">
+                          {d.mode === 'copied'
+                            ? `Rotated ${d.rotate}° by stored metadata: the frames were not re-encoded, so there is no quality loss.`
+                            : `Rotated ${d.rotate}° by re-rendering the frames.`}
+                        </p>
+                      )}
                       {d.verified ? <p className="vd-verified">Verified: duration {d.durationSec.toFixed(2)} s</p> : <Notice kind="warn">The duration could not be verified against the requested range.</Notice>}
                     </>
                   )}

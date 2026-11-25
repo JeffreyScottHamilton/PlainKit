@@ -95,8 +95,8 @@ const ALL: ToolDef[] = [
     limitations: ['Burned-in subtitles cannot be read as text.', 'Stored subtitle tracks can be read from MKV and WebM only, and only text formats (not PGS or VobSub).', 'Transcription is English only, needs a 55 MB download the first time, and makes mistakes.'],
   },
   {
-    id: 'qr-code', name: 'QR code', title: 'QR code', description: 'Make a QR code for a link, Wi-Fi, contact, email or phone.',
-    aliases: ['QRForge', 'Imprint'], keywords: ['qr', 'barcode', 'wifi', 'link', 'svg'],
+    id: 'qr-code', name: 'QR code', title: 'QR code', description: 'Make or scan a QR code for a link, Wi-Fi, contact, email or phone.',
+    aliases: ['QRForge', 'Imprint'], keywords: ['qr', 'barcode', 'wifi', 'link', 'svg', 'scan', 'reader', 'decode', 'camera'],
     category: 'text', accepts: [], produces: ['image/png', 'image/svg+xml'], icon: QrCode, load: () => import('@/tools/qr-code'),
     capabilities: [], network: 'on-device', assetDownloadBytes: 0, maturity: 'working',
     limitations: ['Static codes only: the content is encoded directly, with no redirect or tracking.'],
@@ -123,7 +123,7 @@ const ALL: ToolDef[] = [
     limitations: ['Cannot detect AI-written text or remove every kind of watermark.'],
   },
   {
-    id: 'video', name: 'Video', title: 'Video', description: 'Trim or mute a video, save a frame, or save a direct media link.',
+    id: 'video', name: 'Video', title: 'Video', description: 'Trim, rotate or mute a video, save a frame, or save a direct media link.',
     aliases: ['VidGrab', 'Reel', 'video downloader'], keywords: ['trim', 'cut', 'download', 'hls', 'm3u8', 'mp4'],
     category: 'media', accepts: ['video/*'], produces: ['video/mp4', 'video/webm'], icon: SquarePlay, load: () => import('@/tools/video'),
     capabilities: ['WebCodecs'], network: 'on-device', networkNote: 'links contact their site', assetDownloadBytes: 0, maturity: 'working',
